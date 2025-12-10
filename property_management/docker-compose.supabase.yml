@@ -1,0 +1,30 @@
+version: '3.8'
+
+# Supabase PostgreSQL Docker Compose
+# Update the DB_PASSWORD with your actual Supabase credentials
+# Get your credentials from: https://app.supabase.com/
+
+services:
+  web:
+    build: .
+    container_name: property_management_app_supabase
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DATABASE_CHOICE=supabase
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_HOST=your-project.supabase.co
+      - DB_PORT=5432
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=your_supabase_password_here
+    networks:
+      - property_network
+
+networks:
+  property_network:
+    driver: bridge

@@ -1,0 +1,274 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Backup Codes - Property Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .backup-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .backup-container h2 {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 0.5rem;
+    }
+
+    .alert {
+        padding: 1.5rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffc107;
+        color: #856404;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        border-color: #17a2b8;
+        color: #0c5460;
+    }
+
+    .alert strong {
+        font-weight: 600;
+    }
+
+    .codes-section {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+        border: 2px solid #e9ecef;
+    }
+
+    .codes-section h3 {
+        color: #2c3e50;
+        margin-top: 0;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .codes-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .code-item {
+        background: white;
+        padding: 1rem;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+        font-family: monospace;
+        text-align: center;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #e74c3c;
+        word-break: break-all;
+        transition: all 0.3s;
+    }
+
+    .code-item:hover {
+        background: #ecf0f1;
+        border-color: #3498db;
+    }
+
+    .code-used {
+        opacity: 0.5;
+        text-decoration: line-through;
+        color: #95a5a6;
+    }
+
+    .code-status {
+        font-size: 0.75rem;
+        color: #7f8c8d;
+        margin-top: 0.5rem;
+        font-family: 'Segoe UI', sans-serif;
+        font-weight: normal;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-secondary {
+        background-color: #95a5a6;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #7f8c8d;
+    }
+
+    .no-codes {
+        text-align: center;
+        padding: 2rem;
+        color: #7f8c8d;
+    }
+
+    .no-codes p {
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .info-box {
+        background: #e8f4f8;
+        border-left: 4px solid #3498db;
+        padding: 1.5rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-box h3 {
+        margin-top: 0;
+        color: #2c3e50;
+        font-size: 1rem;
+    }
+
+    .info-box ul {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .info-box li {
+        margin-bottom: 0.5rem;
+        color: #555;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="backup-container">
+    <h2>Backup Codes</h2>
+
+    <div class="alert alert-warning">
+        <strong>Important:</strong> Save these codes in a safe place. Each code can be used once to access your account if you lose access to your authenticator app.
+    </div>
+
+    <div class="info-box">
+        <h3>How to Use Backup Codes</h3>
+        <ul>
+            <li>Use a backup code when you can't access your authenticator app</li>
+            <li>Enter the backup code at the 2FA prompt during login</li>
+            <li>Each code can only be used once</li>
+            <li>After using a code, it will be marked as used</li>
+        </ul>
+    </div>
+
+    {% if backup_codes and backup_codes.0 %}
+        <div class="codes-section">
+            <h3>Your Backup Codes ({{ backup_codes|length }} available)</h3>
+            <div class="codes-list">
+                {% for code in backup_codes %}
+                    <div class="code-item">
+                        {{ code }}
+                        <div class="code-status">Unused</div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="alert alert-info">
+                <strong>Tip:</strong> Print these codes and store them in a secure location, such as a safe or password manager.
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="printCodes();">Print Codes</button>
+                <a href="{% url 'properties:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="codes-section">
+            <div class="no-codes">
+                <p>No backup codes available yet.</p>
+                <p style="color: #95a5a6; font-size: 0.9rem; margin-top: 1rem;">Enable 2FA to generate backup codes.</p>
+            </div>
+            <div class="button-group">
+                <a href="{% url 'properties:setup_2fa' %}" class="btn btn-primary">Enable 2FA</a>
+                <a href="{% url 'properties:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function printCodes() {
+    const printWindow = window.open('', '', 'height=400,width=600');
+    
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Backup Codes - Property Management System</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 2rem; }
+            h1 { color: #2c3e50; }
+            .warning { color: #e74c3c; font-weight: bold; margin-bottom: 1rem; }
+            .codes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 2rem 0; }
+            .code { 
+                background: #f5f5f5; 
+                padding: 0.75rem; 
+                border: 1px solid #ddd; 
+                font-family: monospace;
+                font-size: 1.1rem;
+            }
+            .footer { margin-top: 2rem; font-size: 0.9rem; color: #7f8c8d; }
+        </style>
+    </head>
+    <body>
+        <h1>Backup Codes</h1>
+        <div class="warning">⚠️ Keep these codes safe and secure</div>
+        <div class="codes">
+            {{ backup_codes|safe }}
+        </div>
+        <div class="footer">
+            <p>Generated: ${new Date().toLocaleString()}</p>
+            <p>Do not share these codes with anyone.</p>
+        </div>
+    </body>
+    </html>
+    `;
+    
+    // Build codes HTML
+    const codesHtml = `{% for code in backup_codes %}<div class="code">{{ code }}</div>{% endfor %}`;
+    
+    const finalHtml = html.replace('{{ backup_codes|safe }}', codesHtml);
+    printWindow.document.write(finalHtml);
+    printWindow.document.close();
+    printWindow.print();
+}
+</script>
+{% endblock %}

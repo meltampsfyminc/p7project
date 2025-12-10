@@ -1,0 +1,357 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Import History - Property Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .history-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .history-title {
+        color: #2c3e50;
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .filter-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-item label {
+        color: #2c3e50;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .filter-item select {
+        padding: 0.5rem;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+        background: white;
+        color: #2c3e50;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .history-table thead {
+        background: #ecf0f1;
+    }
+
+    .history-table th {
+        padding: 1rem;
+        text-align: left;
+        color: #2c3e50;
+        font-weight: 600;
+        border-bottom: 2px solid #bdc3c7;
+    }
+
+    .history-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #ecf0f1;
+        color: #2c3e50;
+    }
+
+    .history-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-align: center;
+        min-width: 80px;
+    }
+
+    .badge-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .badge-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-error {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #7f8c8d;
+    }
+
+    .no-data-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #3498db;
+    }
+
+    .pagination a:hover {
+        background: #ecf0f1;
+    }
+
+    .pagination .current {
+        background: #3498db;
+        color: white;
+        border-color: #3498db;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-small {
+        padding: 0.4rem 0.8rem;
+        background: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+
+    .btn-small:hover {
+        background: #2980b9;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background-color: #95a5a6;
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+        margin-top: 2rem;
+        transition: all 0.3s;
+    }
+
+    .back-button:hover {
+        background-color: #7f8c8d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="history-container">
+    <div class="history-header">
+        <h1 class="history-title">Import History</h1>
+        <a href="{% url 'properties:upload_file' %}" class="btn-small" style="background: #27ae60;">📤 New Upload</a>
+    </div>
+
+    <!-- Statistics Cards -->
+    {% if stats %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.total_imports }}</div>
+                <div class="stat-label">Total Imports</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);">
+                <div class="stat-value">{{ stats.successful_imports }}</div>
+                <div class="stat-label">Successful</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                <div class="stat-value">{{ stats.total_records }}</div>
+                <div class="stat-label">Records Imported</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <form method="get" style="margin: 0;">
+            <div class="filter-group">
+                <div class="filter-item" style="flex: 1; min-width: 200px;">
+                    <label for="status_filter">Filter by Status:</label>
+                    <select name="status" id="status_filter" onchange="this.form.submit();">
+                        <option value="">All Statuses</option>
+                        <option value="success" {% if request.GET.status == 'success' %}selected{% endif %}>Successful</option>
+                        <option value="partial" {% if request.GET.status == 'partial' %}selected{% endif %}>Partial</option>
+                        <option value="error" {% if request.GET.status == 'error' %}selected{% endif %}>Error</option>
+                    </select>
+                </div>
+                {% if request.GET.status %}
+                    <div class="filter-item" style="display: flex; align-items: flex-end;">
+                        <a href="?{% if request.GET.page %}page={{ request.GET.page }}{% endif %}" class="btn-small" style="background: #95a5a6;">Clear Filter</a>
+                    </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Import History Table -->
+    {% if imported_files %}
+        <div class="table-container">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Imported At</th>
+                        <th>Records</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in imported_files %}
+                        <tr>
+                            <td>
+                                <strong>{{ file.filename }}</strong>
+                            </td>
+                            <td>
+                                {{ file.imported_at|date:"M d, Y" }}<br>
+                                <small style="color: #95a5a6;">{{ file.imported_at|time:"H:i" }}</small>
+                            </td>
+                            <td>
+                                <span style="background: #ecf0f1; padding: 0.25rem 0.75rem; border-radius: 4px;">
+                                    {{ file.records_imported|default:"0" }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if file.status == 'success' %}
+                                    <span class="badge badge-success">✓ Success</span>
+                                {% elif file.status == 'partial' %}
+                                    <span class="badge badge-pending">⚠ Partial</span>
+                                {% elif file.status == 'error' %}
+                                    <span class="badge badge-error">✗ Error</span>
+                                {% else %}
+                                    <span class="badge badge-pending">⟳ Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if file.error_message %}
+                                    <small style="color: #c0392b;">
+                                        {{ file.error_message|truncatewords:10 }}
+                                    </small>
+                                {% else %}
+                                    <small style="color: #27ae60;">All records processed</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Previous</a>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="current">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Last</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="no-data">
+            <div class="no-data-icon">📋</div>
+            <p>No import history yet.</p>
+            <p style="margin-top: 1rem;">
+                <a href="{% url 'properties:upload_file' %}" class="btn-small" style="background: #27ae60;">Upload Your First File</a>
+            </p>
+        </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <a href="{% url 'properties:dashboard' %}" class="back-button">← Back to Dashboard</a>
+</div>
+{% endblock %}

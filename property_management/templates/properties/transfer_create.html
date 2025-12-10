@@ -1,0 +1,364 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Create Item Transfer - Property Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .transfer-form-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .form-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #3498db;
+    }
+
+    .form-header h1 {
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #ecf0f1;
+    }
+
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+
+    .form-section-title {
+        color: #2c3e50;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #3498db;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group input[type="datetime-local"],
+    .form-group input[type="number"],
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+        font-size: 1rem;
+        color: #2c3e50;
+        font-family: inherit;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .form-row .form-group {
+        margin-bottom: 0;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+    }
+
+    .checkbox-group label {
+        margin-bottom: 0;
+    }
+
+    .required::after {
+        content: " *";
+        color: #e74c3c;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: #3498db;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+    }
+
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #7f8c8d;
+    }
+
+    .help-text {
+        color: #7f8c8d;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="transfer-form-container">
+    <div class="form-header">
+        <h1>📦 Create Item Transfer</h1>
+        <p style="color: #95a5a6; margin: 0.5rem 0 0 0;">Track item movements between units and storage</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Item Selection Section -->
+        <div class="form-section">
+            <div class="form-section-title">Item Information</div>
+            
+            <div class="form-group">
+                <label for="inventory_item" class="required">Item to Transfer</label>
+                <select name="inventory_item" id="inventory_item" required>
+                    <option value="">-- Select an item --</option>
+                    {% for item in inventory_items %}
+                        <option value="{{ item.id }}">
+                            {{ item.item_name }} (Unit: {{ item.housing_unit.housing_unit_name }}, Qty: {{ item.quantity }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <p class="help-text">Select the item you want to transfer</p>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="quantity" class="required">Quantity to Transfer</label>
+                    <input type="number" name="quantity" id="quantity" value="1" min="1" required>
+                    <p class="help-text">How many units of this item?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transfer Type Section -->
+        <div class="form-section">
+            <div class="form-section-title">Transfer Type</div>
+
+            <div class="form-group">
+                <label for="transfer_type" class="required">Transfer Type</label>
+                <select name="transfer_type" id="transfer_type" onchange="updateTransferType()" required>
+                    <option value="">-- Select transfer type --</option>
+                    <option value="unit_to_unit">Unit to Unit</option>
+                    <option value="unit_to_storage">Unit to Storage (Bodega)</option>
+                    <option value="storage_to_unit">Storage to Unit</option>
+                    <option value="return">Return</option>
+                </select>
+                <p class="help-text">Select the type of transfer</p>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" id="from_unit_group">
+                    <label for="from_unit">From Unit</label>
+                    <select name="from_unit" id="from_unit">
+                        <option value="">-- Select unit --</option>
+                        {% for unit in housing_units %}
+                            <option value="{{ unit.id }}">{{ unit.housing_unit_name }} ({{ unit.occupant_name }})</option>
+                        {% endfor %}
+                    </select>
+                    <p class="help-text">Which unit is the item coming from?</p>
+                </div>
+
+                <div class="form-group" id="to_unit_group">
+                    <label for="to_unit">To Unit</label>
+                    <select name="to_unit" id="to_unit">
+                        <option value="">-- Select unit --</option>
+                        {% for unit in housing_units %}
+                            <option value="{{ unit.id }}">{{ unit.housing_unit_name }} ({{ unit.occupant_name }})</option>
+                        {% endfor %}
+                    </select>
+                    <p class="help-text">Which unit should receive the item?</p>
+                </div>
+
+                <div class="form-group" id="to_storage_group" style="display: none;">
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="to_storage" id="to_storage">
+                        <label for="to_storage">Transfer to Storage/Bodega</label>
+                    </div>
+                    <p class="help-text">Check if item is being sent to storage</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personnel Information Section -->
+        <div class="form-section">
+            <div class="form-section-title">Personnel Information</div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="transferred_by" class="required">Transferred By (Giver)</label>
+                    <input type="text" name="transferred_by" id="transferred_by" placeholder="Name of person giving the item" required>
+                    <p class="help-text">Who is giving/transferring the item?</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="receiver_name" class="required">Receiver Name</label>
+                    <input type="text" name="receiver_name" id="receiver_name" placeholder="Name of person receiving the item" required>
+                    <p class="help-text">Who is receiving the item?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Item Status and Condition Section -->
+        <div class="form-section">
+            <div class="form-section-title">Item Status & Condition</div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="status" class="required">Item Condition</label>
+                    <select name="status" id="status" required>
+                        <option value="good">Good Condition</option>
+                        <option value="damaged">Damaged</option>
+                        <option value="broken">Broken</option>
+                        <option value="lost">Lost</option>
+                    </select>
+                    <p class="help-text">Current condition of the item</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="received_date">Received Date</label>
+                    <input type="date" name="received_date" id="received_date">
+                    <p class="help-text">When was the item received? (optional)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reason and Remarks Section -->
+        <div class="form-section">
+            <div class="form-section-title">Reason & Remarks</div>
+
+            <div class="form-group">
+                <label for="reason" class="required">Reason for Transfer</label>
+                <textarea name="reason" id="reason" placeholder="Why is this item being transferred?" required></textarea>
+                <p class="help-text">Provide the reason for this transfer (e.g., repair, replacement, inventory management, etc.)</p>
+            </div>
+
+            <div class="form-group">
+                <label for="remarks">Additional Remarks</label>
+                <textarea name="remarks" id="remarks" placeholder="Any additional notes or remarks..."></textarea>
+                <p class="help-text">Optional: Any additional information about this transfer</p>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">📦 Create Transfer</button>
+            <a href="{% url 'properties:transfer_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function updateTransferType() {
+        const transferType = document.getElementById('transfer_type').value;
+        const fromUnitGroup = document.getElementById('from_unit_group');
+        const toUnitGroup = document.getElementById('to_unit_group');
+        const toStorageGroup = document.getElementById('to_storage_group');
+        const fromUnit = document.getElementById('from_unit');
+        const toUnit = document.getElementById('to_unit');
+        const toStorage = document.getElementById('to_storage');
+
+        // Reset visibility
+        fromUnitGroup.style.display = 'block';
+        toUnitGroup.style.display = 'block';
+        toStorageGroup.style.display = 'none';
+        fromUnit.required = false;
+        toUnit.required = false;
+
+        if (transferType === 'unit_to_unit') {
+            fromUnit.required = true;
+            toUnit.required = true;
+        } else if (transferType === 'unit_to_storage') {
+            fromUnit.required = true;
+            toUnitGroup.style.display = 'none';
+        } else if (transferType === 'storage_to_unit') {
+            fromUnitGroup.style.display = 'none';
+            toUnit.required = true;
+        } else if (transferType === 'return') {
+            fromUnit.required = true;
+            toUnit.required = true;
+        }
+    }
+</script>
+{% endblock %}

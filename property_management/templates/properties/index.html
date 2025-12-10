@@ -1,0 +1,24 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Home - Property Management System{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 4rem 0;">
+    <h1 style="font-size: 3rem; margin-bottom: 1rem; color: #2c3e50;">Welcome to Property Management</h1>
+    <p style="font-size: 1.2rem; color: #7f8c8d; margin-bottom: 2rem;">Manage your properties, inventory, and documents efficiently</p>
+    
+    {% if not user.is_authenticated %}
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{% url 'properties:login' %}" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">Login</a>
+        </div>
+        <p style="margin-top: 2rem; color: #95a5a6;">Don't have an account? Contact your administrator.</p>
+    {% else %}
+        <p style="margin-bottom: 2rem; color: #95a5a6;">Hello, {{ user.username }}! Ready to manage your properties?</p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'properties:dashboard' %}" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">Go to Dashboard</a>
+            <a href="{% url 'properties:property_list' %}" class="btn btn-success" style="padding: 1rem 2rem; font-size: 1.1rem;">View Properties</a>
+            <a href="{% url 'properties:upload_file' %}" class="btn btn-success" style="padding: 1rem 2rem; font-size: 1.1rem;">Upload Files</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

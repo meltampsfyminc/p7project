@@ -1,0 +1,209 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}{{ housing_unit.unit_number }} - {{ housing_unit.occupant_name }} - Property Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #3498db;
+    }
+
+    .detail-header h1 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .unit-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .meta-item {
+        background: #ecf0f1;
+        padding: 1rem;
+        border-radius: 4px;
+    }
+
+    .meta-label {
+        color: #7f8c8d;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .meta-value {
+        color: #2c3e50;
+        font-weight: bold;
+        margin-top: 0.25rem;
+        font-size: 1.1rem;
+    }
+
+    .inventory-section {
+        margin-top: 2rem;
+    }
+
+    .inventory-section h2 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 0.5rem;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table thead {
+        background-color: #2c3e50;
+        color: white;
+    }
+
+    table th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 500;
+    }
+
+    table td {
+        padding: 1rem;
+        border-bottom: 1px solid #ecf0f1;
+    }
+
+    table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .badge-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .no-items {
+        text-align: center;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+        color: #7f8c8d;
+    }
+
+    .back-button {
+        padding: 0.75rem 1.5rem;
+        background-color: #95a5a6;
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 2rem;
+        transition: all 0.3s;
+    }
+
+    .back-button:hover {
+        background-color: #7f8c8d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <div class="detail-header">
+        <h1>Unit {{ housing_unit.unit_number }} - {{ housing_unit.occupant_name }}</h1>
+        <p style="color: #7f8c8d;">Housing Unit Details for {% if housing_unit.property %}{{ housing_unit.property.name }}{% else %}No Building Assigned{% endif %} Building</p>
+    </div>
+
+    <!-- Unit Information -->
+    <div class="unit-meta">
+        <div class="meta-item">
+            <div class="meta-label">Building</div>
+            <div class="meta-value">{% if housing_unit.property %}{{ housing_unit.property.name }}{% else %}Not Assigned{% endif %}</div>
+        </div>
+        <div class="meta-item">
+            <div class="meta-label">Address</div>
+            <div class="meta-value">{{ housing_unit.address }}</div>
+        </div>
+        <div class="meta-item">
+            <div class="meta-label">Department</div>
+            <div class="meta-value">{{ housing_unit.department }}</div>
+        </div>
+        <div class="meta-item">
+            <div class="meta-label">Section</div>
+            <div class="meta-value">{{ housing_unit.section }}</div>
+        </div>
+        <div class="meta-item">
+            <div class="meta-label">Job Title</div>
+            <div class="meta-value">{{ housing_unit.job_title }}</div>
+        </div>
+        <div class="meta-item">
+            <div class="meta-label">Date Reported</div>
+            <div class="meta-value">{{ housing_unit.date_reported|date:"M d, Y" }}</div>
+        </div>
+        <div class="meta-item">
+            <div class="meta-label">Inventory Items</div>
+            <div class="meta-value">{{ inventory_items|length }}</div>
+        </div>
+    </div>
+
+    <!-- Inventory Items -->
+    <div class="inventory-section">
+        <h2>Inventory Items ({{ inventory_items|length }})</h2>
+        
+        {% if inventory_items %}
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Condition</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in inventory_items %}
+                            <tr>
+                                <td><strong>{{ item.item_name }}</strong></td>
+                                <td>{{ item.category|default:"Uncategorized" }}</td>
+                                <td><span class="badge badge-info">{{ item.quantity }}</span></td>
+                                <td>{{ item.condition|default:"Good" }}</td>
+                                <td>{{ item.location|default:"—" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="no-items">
+                <p>No inventory items found for this housing unit.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Navigation -->
+    <a href="{% url 'properties:property_list' %}" class="back-button">← Back to Properties</a>
+</div>
+{% endblock %}

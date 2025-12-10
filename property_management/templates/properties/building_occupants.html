@@ -1,0 +1,331 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}{{ building_name }} - Building Occupants{% endblock %}
+
+{% block extra_css %}
+<style>
+    .occupants-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .building-header {
+        flex: 1;
+    }
+
+    .building-title {
+        color: #2c3e50;
+        font-size: 2rem;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .building-icon {
+        font-size: 2.5rem;
+        margin-right: 0.5rem;
+        display: inline-block;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .filter-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-item label {
+        color: #2c3e50;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .filter-item select {
+        padding: 0.5rem;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+        background: white;
+        color: #2c3e50;
+    }
+
+    .occupants-table-container {
+        overflow-x: auto;
+    }
+
+    .occupants-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+    }
+
+    .occupants-table thead {
+        background: #ecf0f1;
+    }
+
+    .occupants-table th {
+        padding: 1rem;
+        text-align: left;
+        color: #2c3e50;
+        font-weight: 600;
+        border-bottom: 2px solid #bdc3c7;
+    }
+
+    .occupants-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #ecf0f1;
+        color: #2c3e50;
+    }
+
+    .occupants-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    .occupant-name {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+
+    .unit-link {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .unit-link:hover {
+        text-decoration: underline;
+        color: #2980b9;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .badge-unit {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .badge-dept {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #7f8c8d;
+    }
+
+    .no-data-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: #3498db;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+    }
+
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #7f8c8d;
+    }
+
+    .breadcrumb {
+        margin-bottom: 1rem;
+        color: #95a5a6;
+        font-size: 0.9rem;
+    }
+
+    .breadcrumb a {
+        color: #3498db;
+        text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="occupants-container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="{% url 'properties:dashboard' %}">Dashboard</a>
+        <span> / </span>
+        <a href="{% url 'properties:property_list' %}">Buildings</a>
+        <span> / </span>
+        <strong>{{ building_name }}</strong>
+    </div>
+
+    <!-- Header -->
+    <div class="header-section">
+        <div class="building-header">
+            <h1 class="building-title">
+                <span class="building-icon">🏢</span>{{ building_name }}
+            </h1>
+            <p style="color: #95a5a6; margin: 0;">All occupants in this building</p>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ total_occupants }}</div>
+            <div class="stat-label">Total Occupants</div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);">
+            <div class="stat-value">{{ total_departments }}</div>
+            <div class="stat-label">Department{% if total_departments != 1 %}s{% endif %}</div>
+        </div>
+    </div>
+
+    <!-- Filter Section (Optional) -->
+    {% if total_departments > 1 %}
+        <div class="filter-section">
+            <form method="get" style="margin: 0;">
+                <div class="filter-group">
+                    <div class="filter-item" style="flex: 1; min-width: 200px;">
+                        <label for="dept_filter">Filter by Department:</label>
+                        <select name="dept" id="dept_filter" onchange="this.form.submit();">
+                            <option value="">All Departments</option>
+                            {% for dept in departments %}
+                                <option value="{{ dept }}">{{ dept }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+    <!-- Occupants List -->
+    {% if housing_units %}
+        <div class="occupants-table-container">
+            <table class="occupants-table">
+                <thead>
+                    <tr>
+                        <th>Unit Name</th>
+                        <th>Occupant Name</th>
+                        <th>Department</th>
+                        <th>Section</th>
+                        <th>Job Title</th>
+                        <th>Date Reported</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for unit in housing_units %}
+                        <tr>
+                            <td>
+                                <span class="badge badge-unit">{{ unit.housing_unit_name }}</span>
+                            </td>
+                            <td>
+                                <span class="occupant-name">{{ unit.occupant_name }}</span>
+                            </td>
+                            <td>
+                                <span class="badge badge-dept">{{ unit.department }}</span>
+                            </td>
+                            <td>{{ unit.section }}</td>
+                            <td>{{ unit.job_title }}</td>
+                            <td>{{ unit.date_reported|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'properties:housing_unit_detail' unit.id %}" class="unit-link">View Details →</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="no-data">
+            <div class="no-data-icon">👥</div>
+            <p>No occupants found in this building.</p>
+        </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{% url 'properties:property_list' %}" class="btn btn-secondary">← Back to Buildings</a>
+        <a href="{% url 'properties:dashboard' %}" class="btn btn-secondary">Home</a>
+        <a href="{% url 'properties:inventory_list' %}" class="btn btn-primary">📦 View Inventory</a>
+    </div>
+</div>
+{% endblock %}

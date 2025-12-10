@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: property_management_app_host
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DATABASE_CHOICE=host_postgres
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
+      - DB_NAME=property_management
+      - DB_USER=postgres
+      - DB_PASSWORD=Mbt*7tbm#pg723
+    networks:
+      - property_network
+
+networks:
+  property_network:
+    driver: bridge

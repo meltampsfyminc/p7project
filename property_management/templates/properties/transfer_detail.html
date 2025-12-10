@@ -1,0 +1,434 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Transfer Details - Property Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .transfer-detail-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #3498db;
+    }
+
+    .detail-header h1 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .breadcrumb {
+        color: #95a5a6;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .breadcrumb a {
+        color: #3498db;
+        text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .detail-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #3498db;
+    }
+
+    .section-title {
+        color: #2c3e50;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        background: white;
+        padding: 1rem;
+        border-radius: 4px;
+    }
+
+    .info-label {
+        color: #7f8c8d;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        color: #2c3e50;
+        font-size: 1.05rem;
+        font-weight: 500;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .badge-good {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-damaged {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-broken {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .badge-lost {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    .transfer-flow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 1.5rem 0;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 4px;
+    }
+
+    .flow-location {
+        text-align: center;
+        flex: 1;
+    }
+
+    .flow-location-name {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 1.05rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .flow-location-detail {
+        color: #7f8c8d;
+        font-size: 0.85rem;
+    }
+
+    .flow-arrow {
+        flex: 0 0 auto;
+        text-align: center;
+        color: #3498db;
+        font-size: 1.5rem;
+        margin: 0 1rem;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 4px;
+        border-left: 3px solid #3498db;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -9px;
+        top: 15px;
+        width: 12px;
+        height: 12px;
+        background: #3498db;
+        border-radius: 50%;
+        border: 3px solid white;
+    }
+
+    .timeline-date {
+        color: #3498db;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .timeline-text {
+        color: #2c3e50;
+        margin-top: 0.25rem;
+    }
+
+    .remarks-box {
+        background: #ecf0f1;
+        padding: 1.5rem;
+        border-radius: 4px;
+        border-left: 4px solid #3498db;
+        margin: 1rem 0;
+    }
+
+    .remarks-label {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .remarks-text {
+        color: #555;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: #3498db;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+    }
+
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #7f8c8d;
+    }
+
+    .btn-danger {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #c0392b;
+    }
+
+    .status-box {
+        background: #fff3cd;
+        border: 1px solid #ffeeba;
+        padding: 1rem;
+        border-radius: 4px;
+        margin: 1rem 0;
+    }
+
+    .status-box.completed {
+        background: #d4edda;
+        border-color: #c3e6cb;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="transfer-detail-container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="{% url 'properties:dashboard' %}">Dashboard</a>
+        <span> / </span>
+        <a href="{% url 'properties:transfer_list' %}">Item Transfers</a>
+        <span> / </span>
+        <strong>Transfer #{{ transfer.id }}</strong>
+    </div>
+
+    <!-- Header -->
+    <div class="detail-header">
+        <h1>📦 Transfer #{{ transfer.id }} - {{ transfer.inventory_item.item_name }}</h1>
+        <p style="color: #95a5a6;">Transfer Date: {{ transfer.transfer_date|date:"F j, Y \a\t H:i" }}</p>
+    </div>
+
+    <!-- Status Alert -->
+    <div class="status-box {% if transfer.received_date %}completed{% endif %}">
+        {% if transfer.received_date %}
+            <strong style="color: #155724;">✓ Received on {{ transfer.received_date|date:"F j, Y" }}</strong>
+        {% else %}
+            <strong style="color: #856404;">⏳ Awaiting receipt confirmation</strong>
+        {% endif %}
+    </div>
+
+    <!-- Item Information -->
+    <div class="detail-section">
+        <div class="section-title">📦 Item Information</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Item Name</div>
+                <div class="info-value">{{ transfer.inventory_item.item_name }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Quantity Transferred</div>
+                <div class="info-value">{{ transfer.quantity }} unit{{ transfer.quantity|pluralize }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Item Condition</div>
+                <div class="info-value">
+                    {% if transfer.status == 'good' %}
+                        <span class="badge badge-good">✓ {{ transfer.get_status_display }}</span>
+                    {% elif transfer.status == 'damaged' %}
+                        <span class="badge badge-damaged">⚠ {{ transfer.get_status_display }}</span>
+                    {% elif transfer.status == 'broken' %}
+                        <span class="badge badge-broken">✗ {{ transfer.get_status_display }}</span>
+                    {% else %}
+                        <span class="badge badge-lost">❌ {{ transfer.get_status_display }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Transfer Type</div>
+                <div class="info-value">{{ transfer.get_transfer_type_display }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Flow -->
+    <div class="detail-section">
+        <div class="section-title">📍 Transfer Flow</div>
+        <div class="transfer-flow">
+            <div class="flow-location">
+                <div class="flow-location-name">{{ transfer.get_source }}</div>
+                <div class="flow-location-detail">
+                    {% if transfer.from_unit %}
+                        Unit: {{ transfer.from_unit.housing_unit_name }}<br>
+                        <small>{{ transfer.from_unit.occupant_name }}</small>
+                    {% else %}
+                        Storage/Bodega
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-location">
+                <div class="flow-location-name">{{ transfer.get_destination }}</div>
+                <div class="flow-location-detail">
+                    {% if transfer.to_unit %}
+                        Unit: {{ transfer.to_unit.housing_unit_name }}<br>
+                        <small>{{ transfer.to_unit.occupant_name }}</small>
+                    {% elif transfer.to_storage %}
+                        Storage/Bodega
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personnel Information -->
+    <div class="detail-section">
+        <div class="section-title">👥 Personnel Information</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Transferred By (Giver)</div>
+                <div class="info-value">{{ transfer.transferred_by }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Receiver Name</div>
+                <div class="info-value">{{ transfer.receiver_name }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="detail-section">
+        <div class="section-title">📅 Timeline</div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-date">Transferred: {{ transfer.transfer_date|date:"F j, Y \a\t H:i" }}</div>
+                <div class="timeline-text">Item transferred from {{ transfer.get_source }} to {{ transfer.get_destination }}</div>
+            </div>
+            {% if transfer.received_date %}
+                <div class="timeline-item">
+                    <div class="timeline-date">Received: {{ transfer.received_date|date:"F j, Y" }}</div>
+                    <div class="timeline-text">Item received by {{ transfer.receiver_name }}</div>
+                </div>
+            {% else %}
+                <div class="timeline-item">
+                    <div class="timeline-date">Pending</div>
+                    <div class="timeline-text">Awaiting receipt confirmation</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Reason for Transfer -->
+    <div class="detail-section">
+        <div class="section-title">📝 Reason for Transfer</div>
+        <div class="remarks-box">
+            <div class="remarks-text">{{ transfer.reason }}</div>
+        </div>
+    </div>
+
+    <!-- Additional Remarks -->
+    {% if transfer.remarks %}
+        <div class="detail-section">
+            <div class="section-title">💬 Additional Remarks</div>
+            <div class="remarks-box">
+                <div class="remarks-text">{{ transfer.remarks }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Metadata -->
+    <div class="detail-section" style="border-left: 4px solid #95a5a6;">
+        <div class="section-title" style="color: #7f8c8d;">ℹ️ Record Information</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Created At</div>
+                <div class="info-value" style="font-size: 0.9rem;">{{ transfer.created_at|date:"F j, Y H:i" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Last Updated</div>
+                <div class="info-value" style="font-size: 0.9rem;">{{ transfer.updated_at|date:"F j, Y H:i" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Transfer ID</div>
+                <div class="info-value" style="font-size: 0.9rem; font-family: monospace;">{{ transfer.id }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{% url 'properties:transfer_list' %}" class="btn btn-secondary">← Back to Transfers</a>
+        <a href="{% url 'properties:transfer_history' %}" class="btn btn-secondary">View History</a>
+        <a href="{% url 'properties:dashboard' %}" class="btn btn-secondary">Home</a>
+    </div>
+</div>
+{% endblock %}

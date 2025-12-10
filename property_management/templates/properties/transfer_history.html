@@ -1,0 +1,350 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Transfer History - Property Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .history-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .history-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .history-header h1 {
+        color: #2c3e50;
+        margin: 0;
+        font-size: 1.8rem;
+    }
+
+    .filter-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .filter-item label {
+        color: #2c3e50;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .filter-item select {
+        padding: 0.5rem;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+        background: white;
+        color: #2c3e50;
+    }
+
+    .history-timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+
+    .history-timeline::before {
+        content: '';
+        position: absolute;
+        left: 5px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #ecf0f1;
+    }
+
+    .timeline-entry {
+        position: relative;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #3498db;
+    }
+
+    .timeline-entry::before {
+        content: '';
+        position: absolute;
+        left: -13px;
+        top: 20px;
+        width: 14px;
+        height: 14px;
+        background: white;
+        border: 3px solid #3498db;
+        border-radius: 50%;
+    }
+
+    .timeline-date {
+        color: #3498db;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .timeline-item-name {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 1.05rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .timeline-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .detail-box {
+        background: white;
+        padding: 0.75rem;
+        border-radius: 4px;
+        border-left: 3px solid #3498db;
+    }
+
+    .detail-label {
+        color: #7f8c8d;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: 500;
+    }
+
+    .detail-value {
+        color: #2c3e50;
+        font-weight: 500;
+        margin-top: 0.25rem;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .badge-good {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-damaged {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-broken {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #7f8c8d;
+    }
+
+    .no-data-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: #3498db;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+    }
+
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #7f8c8d;
+    }
+
+    .flow-indicator {
+        font-size: 1.2rem;
+        color: #3498db;
+    }
+
+    .transfer-link {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .transfer-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="history-container">
+    <!-- Header -->
+    <div class="history-header">
+        <h1>📜 Transfer History</h1>
+        <p style="color: #95a5a6; margin: 0.5rem 0 0 0;">Complete record of all item transfers and movements</p>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <form method="get" style="margin: 0;">
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label for="item_filter">Filter by Item:</label>
+                    <select name="item" id="item_filter" onchange="this.form.submit();">
+                        <option value="">All Items</option>
+                        {% for item in inventory_items %}
+                            <option value="{{ item.id }}" {% if selected_item == item.id|stringformat:"s" %}selected{% endif %}>
+                                {{ item.item_name }} (Unit: {{ item.housing_unit.housing_unit_name }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if selected_item %}
+                    <div class="filter-item" style="display: flex; align-items: flex-end;">
+                        <a href="?" style="padding: 0.5rem 1rem; background: #95a5a6; color: white; text-decoration: none; border-radius: 4px; font-weight: 500;">Clear Filter</a>
+                    </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Transfer History Timeline -->
+    {% if transfers %}
+        <div class="history-timeline">
+            {% for transfer in transfers %}
+                <div class="timeline-entry">
+                    <div class="timeline-date">
+                        📅 {{ transfer.transfer_date|date:"F j, Y \a\t H:i A" }}
+                    </div>
+                    <div class="timeline-item-name">
+                        📦 {{ transfer.inventory_item.item_name }}
+                        <span style="color: #95a5a6; font-weight: normal; font-size: 0.85rem;">(Qty: {{ transfer.quantity }})</span>
+                    </div>
+
+                    <div class="timeline-details">
+                        <div class="detail-box">
+                            <div class="detail-label">From</div>
+                            <div class="detail-value">{{ transfer.get_source }}</div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-label">To</div>
+                            <div class="detail-value">{{ transfer.get_destination }}</div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-label">Receiver</div>
+                            <div class="detail-value">{{ transfer.receiver_name }}</div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-label">Status</div>
+                            <div class="detail-value">
+                                {% if transfer.status == 'good' %}
+                                    <span class="badge badge-good">✓ Good</span>
+                                {% elif transfer.status == 'damaged' %}
+                                    <span class="badge badge-damaged">⚠ Damaged</span>
+                                {% elif transfer.status == 'broken' %}
+                                    <span class="badge badge-broken">✗ Broken</span>
+                                {% else %}
+                                    <span class="badge" style="background: #e2e3e5; color: #383d41;">Lost</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-label">Received</div>
+                            <div class="detail-value">
+                                {% if transfer.received_date %}
+                                    {{ transfer.received_date|date:"M d, Y" }}
+                                {% else %}
+                                    <span style="color: #f39c12;">Pending</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-label">Type</div>
+                            <div class="detail-value">{{ transfer.get_transfer_type_display }}</div>
+                        </div>
+                    </div>
+
+                    {% if transfer.reason %}
+                        <div style="margin-top: 1rem; padding: 0.75rem; background: white; border-radius: 4px; border-left: 3px solid #3498db;">
+                            <div style="color: #7f8c8d; font-size: 0.8rem; text-transform: uppercase; font-weight: 500;">Reason</div>
+                            <div style="color: #2c3e50; margin-top: 0.25rem;">{{ transfer.reason }}</div>
+                        </div>
+                    {% endif %}
+
+                    <div style="margin-top: 1rem;">
+                        <a href="{% url 'properties:transfer_detail' transfer.id %}" class="transfer-link">View Full Details →</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-data">
+            <div class="no-data-icon">📜</div>
+            <p>No transfer history found.</p>
+            {% if selected_item %}
+                <p style="color: #3498db; margin-top: 1rem;">
+                    <a href="?" style="color: inherit; font-weight: 500;">Clear filter to see all transfers</a>
+                </p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{% url 'properties:transfer_list' %}" class="btn btn-primary">← Back to Transfers</a>
+        <a href="{% url 'properties:transfer_create' %}" class="btn btn-primary">+ New Transfer</a>
+        <a href="{% url 'properties:dashboard' %}" class="btn btn-secondary">Home</a>
+    </div>
+</div>
+{% endblock %}

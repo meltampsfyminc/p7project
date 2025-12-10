@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: property_management_db
+    environment:
+      POSTGRES_DB: property_management
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Mbt*7tbm#pg723
+    ports:
+      - "5432:5432"
+    volumes:
+      # Persistent volume for database data
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - property_network
+
+  web:
+    build: .
+    container_name: property_management_app
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DATABASE_CHOICE=docker_postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=property_management
+      - DB_USER=postgres
+      - DB_PASSWORD=Mbt*7tbm#pg723
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - property_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  property_network:
+    driver: bridge

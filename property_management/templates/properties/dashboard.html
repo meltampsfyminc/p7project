@@ -1,0 +1,257 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Dashboard - Property Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #3498db;
+        margin: 0.5rem 0;
+    }
+
+    .stat-label {
+        color: #7f8c8d;
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+    }
+
+    .dashboard-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-section h3 {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 0.5rem;
+    }
+
+    .user-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .user-info-item {
+        background: #ecf0f1;
+        padding: 1rem;
+        border-radius: 4px;
+    }
+
+    .user-info-label {
+        color: #7f8c8d;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .user-info-value {
+        color: #2c3e50;
+        font-weight: bold;
+        margin-top: 0.25rem;
+    }
+
+    .settings-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .settings-buttons .btn {
+        padding: 0.75rem 1.5rem;
+    }
+
+    .recent-imports {
+        list-style: none;
+    }
+
+    .recent-imports li {
+        padding: 1rem;
+        border-bottom: 1px solid #ecf0f1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .recent-imports li:last-child {
+        border-bottom: none;
+    }
+
+    .import-name {
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    .import-date {
+        color: #95a5a6;
+        font-size: 0.9rem;
+    }
+
+    .badge {
+        background-color: #3498db;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .badge-success {
+        background-color: #27ae60;
+    }
+
+    .badge-warning {
+        background-color: #f39c12;
+    }
+
+    .fa-badge {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background-color: #27ae60;
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 20px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        margin-left: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 style="color: #2c3e50; margin-bottom: 2rem;">Dashboard</h1>
+
+<!-- Statistics -->
+<div class="dashboard">
+    <div class="stat-card">
+        <div style="font-size: 2rem;">🏠</div>
+        <div class="stat-number">{{ properties }}</div>
+        <div class="stat-label">Properties</div>
+    </div>
+    <div class="stat-card">
+        <div style="font-size: 2rem;">🏢</div>
+        <div class="stat-number">{{ housing_units }}</div>
+        <div class="stat-label">Housing Units</div>
+    </div>
+    <div class="stat-card">
+        <div style="font-size: 2rem;">📦</div>
+        <div class="stat-number">{{ inventory_items }}</div>
+        <div class="stat-label">Inventory Items</div>
+    </div>
+    <div class="stat-card">
+        <div style="font-size: 2rem;">📄</div>
+        <div class="stat-number">{{ imported_files }}</div>
+        <div class="stat-label">Files Imported</div>
+    </div>
+    <div class="stat-card">
+        <div style="font-size: 2rem;">🔄</div>
+        <div class="stat-number">{{ transfers|default:"0" }}</div>
+        <div class="stat-label">Item Transfers</div>
+    </div>
+</div>
+
+<!-- User Account Section -->
+<div class="dashboard-section">
+    <h3>Account Settings</h3>
+    
+    <div class="user-info">
+        <div class="user-info-item">
+            <div class="user-info-label">Username</div>
+            <div class="user-info-value">{{ user.username }}</div>
+        </div>
+        <div class="user-info-item">
+            <div class="user-info-label">Email</div>
+            <div class="user-info-value">{{ user.email|default:"Not set" }}</div>
+        </div>
+        <div class="user-info-item">
+            <div class="user-info-label">2FA Status</div>
+            <div class="user-info-value">
+                {% if profile.is_2fa_enabled %}
+                    <span class="badge badge-success">Enabled ✓</span>
+                {% else %}
+                    <span class="badge badge-warning">Disabled</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="user-info-item">
+            <div class="user-info-label">Last Login</div>
+            <div class="user-info-value">{{ profile.last_login_date|default:"Never" }}</div>
+        </div>
+    </div>
+
+    <div class="settings-buttons">
+        <a href="{% url 'properties:setup_2fa' %}" class="btn btn-primary">
+            {% if profile.is_2fa_enabled %}
+                Manage 2FA
+            {% else %}
+                Enable 2FA
+            {% endif %}
+        </a>
+        {% if profile.is_2fa_enabled %}
+            <a href="{% url 'properties:view_backup_codes' %}" class="btn btn-success">View Backup Codes</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Recent Imports Section -->
+<div class="dashboard-section">
+    <h3>Recent File Imports</h3>
+    {% if recent_imports %}
+        <ul class="recent-imports">
+            {% for import in recent_imports %}
+                <li>
+                    <div>
+                        <div class="import-name">{{ import.filename }}</div>
+                        <div class="import-date">{{ import.imported_at|date:"M d, Y H:i" }}</div>
+                    </div>
+                    <span class="badge badge-success">Imported</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p style="color: #95a5a6;">No files imported yet. <a href="{% url 'properties:upload_file' %}">Upload a file</a></p>
+    {% endif %}
+</div>
+
+<!-- Quick Actions -->
+<div class="dashboard-section">
+    <h3>Quick Actions</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+        <a href="{% url 'properties:property_list' %}" class="btn btn-primary" style="padding: 1rem; text-align: center; display: block;">View Properties</a>
+        <a href="{% url 'properties:inventory_list' %}" class="btn btn-primary" style="padding: 1rem; text-align: center; display: block;">Manage Inventory</a>
+        <a href="{% url 'properties:upload_file' %}" class="btn btn-success" style="padding: 1rem; text-align: center; display: block;">Upload File</a>
+        <a href="{% url 'properties:import_history' %}" class="btn btn-primary" style="padding: 1rem; text-align: center; display: block;">Import History</a>
+        <a href="{% url 'properties:transfer_list' %}" class="btn btn-primary" style="padding: 1rem; text-align: center; display: block;">View Transfers</a>
+        <a href="{% url 'properties:transfer_create' %}" class="btn btn-success" style="padding: 1rem; text-align: center; display: block;">New Transfer</a>
+    </div>
+</div>
+{% endblock %}

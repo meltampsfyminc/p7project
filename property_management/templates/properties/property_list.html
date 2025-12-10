@@ -1,0 +1,337 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Properties - Property Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .properties-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-title {
+        color: #2c3e50;
+        margin-top: 2.5rem;
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #3498db;
+    }
+
+    .section-title:first-of-type {
+        margin-top: 0;
+    }
+
+    .buildings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .building-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .building-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .building-name {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 0.75rem;
+    }
+
+    .occupant-count {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .occupant-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 1rem;
+    }
+
+    .building-card a {
+        display: inline-block;
+        background: white;
+        color: #667eea;
+        padding: 0.6rem 1.2rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .building-card a:hover {
+        background: #f0f0f0;
+        color: #764ba2;
+    }
+
+    .properties-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .property-card {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1.5rem;
+        transition: all 0.3s;
+    }
+
+    .property-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-5px);
+    }
+
+    .property-name {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .property-info {
+        color: #7f8c8d;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .property-info strong {
+        color: #2c3e50;
+    }
+
+    .housing-units-list {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .housing-units-list h4 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .units-count {
+        display: inline-block;
+        background-color: #3498db;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .housing-units-table {
+        width: 100%;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+
+    .housing-units-table th {
+        text-align: left;
+        padding: 0.5rem;
+        border-bottom: 1px solid #e9ecef;
+        color: #555;
+        font-weight: 500;
+    }
+
+    .housing-units-table td {
+        padding: 0.5rem;
+        border-bottom: 1px solid #ecf0f1;
+    }
+
+    .housing-units-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 0.85rem;
+        text-align: center;
+        flex: 1;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-secondary {
+        background-color: #95a5a6;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #7f8c8d;
+    }
+
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat {
+        background: #ecf0f1;
+        padding: 1rem;
+        border-radius: 4px;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #3498db;
+    }
+
+    .stat-label {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 2rem;
+        color: #7f8c8d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="properties-container">
+    <h1 style="color: #2c3e50; margin-bottom: 2rem;">Properties & Buildings</h1>
+
+    <!-- Statistics -->
+    <div class="stats">
+        <div class="stat">
+            <div class="stat-number">{{ properties|length }}</div>
+            <div class="stat-label">Total Properties</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">{{ property_info|length }}</div>
+            <div class="stat-label">Buildings</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">{{ housing_units|length }}</div>
+            <div class="stat-label">Occupants</div>
+        </div>
+    </div>
+
+    <!-- Buildings Section -->
+    {% if property_info %}
+        <h2 class="section-title">Buildings & Occupants</h2>
+        <div class="buildings-grid">
+            {% for building in property_info %}
+                <div class="building-card">
+                    <div class="building-name">🏢 {{ building.name }}</div>
+                    <div class="occupant-count">{{ building.occupant_count }}</div>
+                    <div class="occupant-label">Occupant{% if building.occupant_count != 1 %}s{% endif %}</div>
+                    <a href="{% url 'properties:building_occupants' building.id %}">View All Occupants →</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-data">
+            <p>No buildings found.</p>
+        </div>
+    {% endif %}
+
+    <!-- Properties Section -->
+    {% if properties %}
+        <h2 class="section-title">Properties</h2>
+        <div class="properties-grid">
+            {% for property in properties %}
+                <div class="property-card">
+                    <div class="property-name">{{ property.name }}</div>
+                    <div class="property-info">
+                        <strong>Address:</strong> {{ property.address }}<br>
+                        <strong>Type:</strong> {{ property.property_type }}<br>
+                        <strong>Units:</strong> <span class="units-count">{{ property.housing_units.count }}</span>
+                    </div>
+                    
+                    {% if property.housing_units.all %}
+                        <div class="housing-units-list">
+                            <h4>Housing Units ({{ property.housing_units.count }})</h4>
+                            <table class="housing-units-table">
+                                <thead>
+                                    <tr>
+                                        <th>Unit</th>
+                                        <th>Items</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for unit in property.housing_units.all %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'properties:housing_unit_detail' unit.id %}" style="color: #3498db; text-decoration: none;">
+                                                    {{ unit.unit_number }}
+                                                </a>
+                                            </td>
+                                            <td>{{ unit.inventory_items.count }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="property-info" style="background: #f0f0f0; padding: 0.5rem; border-radius: 4px; margin-top: 0.5rem;">
+                            No housing units
+                        </div>
+                    {% endif %}
+
+                    <div class="btn-group">
+                        <a href="{% url 'properties:inventory_list' %}" class="btn btn-primary">View Inventory</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-data">
+            <p>No properties found.</p>
+            <p style="margin-top: 1rem; color: #95a5a6;">Import files to populate property data.</p>
+        </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'properties:dashboard' %}" class="btn btn-secondary" style="padding: 0.75rem 1.5rem; display: inline-block;">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

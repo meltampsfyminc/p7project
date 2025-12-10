@@ -1,0 +1,353 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Item Transfers - Property Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .transfer-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .header-title h1 {
+        color: #2c3e50;
+        margin: 0;
+        font-size: 1.8rem;
+    }
+
+    .btn-new-transfer {
+        background: #27ae60;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .btn-new-transfer:hover {
+        background: #229954;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .stat-card.pending {
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    }
+
+    .stat-card.good {
+        background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+    }
+
+    .stat-card.damaged {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+    .filter-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-item label {
+        color: #2c3e50;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .filter-item select {
+        padding: 0.5rem;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+        background: white;
+        color: #2c3e50;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .transfer-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .transfer-table thead {
+        background: #ecf0f1;
+    }
+
+    .transfer-table th {
+        padding: 1rem;
+        text-align: left;
+        color: #2c3e50;
+        font-weight: 600;
+        border-bottom: 2px solid #bdc3c7;
+    }
+
+    .transfer-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #ecf0f1;
+        color: #2c3e50;
+    }
+
+    .transfer-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    .transfer-row-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .transfer-row-link:hover {
+        color: #3498db;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .badge-good {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-damaged {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-broken {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .badge-lost {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    .transfer-icon {
+        font-size: 1.2rem;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #7f8c8d;
+    }
+
+    .no-data-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background-color: #95a5a6;
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+        margin-top: 2rem;
+        transition: all 0.3s;
+    }
+
+    .back-button:hover {
+        background-color: #7f8c8d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="transfer-container">
+    <!-- Header -->
+    <div class="header-section">
+        <div class="header-title">
+            <h1>📦 Item Transfers & Pullouts</h1>
+        </div>
+        <a href="{% url 'properties:transfer_create' %}" class="btn-new-transfer">+ New Transfer</a>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ total_transfers }}</div>
+            <div class="stat-label">Total Transfers</div>
+        </div>
+        <div class="stat-card pending">
+            <div class="stat-value">{{ pending_received }}</div>
+            <div class="stat-label">Pending Receipt</div>
+        </div>
+        <div class="stat-card good">
+            <div class="stat-value">{{ good_condition }}</div>
+            <div class="stat-label">Good Condition</div>
+        </div>
+        <div class="stat-card damaged">
+            <div class="stat-value">{{ damaged_items }}</div>
+            <div class="stat-label">Damaged/Broken</div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <form method="get" style="margin: 0;">
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label for="status_filter">Filter by Status:</label>
+                    <select name="status" id="status_filter" onchange="this.form.submit();">
+                        <option value="">All Statuses</option>
+                        <option value="good" {% if selected_status == 'good' %}selected{% endif %}>Good Condition</option>
+                        <option value="damaged" {% if selected_status == 'damaged' %}selected{% endif %}>Damaged</option>
+                        <option value="broken" {% if selected_status == 'broken' %}selected{% endif %}>Broken</option>
+                        <option value="lost" {% if selected_status == 'lost' %}selected{% endif %}>Lost</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="type_filter">Filter by Type:</label>
+                    <select name="type" id="type_filter" onchange="this.form.submit();">
+                        <option value="">All Types</option>
+                        <option value="unit_to_unit" {% if selected_type == 'unit_to_unit' %}selected{% endif %}>Unit to Unit</option>
+                        <option value="unit_to_storage" {% if selected_type == 'unit_to_storage' %}selected{% endif %}>Unit to Storage</option>
+                        <option value="storage_to_unit" {% if selected_type == 'storage_to_unit' %}selected{% endif %}>Storage to Unit</option>
+                        <option value="return" {% if selected_type == 'return' %}selected{% endif %}>Return</option>
+                    </select>
+                </div>
+                {% if selected_status or selected_type %}
+                    <div class="filter-item" style="display: flex; align-items: flex-end;">
+                        <a href="?{% if 'page' in request.GET %}?page={{ request.GET.page }}{% endif %}" class="btn-new-transfer" style="background: #95a5a6; padding: 0.5rem 1rem; margin: 0;">Clear Filters</a>
+                    </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Transfer Table -->
+    {% if transfers %}
+        <div class="table-container">
+            <table class="transfer-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>From → To</th>
+                        <th>Receiver</th>
+                        <th>Status</th>
+                        <th>Transfer Date</th>
+                        <th>Received Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transfer in transfers %}
+                        <tr>
+                            <td>
+                                <strong>{{ transfer.inventory_item.item_name }}</strong><br>
+                                <small style="color: #95a5a6;">Qty: {{ transfer.quantity }}</small>
+                            </td>
+                            <td>
+                                <span class="transfer-icon">📦</span><br>
+                                <small>
+                                    {{ transfer.get_source }}<br>
+                                    <strong>→</strong><br>
+                                    {{ transfer.get_destination }}
+                                </small>
+                            </td>
+                            <td>{{ transfer.receiver_name }}</td>
+                            <td>
+                                {% if transfer.status == 'good' %}
+                                    <span class="badge badge-good">✓ {{ transfer.get_status_display }}</span>
+                                {% elif transfer.status == 'damaged' %}
+                                    <span class="badge badge-damaged">⚠ {{ transfer.get_status_display }}</span>
+                                {% elif transfer.status == 'broken' %}
+                                    <span class="badge badge-broken">✗ {{ transfer.get_status_display }}</span>
+                                {% else %}
+                                    <span class="badge badge-lost">❌ {{ transfer.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ transfer.transfer_date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if transfer.received_date %}
+                                    {{ transfer.received_date|date:"M d, Y" }}
+                                {% else %}
+                                    <small style="color: #f39c12;">Pending</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'properties:transfer_detail' transfer.id %}" style="color: #3498db; text-decoration: none;">View →</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="no-data">
+            <div class="no-data-icon">📦</div>
+            <p>No transfers found.</p>
+            <p style="margin-top: 1rem;">
+                <a href="{% url 'properties:transfer_create' %}" class="btn-new-transfer">Create the First Transfer</a>
+            </p>
+        </div>
+    {% endif %}
+
+    <!-- Navigation -->
+    <div>
+        <a href="{% url 'properties:dashboard' %}" class="back-button">← Back to Dashboard</a>
+        <a href="{% url 'properties:transfer_history' %}" class="back-button" style="background: #3498db; margin-left: 0.5rem;">View Transfer History</a>
+    </div>
+</div>
+{% endblock %}

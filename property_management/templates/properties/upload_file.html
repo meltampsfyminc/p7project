@@ -1,0 +1,308 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Upload File - Property Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-section {
+        background: #f8f9fa;
+        border: 2px dashed #3498db;
+        border-radius: 8px;
+        padding: 3rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-bottom: 2rem;
+    }
+
+    .upload-section:hover {
+        background: #ecf0f1;
+        border-color: #2980b9;
+    }
+
+    .upload-section input[type="file"] {
+        display: none;
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .upload-text {
+        color: #2c3e50;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-subtext {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    .btn-upload {
+        padding: 0.75rem 1.5rem;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-top: 1rem;
+        transition: all 0.3s;
+    }
+
+    .btn-upload:hover {
+        background-color: #2980b9;
+    }
+
+    .file-info {
+        background: #ecf0f1;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+        display: none;
+    }
+
+    .file-info.show {
+        display: block;
+    }
+
+    .file-name {
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    .message {
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+    }
+
+    .message-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .message-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .message-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+
+    .recent-uploads {
+        margin-top: 3rem;
+    }
+
+    .recent-uploads h2 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 0.5rem;
+    }
+
+    .upload-list {
+        list-style: none;
+    }
+
+    .upload-item {
+        padding: 1rem;
+        border-bottom: 1px solid #ecf0f1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .upload-item:last-child {
+        border-bottom: none;
+    }
+
+    .upload-item-info {
+        flex: 1;
+    }
+
+    .upload-item-name {
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    .upload-item-date {
+        color: #95a5a6;
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+
+    .badge {
+        display: inline-block;
+        background-color: #27ae60;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .no-uploads {
+        text-align: center;
+        padding: 2rem;
+        color: #7f8c8d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <h1 style="color: #2c3e50; margin-bottom: 2rem;">Upload File</h1>
+
+    <div class="message message-info">
+        <strong>Supported formats:</strong> Excel (.xls, .xlsx) and PDF files
+    </div>
+
+    <!-- Upload Form -->
+    <form id="uploadForm" method="post" enctype="multipart/form-data" style="margin-bottom: 2rem;">
+        {% csrf_token %}
+        
+        <div class="upload-section" id="uploadSection">
+            <input type="file" id="fileInput" name="file" accept=".xls,.xlsx,.pdf" required>
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">Drag and drop your file here</div>
+            <div class="upload-subtext">or click to select from your computer</div>
+            <button type="button" class="btn-upload" onclick="document.getElementById('fileInput').click();">Choose File</button>
+        </div>
+
+        <div class="file-info" id="fileInfo">
+            <div class="file-name" id="fileName"></div>
+            <button type="submit" class="btn-upload" style="margin-top: 1rem;">Upload & Import</button>
+            <button type="button" class="btn-upload" style="background-color: #95a5a6; margin-top: 1rem; margin-left: 0.5rem;" onclick="resetForm();">Cancel</button>
+        </div>
+    </form>
+
+    <!-- Recent Uploads -->
+    {% if imported_files %}
+        <div class="recent-uploads">
+            <h2>Recent Uploads</h2>
+            <ul class="upload-list">
+                {% for file in imported_files %}
+                    <li class="upload-item">
+                        <div class="upload-item-info">
+                            <div class="upload-item-name">{{ file.filename }}</div>
+                            <div class="upload-item-date">{{ file.imported_at|date:"M d, Y H:i" }}</div>
+                        </div>
+                        <span class="badge">Imported</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <div class="recent-uploads">
+            <h2>Recent Uploads</h2>
+            <div class="no-uploads">
+                <p>No files uploaded yet.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'properties:dashboard' %}" style="padding: 0.75rem 1.5rem; background-color: #95a5a6; color: white; border-radius: 4px; text-decoration: none; display: inline-block;">Back to Dashboard</a>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const uploadSection = document.getElementById('uploadSection');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const uploadForm = document.getElementById('uploadForm');
+
+    // File input change handler
+    fileInput.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            fileName.textContent = '📄 ' + file.name + ' (' + (file.size / 1024).toFixed(2) + ' KB)';
+            uploadSection.style.display = 'none';
+            fileInfo.classList.add('show');
+        }
+    });
+
+    // Drag and drop handlers
+    uploadSection.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.background = '#e8f4f8';
+        this.style.borderColor = '#2980b9';
+    });
+
+    uploadSection.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.style.background = '#f8f9fa';
+        this.style.borderColor = '#3498db';
+    });
+
+    uploadSection.addEventListener('drop', function(e) {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files && files[0]) {
+            fileInput.files = files;
+            const event = new Event('change', { bubbles: true });
+            fileInput.dispatchEvent(event);
+        }
+    });
+
+    // Reset form
+    function resetForm() {
+        fileInput.value = '';
+        uploadSection.style.display = 'block';
+        fileInfo.classList.remove('show');
+    }
+
+    // Form submission
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Uploading...';
+
+        fetch('{% url "properties:upload_file" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('File imported successfully!');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Upload & Import';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred during upload.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Upload & Import';
+        });
+    });
+</script>
+{% endblock %}
