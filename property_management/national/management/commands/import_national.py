@@ -14,7 +14,8 @@ from national.models import (
     Land, LandSummary, Plant, PlantSummary, Vehicle, VehicleSummary,
     ReportSummary
 )
-from property_management.national import models
+from national import models
+
 
 User = get_user_model()
 
@@ -112,6 +113,7 @@ class Command(BaseCommand):
         if not dcode:
             dcode = '00000'
         district, _ = District.objects.get_or_create(dcode=dcode, defaults={'name': ''})
+        print("DEBUG LCODE:", repr(lcode))
         local, _ = Local.objects.get_or_create(district=district, lcode=lcode or '000', defaults={'name': lokal_name or ''})
         report, created = Report.objects.get_or_create(local=local, year=year or 0, defaults={'filename': path, 'uploaded_by': uploader})
 

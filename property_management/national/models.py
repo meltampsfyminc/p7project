@@ -15,7 +15,7 @@ class District(models.Model):
 
 class Local(models.Model):
     district = models.ForeignKey(District, on_delete=models.CASCADE, related_name="locals")
-    lcode = models.CharField(max_length=10)
+    lcode = models.CharField(max_length=20)
     name = models.CharField(max_length=255, blank=True)
 
     class Meta:
