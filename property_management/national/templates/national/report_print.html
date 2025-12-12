@@ -1,0 +1,57 @@
+{% load static %}
+<html>
+<head>
+    <style>
+        body { font-family: DejaVu Sans; font-size: 12px; }
+        h1, h2 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+        th, td { border: 1px solid #222; padding: 4px; }
+        th { background: #f0f0f0; }
+    </style>
+</head>
+<body>
+
+<h1>NATIONAL REPORT</h1>
+<h2>{{ district.name }} ({{ district.dcode }}) — {{ local.name }} ({{ local.lcode }})</h2>
+<h3>Year: {{ report.year }}</h3>
+
+<hr>
+
+<h2>Page 1 — Buildings</h2>
+{% include "national/sections/page1.html" %}
+
+<h2>Page 2 — Items</h2>
+{% include "national/sections/page2.html" %}
+
+<h2>Page 3 — Added Items</h2>
+{% include "national/sections/page3.html" %}
+
+<h2>Page 4 — Subtracted Items</h2>
+{% include "national/sections/page4.html" %}
+
+<h2>Page 5 — Lands, Plants, Vehicles</h2>
+{% include "national/sections/page5.html" %}
+
+<hr>
+
+<h2>Summary Totals</h2>
+{% if summary %}
+<table>
+    <tr>
+        <th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>Total</th>
+    </tr>
+    <tr>
+        <td>{{ summary.p1_total }}</td>
+        <td>{{ summary.p2_total }}</td>
+        <td>{{ summary.p3_total }}</td>
+        <td>{{ summary.p4_total }}</td>
+        <td>{{ summary.p5_total }}</td>
+        <td>{{ summary.total_summary }}</td>
+    </tr>
+</table>
+{% else %}
+No summary data.
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+Page 1 - it is about buildings: chapels, pastoral houses, offices, other buildings(Pump house, guard house)
+
+
+Common Data about the buildings are:  Year (covered of the report), Lokal, Distrito, Date Reported (petsa ng pag-uulat),
+Dcode (district code: e.g.01009), lcode (local code: 003), 
+
+A.For Chapels:
+   Class : Concrete(A-1),Concrete(A-2), Concrete(A-3)
+   seating capacity: ______ (integer)
+   Offered or Not Offered(Handog or Hindi Handog) - Boolean
+   Date Offered(Petsa Ihandog)
+   Date Built(Petsa Mayari)
+   Pagawa ng (Funded by): Central, District, Local, others (specify: e.g. "donation")
+   Original na Halaga ng Kapilya (original cost of the chapel)
+   Cost of the chapel based on the report last year
+   Nadagdag sa taong ito(Added this year):
+        Construction: how much (numbers or decimal for cents requirements)
+        Renovation: how much (numbers or decimal for cents requirements)
+        General Repair: how much (numbers or decimal for cents requirements)
+        Others: how much (numbers or decimal for cents requirements)
+        Total Added this year
+   
+   Nabawas sa taong ito(what part being subtracted or broken? how much)
+   Kabuuang Halaga ng Kapilya sa taong ito(Total cost of the Chapel this year)=decimal
+   Pansin (Remarks)
+
+Still in Page 1
+B. Pastoral & Residential Houses
+   Description(Pastoral House, House of the Caretaker, etc), Class, Petsa Mayari(date built), Dating Halaga(old cost), added this year(nadagdag sa taong ito),
+       nabawas sa taong ito(subtracted this year), total cost
+   Total Cost of Pastoral and Residential Houses
+
+C. Offices (Opisina)
+   Mga Opisina ng lokal (bukod na gusali) Offices in the local and separate building: Opisina or Office of  Ministerial,Finance, Secretariat
+   Class, Date Built, Dating Halaga(old cost), Nadagdag sa taong ito(added this year), nabawas sa taong ito(subtracted this year), Kabuuan(total)
+Kabuuang halaga ng mga Opisina sa taong ito (total cost of the offices this year)
+
+D. IBA PANG MGA GUSALI (other buildings)
+   Gusali(Building): e.g. (Pump HOuse , Guard House), class, date built, added, subtracted, total this year
+   Kabuuang halaga ng iba pang gusali sa taong ito (Total cost this year of other buildings)
+   
+
+
+E:  KABUUANG HALAGA NG MGA GUSALI SA TAONG ITO (total of all the buildings and offices)
+ 
+   
+ 
+
+           

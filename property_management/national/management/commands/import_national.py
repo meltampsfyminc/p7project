@@ -14,6 +14,7 @@ from national.models import (
     Land, LandSummary, Plant, PlantSummary, Vehicle, VehicleSummary,
     ReportSummary
 )
+from property_management.national import models
 
 User = get_user_model()
 

@@ -1,12 +1,28 @@
 {% extends "properties/base.html" %}
 {% block content %}
+
 <h1>Report — {{ report.local.name }} ({{ report.year }})</h1>
 
+
+<!------------------------------>
+<!-- PAGE 1 — Buildings -->
+<!------------------------------>
+
 <h2>PAGE 1 — Buildings</h2>
+
 {% if report.chapels.exists %}
   <h3>Chapels</h3>
   <table>
-    <thead><tr><th>Class</th><th>Original</th><th>Last Year</th><th>Added</th><th>Deduction</th><th>Net</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Class</th>
+        <th>Original</th>
+        <th>Last Year</th>
+        <th>Added</th>
+        <th>Deduction</th>
+        <th>Net</th>
+      </tr>
+    </thead>
     <tbody>
       {% for c in report.chapels.all %}
       <tr>
@@ -21,41 +37,181 @@
     </tbody>
   </table>
 {% endif %}
-<p>Page1 total: {{ report.page1_summary.grand_total }}</p>
+
+<p>Page 1 Total: {{ report.page1_summary.grand_total }}</p>
+
+
+
+<!------------------------------>
+<!-- PAGE 2 — ITEMS -->
+<!------------------------------>
 
 <h2>PAGE 2 — Items</h2>
+
 {% if report.items.exists %}
 <table>
-  <thead><tr><th>Kaukulan</th><th>IIN</th><th>Date</th><th>Qty</th><th>Item</th><th>Brand</th><th>Unit Price</th><th>Amount</th></tr></thead>
+  <thead>
+    <tr>
+      <th>Kaukulan</th>
+      <th>IIN</th>
+      <th>Date</th>
+      <th>Qty</th>
+      <th>Item</th>
+      <th>Brand</th>
+      <th>Unit Price</th>
+      <th>Amount</th>
+    </tr>
+  </thead>
   <tbody>
     {% for it in report.items.all %}
     <tr>
-      <td>{{ it.kaukulan }}</td><td>{{ it.iin_code }}</td><td>{{ it.date_received }}</td><td>{{ it.qty }}</td><td>{{ it.item_name }}</td><td>{{ it.brand }}</td><td>{{ it.unit_price }}</td><td>{{ it.amount }}</td>
+      <td>{{ it.kaukulan }}</td>
+      <td>{{ it.iin_code }}</td>
+      <td>{{ it.date_received }}</td>
+      <td>{{ it.qty }}</td>
+      <td>{{ it.item_name }}</td>
+      <td>{{ it.brand }}</td>
+      <td>{{ it.unit_price }}</td>
+      <td>{{ it.amount }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-<p>Items total: {{ report.items_summary.total_amount }}</p>
+
+<p>Items Total: {{ report.items_summary.total_amount }}</p>
 {% endif %}
+
+
+
+<!------------------------------>
+<!-- PAGE 3 — ADDED ITEMS -->
+<!------------------------------>
 
 <h2>PAGE 3 — Added Items</h2>
-{% if report.items_added.exists %}
-<table>... same pattern ...</table>
-<p>Added items total: {{ report.items_added_summary.total_amount }}</p>
+
+{% if report.added_items.exists %}
+<table>
+  <thead>
+    <tr>
+      <th>Kaukulan</th>
+      <th>IIN</th>
+      <th>Date</th>
+      <th>Qty</th>
+      <th>Brand</th>
+      <th>Make</th>
+      <th>Color</th>
+      <th>Serial</th>
+      <th>Unit Price</th>
+      <th>Amount</th>
+      <th>P10#</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for a in report.added_items.all %}
+    <tr>
+      <td>{{ a.kaukulan }}</td>
+      <td>{{ a.iin_code }}</td>
+      <td>{{ a.date_received }}</td>
+      <td>{{ a.qty }}</td>
+      <td>{{ a.brand }}</td>
+      <td>{{ a.make }}</td>
+      <td>{{ a.color }}</td>
+      <td>{{ a.serial_number }}</td>
+      <td>{{ a.unit_price }}</td>
+      <td>{{ a.amount }}</td>
+      <td>{{ a.approval_number }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p>Added Items Total: {{ report.added_items_summary.total_amount }}</p>
 {% endif %}
+
+
+
+<!------------------------------>
+<!-- PAGE 4 — REMOVED ITEMS -->
+<!------------------------------>
 
 <h2>PAGE 4 — Removed Items</h2>
-{% if report.items_removed.exists %}
-<table>... same pattern ...</table>
-<p>Removed items total: {{ report.items_removed_summary.total_amount }}</p>
+
+{% if report.subtracted_items.exists %}
+<table>
+  <thead>
+    <tr>
+      <th>Place</th>
+      <th>IIN</th>
+      <th>Date</th>
+      <th>Qty</th>
+      <th>Unit Price</th>
+      <th>Amount</th>
+      <th>Reason</th>
+      <th>Approval</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in report.subtracted_items.all %}
+    <tr>
+      <td>{{ r.kaukulan }}</td>
+      <td>{{ r.iin_code }}</td>
+      <td>{{ r.date_received }}</td>
+      <td>{{ r.qty }}</td>
+      <td>{{ r.unit_price }}</td>
+      <td>{{ r.amount }}</td>
+      <td>{{ r.reason }}</td>
+      <td>{{ r.approval_number }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p>Removed Items Total: {{ report.subtracted_items_summary.total_amount }}</p>
 {% endif %}
 
-<h2>PAGE 5 — Land / Plants / Vehicles</h2>
-<p>Land total: {{ report.land_summary.total_value }}</p>
-<p>Plant total: {{ report.plant_summary.total_value }}</p>
-<p>Vehicle total: {{ report.vehicle_summary.total_value }}</p>
 
-<h3>Aggregate</h3>
-<p>Report total summary: {{ report.summary.total_summary }}</p>
+
+<!------------------------------>
+<!-- PAGE 5 — LAND / PLANTS / VEHICLES -->
+<!------------------------------>
+
+<h2>PAGE 5 — Land / Plants / Vehicles</h2>
+
+{% if report.lands.exists %}
+  <h3>Land</h3>
+  Total: {{ report.land_summary.total_value }}
+{% endif %}
+
+{% if report.plants.exists %}
+  <h3>Plants</h3>
+  Total: {{ report.plant_summary.total_value }}
+{% endif %}
+
+{% if report.vehicles.exists %}
+  <h3>Vehicles</h3>
+  Total: {{ report.vehicle_summary.total_value }}
+{% endif %}
+
+
+
+<!------------------------------>
+<!-- AGGREGATED SUMMARY -->
+<!------------------------------>
+
+<h3>Aggregate Summary</h3>
+<p>Report Total Summary: {{ report.summary.total_summary }}</p>
+
+
+
+<!------------------------------>
+<!-- DOWNLOAD BUTTONS -->
+<!------------------------------>
+
+<a href="{% url 'national:report_print_pdf' report.id %}?format=pdf"
+   class="btn btn-primary">Download PDF</a>
+
+<a href="{% url 'national:report_print_pdf' report.id %}?format=docx"
+   class="btn btn-secondary">Download DOCX</a>
+
 
 {% endblock %}

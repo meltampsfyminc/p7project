@@ -1,0 +1,7 @@
+Page 2(2nd Worksheet)
+    Page2 is all about the Items found inside the different buildings (mentioned in Page1)
+    Kaukulan (Purpose or Place the items are place): e.g. Kapilya (inside the chapel), Mainhall, Koro(choir loft), Podium (tribuna), Lobby, Dressing Room, Rest Room. Kaukulan Can be null values
+
+    IIN (code), Date Received, Qty, Items, Brand, Model, Make, Color, Size, Serial Number, Unit Price, Amount, Remarks
+    Then total of all the amount of all the items below
+
