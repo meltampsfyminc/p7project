@@ -1,0 +1,10 @@
+{% extends "properties/base.html" %}
+{% block content %}
+<h1>Upload National P-7 Report</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="file" accept=".xlsx,.xls" required>
+    <button class="btn btn-primary">Upload</button>
+</form>
+{% endblock %}

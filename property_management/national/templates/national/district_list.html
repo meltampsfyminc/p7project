@@ -1,0 +1,13 @@
+{% extends "properties/base.html" %}
+{% block content %}
+<h1>Districts</h1>
+<ul>
+    {% for d in districts %}
+        <li>
+            <a href="{% url 'national:local_list' d.dcode %}">
+                {{ d.dcode }} — {{ d.name }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

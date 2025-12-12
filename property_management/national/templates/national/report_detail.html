@@ -1,0 +1,61 @@
+{% extends "properties/base.html" %}
+{% block content %}
+<h1>Report — {{ report.local.name }} ({{ report.year }})</h1>
+
+<h2>PAGE 1 — Buildings</h2>
+{% if report.chapels.exists %}
+  <h3>Chapels</h3>
+  <table>
+    <thead><tr><th>Class</th><th>Original</th><th>Last Year</th><th>Added</th><th>Deduction</th><th>Net</th></tr></thead>
+    <tbody>
+      {% for c in report.chapels.all %}
+      <tr>
+        <td>{{ c.chapel_class }}</td>
+        <td>{{ c.original_cost }}</td>
+        <td>{{ c.last_year_cost }}</td>
+        <td>{{ c.total_added }}</td>
+        <td>{{ c.deduction_amount }}</td>
+        <td>{{ c.total_cost_this_year }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+<p>Page1 total: {{ report.page1_summary.grand_total }}</p>
+
+<h2>PAGE 2 — Items</h2>
+{% if report.items.exists %}
+<table>
+  <thead><tr><th>Kaukulan</th><th>IIN</th><th>Date</th><th>Qty</th><th>Item</th><th>Brand</th><th>Unit Price</th><th>Amount</th></tr></thead>
+  <tbody>
+    {% for it in report.items.all %}
+    <tr>
+      <td>{{ it.kaukulan }}</td><td>{{ it.iin_code }}</td><td>{{ it.date_received }}</td><td>{{ it.qty }}</td><td>{{ it.item_name }}</td><td>{{ it.brand }}</td><td>{{ it.unit_price }}</td><td>{{ it.amount }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p>Items total: {{ report.items_summary.total_amount }}</p>
+{% endif %}
+
+<h2>PAGE 3 — Added Items</h2>
+{% if report.items_added.exists %}
+<table>... same pattern ...</table>
+<p>Added items total: {{ report.items_added_summary.total_amount }}</p>
+{% endif %}
+
+<h2>PAGE 4 — Removed Items</h2>
+{% if report.items_removed.exists %}
+<table>... same pattern ...</table>
+<p>Removed items total: {{ report.items_removed_summary.total_amount }}</p>
+{% endif %}
+
+<h2>PAGE 5 — Land / Plants / Vehicles</h2>
+<p>Land total: {{ report.land_summary.total_value }}</p>
+<p>Plant total: {{ report.plant_summary.total_value }}</p>
+<p>Vehicle total: {{ report.vehicle_summary.total_value }}</p>
+
+<h3>Aggregate</h3>
+<p>Report total summary: {{ report.summary.total_summary }}</p>
+
+{% endblock %}

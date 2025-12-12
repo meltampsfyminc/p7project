@@ -14,7 +14,7 @@ from .models import Property, HousingUnit, PropertyInventory, UserProfile, Impor
 from django.core.management import call_command
 import os
 from io import StringIO
-
+from national.models import Report as NationalReport
 
 def get_client_ip(request):
     """Get client IP address from request"""
@@ -125,6 +125,9 @@ def dashboard(request):
     # Get transfer statistics
     transfers = ItemTransfer.objects.count()
     
+    # NEW — National Reports count
+    national_reports_count = NationalReport.objects.count()
+    
     # Get recent imports
     recent_imports = ImportedFile.objects.all()[:5]
     
@@ -136,6 +139,9 @@ def dashboard(request):
         'properties': properties,
         'transfers': transfers,
         'recent_imports': recent_imports,
+
+        # ADD THIS
+        'national_reports_count': national_reports_count,
     }
     return render(request, 'properties/dashboard.html', context)
 
