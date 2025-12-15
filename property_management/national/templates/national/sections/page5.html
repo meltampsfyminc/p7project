@@ -1,0 +1,54 @@
+<h3>Land</h3>
+<table>
+<thead><tr><th>Address</th><th>Area</th><th>Date Acquired</th><th>Value</th><th>Building</th><th>Remarks</th></tr></thead>
+<tbody>
+{% for land in lands %}
+<tr>
+    <td>{{ land.address }}</td>
+    <td>{{ land.area_sqm }}</td>
+    <td>{{ land.date_acquired }}</td>
+    <td>{{ land.value }}</td>
+    <td>{{ land.building_on_land }}</td>
+    <td>{{ land.remarks }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<h3>Plants</h3>
+<table>
+<thead><tr><th>Name</th><th>Type</th><th>Last Qty</th><th>Last Val</th><th>This Qty</th><th>This Val</th><th>Sub</th><th>Sub Val</th><th>Total</th></tr></thead>
+<tbody>
+{% for p in plants %}
+<tr>
+    <td>{{ p.name }}</td>
+    <td>{{ p.plant_type }}</td>
+    <td>{{ p.last_year_qty }}</td>
+    <td>{{ p.last_year_value }}</td>
+    <td>{{ p.this_year_qty }}</td>
+    <td>{{ p.this_year_value }}</td>
+    <td>{{ p.sub_qty }}</td>
+    <td>{{ p.sub_value }}</td>
+    <td>{{ p.total_value_current }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<h3>Vehicles</h3>
+<table>
+<thead><tr><th>Make/Type</th><th>Plate</th><th>Year</th><th>Date Purchased</th><th>Assigned</th><th>Designation</th><th>Cost</th></tr></thead>
+<tbody>
+{% for v in vehicles %}
+<tr>
+    <td>{{ v.make_type }}</td>
+    <td>{{ v.plate_number }}</td>
+    <td>{{ v.year_model }}</td>
+    <td>{{ v.date_purchased }}</td>
+    <td>{{ v.assigned_user }}</td>
+    <td>{{ v.designation }}</td>
+    <td>{{ v.cost }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>

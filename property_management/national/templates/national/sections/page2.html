@@ -1,0 +1,40 @@
+<table>
+<thead>
+<tr>
+    <th>Kaukulan</th>
+    <th>IIN</th>
+    <th>Date</th>
+    <th>Qty</th>
+    <th>Item</th>
+    <th>Brand</th>
+    <th>Model</th>
+    <th>Make</th>
+    <th>Color</th>
+    <th>Size</th>
+    <th>Serial</th>
+    <th>Unit Price</th>
+    <th>Amount</th>
+    <th>Remarks</th>
+</tr>
+</thead>
+<tbody>
+{% for it in items %}
+<tr>
+    <td>{{ it.kaukulan }}</td>
+    <td>{{ it.iin_code }}</td>
+    <td>{{ it.date_received }}</td>
+    <td>{{ it.qty }}</td>
+    <td>{{ it.item_name }}</td>
+    <td>{{ it.brand }}</td>
+    <td>{{ it.model }}</td>
+    <td>{{ it.make }}</td>
+    <td>{{ it.color }}</td>
+    <td>{{ it.size }}</td>
+    <td>{{ it.serial_number }}</td>
+    <td>{{ it.unit_price }}</td>
+    <td>{{ it.amount }}</td>
+    <td>{{ it.remarks }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>

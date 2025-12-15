@@ -1,0 +1,201 @@
+{% extends "national/base.html" %}
+
+{% block title %}Bulk Add Buildings - {{ report.year }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Bulk Add Pastoral Houses - {{ report.year }}</h2>
+        <p class="subtitle">{{ report.local.name }} ({{ report.local.lcode }})</p>
+    </div>
+    
+    <div class="card-body">
+        {% if has_prev_year %}
+        <div class="bulk-actions">
+            <div class="alert alert-info">
+                <h4>📊 Quick Copy Options</h4>
+                <p>You have {{ prev_buildings_count }} pastoral houses from {{ report.year|add:"-1" }}.</p>
+                <a href="?copy_all=true" class="btn btn-success">
+                    📋 Copy All {{ prev_buildings_count }} Buildings
+                </a>
+                <small class="form-text">This will pre-fill the form with all buildings from last year.</small>
+            </div>
+        </div>
+        <hr>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            {{ formset.management_form }}
+            
+            <div class="bulk-form-container">
+                {% for form in formset %}
+                <div class="building-form">
+                    <h4>Building #{{ forloop.counter }}</h4>
+                    
+                    {% for field in form %}
+                    <div class="form-group">
+                        {% if field.name != 'DELETE' %}
+                        <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="error">{{ field.errors }}</div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    {% if not forloop.first %}
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            {{ form.DELETE }} Delete this building
+                        </label>
+                    </div>
+                    {% endif %}
+                    
+                    <hr class="form-divider">
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    💾 Save All Buildings
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="addMoreForms()">
+                    ➕ Add More Rows
+                </button>
+                <a href="{% url 'national:report_detail' report.id %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.subtitle {
+    margin: 0;
+    color: #bdc3c7;
+    font-size: 0.9rem;
+}
+
+.bulk-actions {
+    margin-bottom: 2rem;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.alert-info h4 {
+    margin-top: 0;
+    color: #0c5460;
+}
+
+.bulk-form-container {
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 1rem;
+    margin-bottom: 2rem;
+}
+
+.building-form {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #3498db;
+}
+
+.building-form h4 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.form-divider {
+    margin: 1.5rem 0;
+    border: none;
+    border-top: 1px dashed #ddd;
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+</style>
+
+<script>
+let totalForms = document.getElementById('id_form-TOTAL_FORMS');
+let currentFormCount = parseInt(totalForms.value);
+
+function addMoreForms() {
+    const formContainer = document.querySelector('.bulk-form-container');
+    const formRegex = /form-(\d+)-/g;
+    
+    // Clone the last form
+    const lastForm = document.querySelector('.building-form:last-of-type');
+    const newForm = lastForm.cloneNode(true);
+    
+    // Update form indices
+    newForm.innerHTML = newForm.innerHTML.replace(
+        formRegex,
+        `form-${currentFormCount}-`
+    );
+    
+    // Clear the values in the new form
+    const inputs = newForm.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        if (input.type !== 'hidden' && input.name !== 'csrfmiddlewaretoken') {
+            input.value = '';
+            if (input.type === 'checkbox') {
+                input.checked = false;
+            }
+        }
+    });
+    
+    // Update the form number
+    const heading = newForm.querySelector('h4');
+    heading.textContent = `Building #${currentFormCount + 1}`;
+    
+    // Add to container
+    formContainer.appendChild(newForm);
+    
+    // Update total forms count
+    currentFormCount++;
+    totalForms.value = currentFormCount;
+}
+
+// Make sure all forms are visible on load
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('.building-form');
+    forms.forEach((form, index) => {
+        const heading = form.querySelector('h4');
+        heading.textContent = `Building #${index + 1}`;
+    });
+});
+</script>
+{% endblock %}

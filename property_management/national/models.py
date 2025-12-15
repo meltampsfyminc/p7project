@@ -111,11 +111,23 @@ class OtherBuilding(models.Model):
     building_name = models.CharField(max_length=255, blank=True)
     building_class = models.CharField(max_length=50, blank=True)
     date_built = models.DateField(null=True, blank=True)
-
+    
+    # NEW FIELD: Track previous year's value
+    old_cost = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
+    
+    # Existing fields for changes in current year
     add_this_year = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
     sub_this_year = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
-    total_cost = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
-
+    
+    # Make total_cost a calculated property instead of a database field
+    @property
+    def total_cost(self):
+        # Safely calculate: old_cost + additions - subtractions
+        base = self.old_cost or 0
+        add = self.add_this_year or 0
+        sub = self.sub_this_year or 0
+        return base + add - sub
+    
     def __str__(self):
         return f"{self.building_name}"
 

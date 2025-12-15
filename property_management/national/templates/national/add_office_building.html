@@ -1,0 +1,203 @@
+{% extends "national/base.html" %}
+
+{% block title %}Add Office Building - {{ report.year }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Add Office Building - {{ report.year }}</h2>
+        <p class="subtitle">{{ report.local.name }} ({{ report.local.lcode }})</p>
+    </div>
+    
+    <div class="card-body">
+        {% if has_prev_year and prev_buildings %}
+        <div class="previous-buildings">
+            <h4>📋 Offices from {{ report.year|add:"-1" }}</h4>
+            <div class="building-list">
+                {% for building in prev_buildings %}
+                <div class="building-item">
+                    <a href="?building_id={{ building.id }}" class="btn btn-sm btn-outline">
+                        {{ building.office_name }} - ₱{{ building.total_cost|floatformat:2 }}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            <small class="form-text text-muted">Click on an office above to auto-fill its data.</small>
+        </div>
+        <hr>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                <div class="error">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <div class="total-cost-preview">
+                <h4>Cost Summary:</h4>
+                <div class="cost-breakdown">
+                    <div class="cost-item">
+                        <span>Previous Year Value:</span>
+                        <span id="old-cost-display">₱0.00</span>
+                    </div>
+                    <div class="cost-item">
+                        <span>Additions This Year:</span>
+                        <span id="add-cost-display">₱0.00</span>
+                    </div>
+                    <div class="cost-item">
+                        <span>Deductions This Year:</span>
+                        <span id="sub-cost-display">₱0.00</span>
+                    </div>
+                    <div class="cost-item total">
+                        <strong>Total This Year:</strong>
+                        <strong id="total-cost-display">₱0.00</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Office Building</button>
+                <a href="{% url 'national:report_detail' report.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.subtitle {
+    margin: 0;
+    color: #bdc3c7;
+    font-size: 0.9rem;
+}
+
+.previous-buildings {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.previous-buildings h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.building-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.building-item a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: white;
+    border: 2px solid #3498db;
+    border-radius: 4px;
+    color: #3498db;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.building-item a:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid #3498db;
+    color: #3498db;
+}
+
+.btn-outline:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+hr {
+    margin: 1.5rem 0;
+    border: none;
+    border-top: 1px solid #eee;
+}
+
+.total-cost-preview {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 6px;
+    margin: 2rem 0;
+}
+
+.total-cost-preview h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.cost-breakdown {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.cost-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.cost-item.total {
+    border-top: 2px solid #2c3e50;
+    border-bottom: none;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const oldCostInput = document.getElementById('id_old_cost');
+    const addCostInput = document.getElementById('id_add_this_year');
+    const subCostInput = document.getElementById('id_sub_this_year');
+    
+    function updateCostDisplay() {
+        const oldCost = parseFloat(oldCostInput.value) || 0;
+        const addCost = parseFloat(addCostInput.value) || 0;
+        const subCost = parseFloat(subCostInput.value) || 0;
+        const totalCost = oldCost + addCost - subCost;
+        
+        document.getElementById('old-cost-display').textContent = '₱' + oldCost.toFixed(2);
+        document.getElementById('add-cost-display').textContent = '₱' + addCost.toFixed(2);
+        document.getElementById('sub-cost-display').textContent = '₱' + subCost.toFixed(2);
+        document.getElementById('total-cost-display').textContent = '₱' + totalCost.toFixed(2);
+    }
+    
+    // Attach event listeners
+    [oldCostInput, addCostInput, subCostInput].forEach(input => {
+        input.addEventListener('input', updateCostDisplay);
+        input.addEventListener('change', updateCostDisplay);
+    });
+    
+    // Initial update
+    updateCostDisplay();
+});
+</script>
+{% endblock %}

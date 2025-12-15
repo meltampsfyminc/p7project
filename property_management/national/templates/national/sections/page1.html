@@ -1,0 +1,69 @@
+<h3>Chapels</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Class</th>
+            <th>Original Cost</th>
+            <th>Last Year</th>
+            <th>Added</th>
+            <th>Deducted</th>
+            <th>Total This Year</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in chapels %}
+        <tr>
+            <td>{{ c.chapel_class }}</td>
+            <td>{{ c.original_cost }}</td>
+            <td>{{ c.last_year_cost }}</td>
+            <td>{{ c.total_added }}</td>
+            <td>{{ c.deduction_amount }}</td>
+            <td>{{ c.total_cost_this_year }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Pastoral Houses</h3>
+<table>
+<thead><tr><th>Description</th><th>Old</th><th>Added</th><th>Total</th></tr></thead>
+<tbody>
+    {% for p in pastoral %}
+    <tr>
+        <td>{{ p.description }}</td>
+        <td>{{ p.old_cost }}</td>
+        <td>{{ p.add_this_year }}</td>
+        <td>{{ p.total_cost }}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+
+<h3>Office Buildings</h3>
+<table>
+<thead><tr><th>Name</th><th>Old</th><th>Added</th><th>Total</th></tr></thead>
+<tbody>
+    {% for o in offices %}
+    <tr>
+        <td>{{ o.office_name }}</td>
+        <td>{{ o.old_cost }}</td>
+        <td>{{ o.add_this_year }}</td>
+        <td>{{ o.total_cost }}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+
+<h3>Other Buildings</h3>
+<table>
+<thead><tr><th>Name</th><th>Added</th><th>Total</th></tr></thead>
+<tbody>
+    {% for ob in other_buildings %}
+    <tr>
+        <td>{{ ob.building_name }}</td>
+        <td>{{ ob.add_this_year }}</td>
+        <td>{{ ob.total_cost }}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>

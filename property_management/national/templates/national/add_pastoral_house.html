@@ -1,0 +1,119 @@
+{% extends "national/base.html" %}
+
+{% block title %}Add Pastoral House - {{ report.year }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Add Pastoral House - {{ report.year }}</h2>
+        <p class="subtitle">{{ report.local.name }} ({{ report.local.lcode }})</p>
+    </div>
+    
+    <div class="card-body">
+        {% if has_prev_year and prev_buildings %}
+        <div class="previous-buildings">
+            <h4>📋 Buildings from {{ report.year|add:"-1" }}</h4>
+            <div class="building-list">
+                {% for building in prev_buildings %}
+                <div class="building-item">
+                    <a href="?building_id={{ building.id }}" class="btn btn-sm btn-outline">
+                        {{ building.description }} - ₱{{ building.total_cost|floatformat:2 }}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            <small class="form-text text-muted">Click on a building above to auto-fill its data.</small>
+        </div>
+        <hr>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                <div class="error">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Pastoral House</button>
+                <a href="{% url 'national:report_detail' report.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.subtitle {
+    margin: 0;
+    color: #bdc3c7;
+    font-size: 0.9rem;
+}
+
+.previous-buildings {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.previous-buildings h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.building-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.building-item a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: white;
+    border: 2px solid #3498db;
+    border-radius: 4px;
+    color: #3498db;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.building-item a:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid #3498db;
+    color: #3498db;
+}
+
+.btn-outline:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+hr {
+    margin: 1.5rem 0;
+    border: none;
+    border-top: 1px solid #eee;
+}
+</style>
+{% endblock %}

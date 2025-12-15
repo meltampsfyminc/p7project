@@ -1,0 +1,37 @@
+Page3 (Nadagdag na mga kagamitan sa taong ito) Items that are added this year with approval (with P10 number or p10-2(donation) number)
+
+Same with page 1,2,3,4,5,6 the common fields are Local, District, Dcode, Lcode, Year
+
+
+Dako(kaukulan) (Place/Purpose), IIN, Date Received, Qty, Brand, Make, Color, size, serial Number, Unit Price, Amount, Approval number(p10 number or p10-2 number)
+
+Total below of all the items added
+
+
+Page 4: Nabawas (subtracted)(remove, disposed, or broken) Items
+
+    Dakong Pinagmulan o Gumamit(place of item or the one who was using), IIN, Date Received, Qty, Unit Price, Amount, Reason(Sold, Given to other, put to trash, lost, etc), Approved Number
+
+Page 5 about Lupa(Land), Pananim(Plants), Sasakyan (Cars)
+
+Lupa(Land): (the ones listed here are only lands owned by the Church)
+  Complete Address, Area(in square meter), Date Acquired, Halaga, Gusali na nasa lupa(building in this land), Pansin(Remarks)
+
+  Nadagdag(added land): same columns with lands
+  Nabawas (subtracted land): same columns
+
+  Kabuuang Halaga ng lupa sa taong ito (total cost of all lands this year)
+  Note (important) in this report to be answered by the local:
+          If the local has no land of their own or their chapel where it is built, what is this land? hiram(borrowed), lease(rental), kanino(owner), kontrata(number of years of contract), Amount 
+
+
+Panamin (plants)
+   Pangalan ng Pananim(name of plant), Uri(a-nagbubunga(bear fruits), b-hindi nagbubunga(not bearing fruit)), Nakaraan(means last year)-(Blg(count), Halaga(amount)), Now(means current)-(Blg(count), halaga(amount)), Nabawas(deducted, subtracted)-blg, halaga.), Total today
+   total of all the plants for this year
+  
+  
+Sasakyan
+  Make&Type, Plate Number, Year Model, Date Purchased, Assigned User(name), Designation(office designation), Cost
+  Nadagdag(deducted) (same columns or fields)
+  Nabawas(added) same fields or columns
+ total cost of cars this year    
