@@ -11,7 +11,6 @@ urlpatterns = [
     path('', RedirectView.as_view(url='properties/', permanent=False)),
     path('admin/', admin.site.urls),
     path('properties/', include('properties.urls')),
-    path('national/', include('national.urls')),
     path('gusali/', include('gusali.urls')),
 ]
 
