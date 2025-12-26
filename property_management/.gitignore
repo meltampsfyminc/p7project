@@ -1,0 +1,13 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django / Migrations caches
+*.sqlite3
+*.log
+
+# Virtual environment
+venv/
+.env/

@@ -1,0 +1,189 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}{{ building.name }} - Building Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'gusali:building_list' %}">Buildings</a></li>
+            <li class="breadcrumb-item active">{{ building.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Building Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h2>
+                                <span class="badge bg-primary me-2">{{ building.code }}</span>
+                                {{ building.name }}
+                            </h2>
+                            <p class="text-muted mb-0">
+                                Classification: {{ building.classification|default:"N/A" }} |
+                                Capacity: {{ building.capacity|default:"N/A" }} |
+                                Year: {{ building.year_covered }}
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <h4 class="text-success">₱{{ building.current_total_cost|floatformat:2 }}</h4>
+                            <span class="text-muted">Current Total Cost</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Building Information -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Building Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">Building Code:</th>
+                            <td>{{ building.code }} - {{ building.get_code_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>Classification:</th>
+                            <td>{{ building.classification|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Constructor:</th>
+                            <td>{{ building.constructor|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Capacity:</th>
+                            <td>{{ building.capacity|default:"-" }} people</td>
+                        </tr>
+                        <tr>
+                            <th>Local:</th>
+                            <td>{{ building.local|default:"-" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-gift me-2"></i>Donation & Ownership</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">Donation Status:</th>
+                            <td>
+                                {% if building.is_donated %}
+                                <span class="badge bg-success">HANDOG (Donated)</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Not Donated</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Donation Date:</th>
+                            <td>{{ building.donation_date|date:"F d, Y"|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Ownership Date:</th>
+                            <td>{{ building.ownership_date|date:"F d, Y"|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Original Cost:</th>
+                            <td>₱{{ building.original_cost|floatformat:2 }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remarks -->
+    {% if building.remarks %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Remarks</h5>
+                </div>
+                <div class="card-body">
+                    {{ building.remarks }}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Yearly Records -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Yearly Cost Records</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Year</th>
+                                    <th class="text-end">Cost Last Year</th>
+                                    <th class="text-end">Construction</th>
+                                    <th class="text-end">Renovation</th>
+                                    <th class="text-end">Repairs</th>
+                                    <th class="text-end">Other</th>
+                                    <th class="text-end">Total Added</th>
+                                    <th class="text-end">Removed</th>
+                                    <th class="text-end">Year End Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in yearly_records %}
+                                <tr>
+                                    <td><strong>{{ record.year }}</strong></td>
+                                    <td class="text-end">₱{{ record.cost_last_year|floatformat:2 }}</td>
+                                    <td class="text-end">₱{{ record.construction_cost|floatformat:2 }}</td>
+                                    <td class="text-end">₱{{ record.renovation_cost|floatformat:2 }}</td>
+                                    <td class="text-end">₱{{ record.general_repair_cost|floatformat:2 }}</td>
+                                    <td class="text-end">₱{{ record.other_additions_cost|floatformat:2 }}</td>
+                                    <td class="text-end text-success">₱{{ record.total_added|floatformat:2 }}</td>
+                                    <td class="text-end text-danger">₱{{ record.broken_removed_cost|floatformat:2 }}
+                                    </td>
+                                    <td class="text-end"><strong>₱{{ record.year_end_total|floatformat:2 }}</strong>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted py-4">
+                                        No yearly records found.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="{% url 'gusali:building_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Buildings
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

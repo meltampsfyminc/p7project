@@ -1,0 +1,115 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Building Report - Gusali{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-chart-bar me-2"></i>Building Summary Report</h2>
+                <a href="{% url 'gusali:building_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-list me-2"></i>View All Buildings
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Summary -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Buildings</h5>
+                    <h1 class="mb-0">{{ total_buildings }}</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Cost</h5>
+                    <h1 class="mb-0">₱{{ total_cost|floatformat:2|default:"0.00" }}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- By Building Code -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Summary by Building Code</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for code, data in code_summary.items %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-primary h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="text-muted">{{ data.label }}</h6>
+                                            <h4>{{ data.count }} buildings</h4>
+                                            <p class="mb-0 text-success">₱{{ data.total_cost|floatformat:2 }}</p>
+                                        </div>
+                                        <div class="text-primary">
+                                            <h1 class="mb-0">{{ code }}</h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yearly Summary -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-calendar me-2"></i>Yearly Cost Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Year</th>
+                                    <th class="text-end">Total Additions</th>
+                                    <th class="text-end">Total Removed</th>
+                                    <th class="text-end">Year End Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in yearly_records %}
+                                <tr>
+                                    <td><strong>{{ record.year }}</strong></td>
+                                    <td class="text-end text-success">₱{{
+                                        record.total_added|floatformat:2|default:"0.00" }}</td>
+                                    <td class="text-end text-danger">₱{{
+                                        record.total_removed|floatformat:2|default:"0.00" }}</td>
+                                    <td class="text-end"><strong>₱{{ record.year_end_total|floatformat:2|default:"0.00"
+                                            }}</strong></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">
+                                        No yearly records available.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

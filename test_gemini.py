@@ -26,6 +26,5 @@ print(f"\n--- Sending Prompt ---\n{prompt}\n")
 print("--- Gemini's Response ---")
 
 # Generate content
-response = model.generate_content("Explain how AI works in a few words")
 response = model.generate_content(prompt)
 print(response.text)
