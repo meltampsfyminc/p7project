@@ -1,0 +1,6 @@
+{
+  "codegpt.provider": "google",
+  "codegpt.apiKey": "AIzaSyCTqGcuMfQMpVGVT4tvWs6qE6ibaQdDVdA",
+  "codegpt.model": "gemini-2.5-turbo",
+  "codegpt.maxTokens": 8000  
+}

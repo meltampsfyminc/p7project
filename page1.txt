@@ -1,0 +1,6 @@
+the field names are: local, lcode, distrito, dcode, date reported, year covered, code, bldg, original cost, class, inihandog hindi(offered or not), petsa mayari(date built or finished), pagawa (funded by), capacity, cost last year, construction,renovation,general repair, other, total added, remarks, (for broken or removed part): part,cost, total
+
+
+Please save your token carefully as you will no longer be able to view it afterwards.
+Token: UI2W1Xj8y44oWDDZVoGYjUHk4kM8Ib9n9dSkuiv4fym
+Your user Id: CZZAa2WpYC8NYJxtP
