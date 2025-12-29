@@ -140,7 +140,12 @@ USER VISITS http://localhost:8000/
 ```
 c:\Projects\p7project\
 ├── property_management/              # Django Project
-│   ├── properties/
+│   ├── properties/                   # Admin / Central Office
+│   ├── gusali/                       # National: Buildings
+│   ├── kagamitan/                    # National: Items/Equipment
+│   ├── lupa/                         # National: Lands
+│   ├── plants/                       # National: Plants
+│   ├── templates/
 │   │   ├── models.py                 ← UserProfile model added
 │   │   ├── views.py                  ← Auth views (8 functions)
 │   │   ├── urls.py                   ← Auth routes (6 new)
@@ -187,15 +192,14 @@ c:\Projects\p7project\
 │                    COMPONENTS ADDED                         │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  MODELS (1)                    VIEWS (8)                   │
+│  MODELS (5)                    VIEWS (12+)                 │
 │  ├─ UserProfile                ├─ index()                  │
-│  │  ├─ user (FK)               ├─ login_view()            │
-│  │  ├─ is_2fa_enabled          ├─ logout_view()           │
-│  │  ├─ totp_secret             ├─ dashboard()             │
-│  │  ├─ backup_codes            ├─ setup_2fa()             │
-│  │  ├─ last_login_ip           ├─ view_backup_codes()     │
-│  │  ├─ last_login_date         ├─ get_client_ip()         │
-│  │  └─ 6 methods               └─ (+ 4 existing views)    │
+│  ├─ Property (Admin)           ├─ login_view()            │
+│  ├─ Building (Gusali)          ├─ dashboard()             │
+│  ├─ Item (Kagamitan)           ├─ building_list()         │
+│  ├─ Land (Lupa)                ├─ item_list()             │
+│  └─ Plant (Plants)             ├─ land_list()             │
+│                                └─ plant_list()            │
 │                                                             │
 │  TEMPLATES (6)                 URLS (6)                    │
 │  ├─ base.html                  ├─ / (index)               │

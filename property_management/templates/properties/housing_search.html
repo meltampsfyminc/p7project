@@ -1,0 +1,91 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Housing & Worker Search - Property Management System{% endblock %}
+
+{% block content %}
+<div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <h1 style="color: #2c3e50; margin-bottom: 2rem; border-bottom: 2px solid #3498db; padding-bottom: 0.5rem;">
+        Housing & Volunteer Worker Search
+    </h1>
+
+    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <form method="GET" action="{% url 'properties:housing_search' %}" style="display: flex; gap: 1rem;">
+            <input type="text" name="q" value="{{ query }}"
+                placeholder="Search by housing name, office, or worker name..."
+                style="flex-grow: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            <button type="submit" class="btn btn-primary" style="padding: 0 2rem;">Search</button>
+        </form>
+    </div>
+
+    {% if query %}
+    <div style="margin-bottom: 3rem;">
+        <h2
+            style="color: #2c3e50; font-size: 1.5rem; margin-bottom: 1.5rem; padding-left: 0.5rem; border-left: 4px solid #3498db;">
+            Housing / Admin Offices Found
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+            {% for building in buildings %}
+            <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #fff;">
+                <h3 style="color: #2c3e50; margin-bottom: 0.5rem;">{{ building.name }}</h3>
+                <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 0.5rem;">{{ building.city }}, {{
+                    building.address|truncatechars:50 }}</p>
+                <p style="color: #2c3e50; font-size: 0.85rem; margin-bottom: 1.5rem;">
+                    <strong>Owner/Head:</strong> {{ building.owner|default:"Unknown" }}
+                </p>
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{% url 'properties:building_occupants' building.id %}" class="btn btn-primary"
+                        style="font-size: 0.8rem; flex-grow: 1;">View List</a>
+                    <a href="{% url 'properties:building_map' building.id %}" class="btn btn-success"
+                        style="font-size: 0.8rem; flex-grow: 1;">View Map View</a>
+                </div>
+            </div>
+            {% empty %}
+            <p style="color: #95a5a6; font-style: italic; padding-left: 1rem;">No matching buildings or offices found.
+            </p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div>
+        <h2
+            style="color: #2c3e50; font-size: 1.5rem; margin-bottom: 1.5rem; padding-left: 0.5rem; border-left: 4px solid #27ae60;">
+            Volunteer Workers / Occupants Found
+        </h2>
+        <div style="background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa; text-align: left;">
+                        <th style="padding: 1rem; border-bottom: 2px solid #eee;">Worker Name</th>
+                        <th style="padding: 1rem; border-bottom: 2px solid #eee;">Assigned Unit</th>
+                        <th style="padding: 1rem; border-bottom: 2px solid #eee;">Building/Office</th>
+                        <th style="padding: 1rem; border-bottom: 2px solid #eee;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for unit in units %}
+                    <tr>
+                        <td style="padding: 1rem; border-bottom: 1px solid #eee; font-weight: bold;">{{ unit.occupant_name }}</td>
+                        <td style="padding: 1rem; border-bottom: 1px solid #eee;">{{ unit.housing_unit_name }}</td>
+                        <td style="padding: 1rem; border-bottom: 1px solid #eee;">{{ unit.property.name }}</td>
+                        <td style="padding: 1rem; border-bottom: 1px solid #eee;">
+                            <a href="{% url 'properties:housing_unit_detail' unit.id %}" class="btn btn-success"
+                                style="font-size: 0.8rem;">Show Inventory</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="padding: 2rem; text-align: center; color: #95a5a6; font-style: italic;">
+                            No matching workers found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 4rem; color: #7f8c8d; border: 2px dashed #eee; border-radius: 8px;">
+        <p style="font-size: 1.2rem;">Enter a name, office, or community to start searching.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

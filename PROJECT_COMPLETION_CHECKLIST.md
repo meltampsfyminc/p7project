@@ -138,7 +138,31 @@
 - [x] DATABASE_OPTIONS.md - Database options
 - [x] DATA_IMPORT_ANALYSIS.md - Excel file analysis
 - [x] README_PROJECT.md - Main README
+- [x] README_PROJECT.md - Main README
 - [x] PROJECT_COMPLETION_CHECKLIST.md - This file
+
+### Phase 16: National Apps Expansion (Phase 6) ✅
+- [x] Gusali App (Buildings) created and integrated
+- [x] Kagamitan App (Items) created and integrated
+- [x] Lupa App (Lands) created with Land model
+- [x] Plants App (Pananim) created with Plant model
+- [x] Navigation updated (Admin menu + National dropdown)
+- [x] Import commands for Gusali/Kagamitan implemented
+
+### Phase 17: Master Data Migration (Purchasing Database) ✅
+- [x] Custom command `import_master_data.py` created
+- [x] MariaDB connection with `pymysql` established
+- [x] District mapping (dcode, distname) implemented
+- [x] Local mapping (lcode, lokal, district) implemented
+- [x] 111 Districts and 5,532 Locals successfully imported
+
+### Phase 18: Advanced Search & Visualization ✅
+- [x] District Summary Search (Search by name/code)
+- [x] Local Summary Page (Aggregated costs across 4 apps)
+- [x] Housing & Worker Search (Pamayanan, Office, Volunteer)
+- [x] Building Map View (Floor-based grid visualization)
+- [x] Clickable unit cells with inventory list integration
+- [x] Filtering support for Lupa and Plants list views
 
 ### Phase 15: Code Quality ✅
 - [x] No syntax errors

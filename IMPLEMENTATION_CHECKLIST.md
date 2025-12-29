@@ -147,6 +147,14 @@
 - [x] Performance benchmarks noted
 - [x] Security verification provided
 
+## 🛠️ National Module Implementation
+- [x] Gusali (Buildings) App created
+- [x] Kagamitan (Items) App created
+- [x] Lupa (Lands) App created
+- [x] Plants (Pananim) App created
+- [x] Navigation updated with National Dropdown
+- [x] Inventory menu renamed to Admin
+
 ## 📋 USAGE INSTRUCTIONS
 
 ### Starting the Application

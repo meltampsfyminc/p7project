@@ -47,6 +47,9 @@ COPY . .
 # Change ownership to the non-root user.
 RUN chown -R app:app /home/app
 
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
 # Switch to the non-root user.
 USER app
 

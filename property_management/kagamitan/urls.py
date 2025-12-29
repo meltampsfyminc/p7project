@@ -4,8 +4,8 @@ from . import views
 app_name = 'kagamitan'
 
 urlpatterns = [
-    path('', views.equipment_list, name='equipment_list'),
-    path('<int:pk>/', views.equipment_detail, name='equipment_detail'),
-    path('upload/', views.equipment_upload, name='equipment_upload'),
-    path('report/', views.equipment_report, name='equipment_report'),
+    path('', views.item_list, name='item_list'),
+    path('<int:pk>/', views.item_detail, name='item_detail'),
+    path('upload/', views.item_upload, name='item_upload'),
+    path('report/', views.item_report, name='item_report'),
 ]

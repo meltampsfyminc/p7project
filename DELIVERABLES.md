@@ -46,6 +46,17 @@
   - Comprehensive logging
   - Error handling
 
+#### Properties Application (Admin Module)
+- ✅ `properties/models.py`: Property, HousingUnit, InventoryItem
+- ✅ `properties/views.py`: Admin inventory management
+- ✅ `properties/urls.py`: Admin routes
+
+#### National Applications
+- ✅ `gusali/`: Building management (imported from Excel)
+- ✅ `kagamitan/`: Item management (imported from Excel)
+- ✅ `lupa/`: Land inventory (Page 5A)
+- ✅ `plants/`: Plant inventory (Page 5B)
+
 #### Database Migrations
 - ✅ `properties/migrations/0001_initial.py` - Initial models
 - ✅ `properties/migrations/0002_importedfile.py` - ImportedFile model
@@ -139,7 +150,11 @@
 - `bedrooms`, `bathrooms`, `square_feet` (IntegerField)
 - `price` (DecimalField)
 - `status` (CharField) - available/rented/sold/maintenance
-- `created_at`, `updated_at` (DateTimeField)
+#### 5. National Models
+- `Building` (Gusali): Location, construction date, cost, condition
+- `Item` (Kagamitan): Item name, local, date acquired, value
+- `Land` (Lupa): Lot area, title no, owner, value
+- `Plant` (Pananim): Type, variety, fruit-bearing count
 
 #### 3. HousingUnit Model
 - `occupant_name` (CharField) - Occupant name

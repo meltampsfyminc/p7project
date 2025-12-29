@@ -12,6 +12,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('properties/', include('properties.urls')),
     path('gusali/', include('gusali.urls')),
+    path('kagamitan/', include('kagamitan.urls')),
+    path('lupa/', include('lupa.urls')),
+    path('plants/', include('plants.urls')),
+    path('vehicles/', include('vehicles.urls')),
 ]
 
 if settings.DEBUG:

@@ -1,30 +1,30 @@
 from django.contrib import admin
-from .models import LocalEquipment
+from .models import Item
 
 
-@admin.register(LocalEquipment)
-class LocalEquipmentAdmin(admin.ModelAdmin):
-    list_display = ['item_name', 'quantity', 'local', 'location', 'year_acquired', 
-                   'unit_price', 'total_price', 'year_reported', 'is_new_addition']
-    list_filter = ['location', 'year_reported', 'is_new_addition', 'local__district']
-    search_fields = ['item_name', 'brand', 'model_number', 'local__name', 'local__lcode']
+@admin.register(Item)
+class ItemAdmin(admin.ModelAdmin):
+    list_display = ['item_name', 'quantity', 'local', 'location', 'date_acquired', 
+                   'unit_price', 'total_price', 'year_reported', 'is_new']
+    list_filter = ['location', 'year_reported', 'is_new', 'local__district']
+    search_fields = ['item_name', 'brand', 'model', 'local__name', 'local__lcode', 'property_number']
     ordering = ['local', 'location', 'item_name']
     
     fieldsets = (
-        ('Location', {
-            'fields': ('local', 'location', 'item_code')
+        ('Location & ID', {
+            'fields': ('local', 'location', 'property_number')
         }),
         ('Item Details', {
-            'fields': ('item_name', 'quantity', 'year_acquired', 'brand', 'model_number')
+            'fields': ('item_name', 'quantity', 'date_acquired', 'brand', 'model')
         }),
         ('Description', {
             'fields': ('material', 'color', 'size')
         }),
         ('Financial', {
-            'fields': ('unit_price', 'total_price')
+            'fields': ('unit_price', 'total_price', 'reference_number')
         }),
         ('Reporting', {
-            'fields': ('year_reported', 'is_new_addition', 'p10_number', 'remarks')
+            'fields': ('year_reported', 'is_new', 'remarks')
         }),
     )
     

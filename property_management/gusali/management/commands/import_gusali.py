@@ -77,6 +77,38 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(self.style.WARNING(f'Local code not found: {local_code}'))
         
+        # Try to infer local from filename if not specified
+        elif filename.lower().startswith('gusali_'):
+            try:
+                # Expected format: gusali_{lokal}_{district}.xls
+                parts = os.path.splitext(filename)[0].split('_')
+                if len(parts) >= 3:
+                    local_name_part = parts[1]
+                    district_name_part = parts[2]
+                    
+                    self.stdout.write(f'Detected from filename - Local: {local_name_part}, District: {district_name_part}')
+                    
+                    # Try to find local by name
+                    # We filter by local name and district name to be precise
+                    potential_locals = Local.objects.filter(
+                        name__iexact=local_name_part, 
+                        district__name__iexact=district_name_part
+                    )
+                    
+                    if potential_locals.exists():
+                        local_obj = potential_locals.first()
+                        self.stdout.write(self.style.SUCCESS(f'Automatically associated with Local: {local_obj}'))
+                    else:
+                        # Try just local name if exact match with distinct failed
+                        potential_locals = Local.objects.filter(name__iexact=local_name_part)
+                        if potential_locals.count() == 1:
+                            local_obj = potential_locals.first()
+                            self.stdout.write(self.style.SUCCESS(f'Automatically associated with Local: {local_obj}'))
+                        else:
+                             self.stdout.write(self.style.WARNING(f'Could not automatically find exact Local match for "{local_name_part}" in district "{district_name_part}"'))
+            except Exception as e:
+                self.stdout.write(self.style.WARNING(f'Could not parse filename for Local info: {str(e)}'))
+        
         # Extract year from header (Row 4, Column 7)
         year_covered = self._safe_int(ws.cell(row=4, column=7).value, 2024)
         self.stdout.write(f'Year Covered: {year_covered}')

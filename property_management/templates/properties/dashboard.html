@@ -177,10 +177,17 @@
         <div class="stat-number">{{ transfers|default:"0" }}</div>
         <div class="stat-label">Item Transfers</div>
     </div>
+
     <div class="stat-card">
-        <a href="{% url 'national:district_list' %}">
-            <div class="stat-number">{{ national_reports_count }}</div>
-            <div class="stat-label">National Reports</div>
+        <a href="{% url 'gusali:building_list' %}">
+            <div class="stat-number"><i class="fas fa-building"></i></div>
+            <div class="stat-label">Gusali (Buildings)</div>
+        </a>
+    </div>
+    <div class="stat-card">
+        <a href="{% url 'kagamitan:item_list' %}">
+            <div class="stat-number"><i class="fas fa-boxes"></i></div>
+            <div class="stat-label">Kagamitan (Items)</div>
         </a>
     </div>
 </div>
@@ -264,20 +271,7 @@
             style="padding: 1rem; text-align: center; display: block;">View Transfers</a>
         <a href="{% url 'properties:transfer_create' %}" class="btn btn-success"
             style="padding: 1rem; text-align: center; display: block;">New Transfer</a>
-        <a href="{% url 'national:district_list' %}" class="btn btn-primary"
-            style="padding: 1rem; text-align: center; display: block;">
-            National Reports
-        </a>
 
-        <a href="{% url 'national:upload' %}" class="btn btn-success"
-            style="padding: 1rem; text-align: center; display: block;">
-            Upload P-7 Report
-        </a>
-
-        <a href="{% url 'national:district_summary' dcode='01009' %}" class="btn btn-primary"
-            style="padding: 1rem; text-align: center; display: block;">
-            District Summary
-        </a>
 
 
     </div>

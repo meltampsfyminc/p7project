@@ -1,0 +1,140 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Lands (Lupa) List - Property Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-map-marked-alt me-2"></i>Lands (Lupa)</h2>
+        <div>
+            <a href="{% url 'lupa:land_upload' %}" class="btn btn-primary">
+                <i class="fas fa-upload me-2"></i>Upload Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Box -->
+    <div class="card mb-3">
+        <div class="card-body py-3">
+            <form method="get" class="row g-2 align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" name="q" class="form-control"
+                            placeholder="Search by District, Local, Location, or Owner..."
+                            value="{{ search_query|default:'' }}">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-header py-2">
+            <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filter Lands</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                {% if search_query %}
+                <input type="hidden" name="q" value="{{ search_query }}">
+                {% endif %}
+
+                <div class="col-md-4">
+                    <label class="form-label">District</label>
+                    <select name="district" class="form-select"
+                        onchange="this.form.local.value=''; this.form.submit();">
+                        <option value="">All Districts</option>
+                        {% for district in districts %}
+                        <option value="{{ district.dcode }}" {% if current_district == district.dcode %}selected{% endif %}>
+                            {{ district.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Local</label>
+                    <select name="local" class="form-select">
+                        <option value="">All Locals</option>
+                        {% for local in locals %}
+                        <option value="{{ local.lcode }}" {% if current_local == local.lcode %}selected{% endif %}>
+                            {{ local.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary me-2">Filter</button>
+                    <a href="{% url 'lupa:land_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active Filters Display -->
+    {% if search_query or current_district or current_local %}
+    <div class="row mb-3 px-3">
+        <div class="col-12">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <span class="text-muted small">Active Filters:</span>
+                {% if search_query %}
+                <span class="badge bg-info">Search: {{ search_query }}</span>
+                {% endif %}
+                {% if current_district %}
+                <span class="badge bg-secondary">District: {{ current_district_name|default:current_district }}</span>
+                {% endif %}
+                {% if current_local %}
+                <span class="badge bg-secondary">Local: {{ current_local_name|default:current_local }}</span>
+                {% endif %}
+                <a href="{% url 'lupa:land_list' %}" class="btn btn-sm btn-outline-danger py-0 px-2"
+                    style="font-size: 0.7rem;">
+                    <i class="fas fa-times me-1"></i>Clear
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Local</th>
+                            <th>District</th>
+                            <th>Location</th>
+                            <th>Area (sqm)</th>
+                            <th>Status</th>
+                            <th>Owner</th>
+                            <th>Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for land in lands %}
+                        <tr>
+                            <td>{{ land.local.name|default:"-" }}</td>
+                            <td>{{ land.local.district.name|default:"-" }}</td>
+                            <td>{{ land.location }}</td>
+                            <td>{{ land.lot_area }}</td>
+                            <td>{{ land.status }}</td>
+                            <td>{{ land.owner }}</td>
+                            <td>{{ land.use_classification }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No lands found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

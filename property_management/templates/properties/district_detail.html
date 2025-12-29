@@ -1,0 +1,39 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}{{ district.name }} Locals - Property Management System{% endblock %}
+
+{% block content %}
+<div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <div
+        style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; padding-bottom: 0.5rem;">
+        <div>
+            <nav style="padding: 0; display: block; background: transparent;">
+                <p style="font-size: 0.9rem; color: #7f8c8d; margin: 0;">District Search > {{ district.name }}</p>
+            </nav>
+            <h1 style="color: #2c3e50; margin: 0;">{{ district.name }} ({{ district.dcode }})</h1>
+        </div>
+        <a href="{% url 'properties:district_search' %}" class="btn" style="background: #95a5a6; color: white;">Back to
+            Search</a>
+    </div>
+
+    <p style="margin-bottom: 2rem; color: #34495e;">Select a Local to view its National property summaries and total
+        current costs.</p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+        {% for local in locals %}
+        <a href="{% url 'properties:local_summary' local.lcode %}"
+            style="text-decoration: none; color: inherit; display: block; padding: 1rem 1.5rem; background: #fdfdfd; border: 1px solid #eee; border-radius: 6px; transition: all 0.2s; border-left: 4px solid #27ae60;"
+            onmouseover="this.style.background='#f0f4f8'; this.style.borderColor='#3498db';"
+            onmouseout="this.style.background='#fdfdfd'; this.style.borderColor='#eee';">
+            <div style="font-weight: bold; color: #2c3e50;">{{ local.name }}</div>
+            <div style="font-size: 0.85rem; color: #7f8c8d;">Code: {{ local.lcode }}</div>
+        </a>
+        {% empty %}
+        <div
+            style="grid-column: 1 / -1; text-align: center; padding: 2rem; border: 1px dashed #ccc; border-radius: 8px; color: #7f8c8d;">
+            No locals found for this district.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

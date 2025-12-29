@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum, Q
+from django.db.models import Sum
 from django.core.management import call_command
 from io import StringIO
 import os
@@ -18,29 +18,62 @@ def building_list(request):
     # Search query (searches district code, district name, local code, local name)
     search_query = request.GET.get('q', '').strip()
     if search_query:
-        buildings = buildings.filter(
-            Q(local__lcode__icontains=search_query) |
-            Q(local__name__icontains=search_query) |
-            Q(local__district__dcode__icontains=search_query) |
-            Q(local__district__name__icontains=search_query) |
-            Q(name__icontains=search_query)
-        )
+        # Create separate querysets for each search field
+        search_results = Building.objects.none()  # Empty queryset to start
+        
+        # Search in local lcode
+        search_results = search_results | buildings.filter(local__lcode__icontains=search_query)
+        
+        # Search in building's own lcode
+        search_results = search_results | buildings.filter(lcode__icontains=search_query)
+        
+        # Search in local name
+        search_results = search_results | buildings.filter(local__name__icontains=search_query)
+        
+        # Search in district dcode
+        search_results = search_results | buildings.filter(local__district__dcode__icontains=search_query)
+        
+        # Search in building's own dcode
+        search_results = search_results | buildings.filter(dcode__icontains=search_query)
+        
+        # Search in district name
+        search_results = search_results | buildings.filter(local__district__name__icontains=search_query)
+        
+        # Search in building name
+        search_results = search_results | buildings.filter(name__icontains=search_query)
+        
+        # Remove duplicates
+        buildings = search_results.distinct()
     
     # Filter by district code or name
     district_filter = request.GET.get('district', '').strip()
     if district_filter:
-        buildings = buildings.filter(
-            Q(local__district__dcode__iexact=district_filter) |
-            Q(local__district__name__icontains=district_filter)
-        )
+        # Try filtering by exact district code first
+        district_results = buildings.filter(local__district__dcode__iexact=district_filter)
+        
+        # If no results, try by district name
+        if not district_results.exists():
+            district_results = buildings.filter(local__district__name__icontains=district_filter)
+        
+        # Also check building's own dcode
+        district_results = district_results | buildings.filter(dcode__iexact=district_filter)
+        
+        buildings = district_results.distinct()
     
     # Filter by local code or name
     local_filter = request.GET.get('local', '').strip()
     if local_filter:
-        buildings = buildings.filter(
-            Q(local__lcode__iexact=local_filter) |
-            Q(local__name__icontains=local_filter)
-        )
+        # Try filtering by exact local code first
+        local_results = buildings.filter(local__lcode__iexact=local_filter)
+        
+        # If no results, try by local name
+        if not local_results.exists():
+            local_results = buildings.filter(local__name__icontains=local_filter)
+        
+        # Also check building's own lcode
+        local_results = local_results | buildings.filter(lcode__iexact=local_filter)
+        
+        buildings = local_results.distinct()
     
     # Filter by building code
     code_filter = request.GET.get('code')
@@ -62,6 +95,16 @@ def building_list(request):
     districts = District.objects.all().order_by('name')
     locals_list = Local.objects.select_related('district').all().order_by('district__name', 'name')
     
+    # Filter locals by district if selected (for dependent dropdown)
+    current_district_obj = None
+    if district_filter:
+        current_district_obj = District.objects.filter(dcode=district_filter).first()
+        locals_list = locals_list.filter(district__dcode=district_filter)
+    
+    current_local_obj = None
+    if local_filter:
+        current_local_obj = Local.objects.filter(lcode=local_filter).first()
+    
     context = {
         'buildings': buildings,
         'total_cost': total_cost,
@@ -70,12 +113,15 @@ def building_list(request):
         'locals': locals_list,
         'search_query': search_query,
         'current_district': district_filter,
+        'current_district_name': current_district_obj.name if current_district_obj else '',
         'current_local': local_filter,
+        'current_local_name': current_local_obj.name if current_local_obj else '',
         'current_code': code_filter,
         'current_year': year_filter,
         'code_choices': Building.BUILDING_CODE_CHOICES,
     }
     return render(request, 'gusali/building_list.html', context)
+
 
 
 

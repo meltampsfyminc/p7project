@@ -30,7 +30,7 @@
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-search"></i></span>
                                 <input type="text" name="q" class="form-control"
-                                    placeholder="Search by District Code, District Name, Local Code, or Local Name..."
+                                    placeholder="Search by District, Local, or Building Name..."
                                     value="{{ search_query }}">
                                 <button type="submit" class="btn btn-primary">Search</button>
                             </div>
@@ -38,7 +38,7 @@
                         <div class="col-md-6 text-end">
                             <small class="text-muted">
                                 <i class="fas fa-info-circle"></i>
-                                Search: dcode, distrito, lcode, lokal, building name
+                                Search: distrito, lokal, building name
                             </small>
                         </div>
                     </form>
@@ -64,13 +64,12 @@
                         <!-- District Filter -->
                         <div class="col-md-3">
                             <label class="form-label">District (Distrito)</label>
-                            <select name="district" class="form-select">
+                            <select name="district" class="form-select"
+                                onchange="this.form.local.value=''; this.form.submit();">
                                 <option value="">All Districts</option>
                                 {% for district in districts %}
-                                <option value="{{ district.dcode }}" {% if current_district==district.dcode %}selected{%
-                                    endif %}>
-                                    {{ district.name }} ({{ district.dcode }})
-                                </option>
+                                <option value="{{ district.dcode }}" {% if current_district == district.dcode %}selected{% endif %}
+                                    endif %}>{{ district.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -81,10 +80,8 @@
                             <select name="local" class="form-select">
                                 <option value="">All Locals</option>
                                 {% for local in locals %}
-                                <option value="{{ local.lcode }}" {% if current_local==local.lcode %}selected{% endif
-                                    %}>
-                                    {{ local.name }} ({{ local.lcode }})
-                                </option>
+                                <option value="{{ local.lcode }}" {% if current_local == local.lcode %}selected{% endif %}
+                                    %}>{{ local.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -95,7 +92,7 @@
                             <select name="code" class="form-select">
                                 <option value="">All Codes</option>
                                 {% for code, label in code_choices %}
-                                <option value="{{ code }}" {% if current_code==code %}selected{% endif %}>
+                                <option value="{{ code }}" {% if current_code == code %}selected{% endif %}>
                                     {{ label }}
                                 </option>
                                 {% endfor %}
@@ -108,7 +105,7 @@
                             <select name="year" class="form-select">
                                 <option value="">All Years</option>
                                 {% for year in years %}
-                                <option value="{{ year }}" {% if current_year==year|stringformat:"s" %}selected{% endif
+                                <option value="{{ year }}" {% if current_year == year|stringformat:"s" %}selected{% endif %}
                                     %}>
                                     {{ year }}
                                 </option>
@@ -171,10 +168,10 @@
                 <span class="badge bg-info">Search: {{ search_query }}</span>
                 {% endif %}
                 {% if current_district %}
-                <span class="badge bg-secondary">District: {{ current_district }}</span>
+                <span class="badge bg-secondary">District: {{ current_district_name|default:current_district }}</span>
                 {% endif %}
                 {% if current_local %}
-                <span class="badge bg-secondary">Local: {{ current_local }}</span>
+                <span class="badge bg-secondary">Local: {{ current_local_name|default:current_local }}</span>
                 {% endif %}
                 {% if current_code %}
                 <span class="badge bg-primary">Code: {{ current_code }}</span>
@@ -222,7 +219,6 @@
                                     <td>{{ building.classification|default:"-" }}</td>
                                     <td>
                                         {% if building.local %}
-                                        <small class="text-muted">{{ building.local.lcode }}</small>
                                         {{ building.local.name }}
                                         {% else %}
                                         <span class="text-muted">-</span>
@@ -230,7 +226,6 @@
                                     </td>
                                     <td>
                                         {% if building.local and building.local.district %}
-                                        <small class="text-muted">{{ building.local.district.dcode }}</small>
                                         {{ building.local.district.name }}
                                         {% else %}
                                         <span class="text-muted">-</span>

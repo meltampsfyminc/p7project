@@ -1,0 +1,81 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Summary: {{ local.name }} - Property Management System{% endblock %}
+
+{% block content %}
+<div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <div
+        style="margin-bottom: 2.5rem; border-bottom: 2px solid #3498db; padding-bottom: 1rem; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <p style="font-size: 0.9rem; color: #7f8c8d; margin: 0;">District Summary > {{ local.district.name }} > {{
+                local.name }}</p>
+            <h1 style="color: #2c3e50; margin: 0.5rem 0 0 0;">{{ local.name }} ({{ local.lcode }})</h1>
+        </div>
+        <div style="text-align: right;">
+            <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 0.25rem;">Combined Global Value</p>
+            <h2 style="color: #e67e22; margin: 0;">₱{{ total_local_cost|floatformat:2 }}</h2>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+        <!-- Gusali Card -->
+        <div
+            style="background: #fff; border-radius: 12px; border: 1px solid #e1e8ed; overflow: hidden; display: flex; flex-direction: column;">
+            <div style="background: #2c3e50; color: white; padding: 1rem 1.5rem;">
+                <h3 style="margin: 0;">Gusali (Buildings)</h3>
+            </div>
+            <div style="padding: 1.5rem; flex-grow: 1;">
+                <p style="color: #7f8c8d; margin-bottom: 1rem;">Current total value of all building assets in this
+                    local.</p>
+                <h2 style="color: #2c3e50; margin-bottom: 1.5rem;">₱{{ gusali_cost|floatformat:2 }}</h2>
+                <a href="{% url 'gusali:building_list' %}?local={{ local.lcode }}" class="btn btn-primary"
+                    style="width: 100%; text-align: center;">View Detailed List</a>
+            </div>
+        </div>
+
+        <!-- Kagamitan Card -->
+        <div
+            style="background: #fff; border-radius: 12px; border: 1px solid #e1e8ed; overflow: hidden; display: flex; flex-direction: column;">
+            <div style="background: #2c3e50; color: white; padding: 1rem 1.5rem;">
+                <h3 style="margin: 0;">Kagamitan (Items)</h3>
+            </div>
+            <div style="padding: 1.5rem; flex-grow: 1;">
+                <p style="color: #7f8c8d; margin-bottom: 1rem;">Total current cost of reportable equipment items.</p>
+                <h2 style="color: #2c3e50; margin-bottom: 1.5rem;">₱{{ kagamitan_cost|floatformat:2 }}</h2>
+                <a href="{% url 'kagamitan:item_list' %}?local={{ local.lcode }}" class="btn btn-primary"
+                    style="width: 100%; text-align: center;">View Detailed List</a>
+            </div>
+        </div>
+
+        <!-- Lupa Card -->
+        <div
+            style="background: #fff; border-radius: 12px; border: 1px solid #e1e8ed; overflow: hidden; display: flex; flex-direction: column;">
+            <div style="background: #2c3e50; color: white; padding: 1rem 1.5rem;">
+                <h3 style="margin: 0;">Lupa (Lands)</h3>
+            </div>
+            <div style="padding: 1.5rem; flex-grow: 1;">
+                <p style="color: #7f8c8d; margin-bottom: 1rem;">Current market value summary of all registered lands.
+                </p>
+                <h2 style="color: #2c3e50; margin-bottom: 1.5rem;">₱{{ lupa_cost|floatformat:2 }}</h2>
+                <a href="{% url 'lupa:land_list' %}?local={{ local.lcode }}" class="btn btn-primary"
+                    style="width: 100%; text-align: center;">View Detailed List</a>
+            </div>
+        </div>
+
+        <!-- Plants Card -->
+        <div
+            style="background: #fff; border-radius: 12px; border: 1px solid #e1e8ed; overflow: hidden; display: flex; flex-direction: column;">
+            <div style="background: #2c3e50; color: white; padding: 1rem 1.5rem;">
+                <h3 style="margin: 0;">Pananim (Plants)</h3>
+            </div>
+            <div style="padding: 1.5rem; flex-grow: 1;">
+                <p style="color: #7f8c8d; margin-bottom: 1rem;">Total valuation of all fruit-bearing and other plant
+                    assets.</p>
+                <h2 style="color: #2c3e50; margin-bottom: 1.5rem;">₱{{ plants_cost|floatformat:2 }}</h2>
+                <a href="{% url 'plants:plant_list' %}?local={{ local.lcode }}" class="btn btn-primary"
+                    style="width: 100%; text-align: center;">View Detailed List</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

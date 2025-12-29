@@ -4,6 +4,17 @@
 "Now let us create our homepage(index), and dashboard, let us secure the app with login and 2fa"
 
 ## Deliverables ✅ COMPLETED
+### National Module Expansion (Phase 6) ✅
+**Apps Created**:
+1. **Gusali (Buildings)**: Building inventory from 'Page 1'.
+2. **Kagamitan (Items)**: Item inventory from 'Page 2-3'.
+3. **Lupa (Lands)**: Land inventory from 'Page 5A'.
+4. **Plants (Pananim)**: Plant inventory from 'Page 5B'.
+
+**Navigation Updates**:
+- Renamed 'Inventory' to **'Admin'**.
+- Added **'National'** dropdown menu for new apps.
+
 
 ### 1. Homepage (Index Page) ✅
 **File**: `templates/properties/index.html`

@@ -628,6 +628,7 @@ class District(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
+        db_table = 'district'
         ordering = ['name']
         verbose_name = 'District'
         verbose_name_plural = 'Districts'
@@ -644,7 +645,6 @@ class Local(models.Model):
     """
     lcode = models.CharField(
         max_length=10,
-        unique=True,
         help_text="Local code (unique identifier)"
     )
     name = models.CharField(
@@ -665,6 +665,7 @@ class Local(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
+        db_table = 'lokal'
         ordering = ['district', 'name']
         unique_together = ['lcode', 'district']
         verbose_name = 'Local'

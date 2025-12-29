@@ -10,11 +10,11 @@ from django.utils.timezone import now
 import qrcode
 from io import BytesIO
 import base64
-from .models import Property, HousingUnit, PropertyInventory, UserProfile, ImportedFile, ItemTransfer
+from .models import Property, HousingUnit, PropertyInventory, UserProfile, ImportedFile, ItemTransfer, District, Local
+from django.db.models import Sum, Q, Count
 from django.core.management import call_command
 import os
 from io import StringIO
-from national.models import Report as NationalReport
 
 def get_client_ip(request):
     """Get client IP address from request"""
@@ -125,9 +125,6 @@ def dashboard(request):
     # Get transfer statistics
     transfers = ItemTransfer.objects.count()
     
-    # NEW — National Reports count
-    national_reports_count = NationalReport.objects.count()
-    
     # Get recent imports
     recent_imports = ImportedFile.objects.all()[:5]
     
@@ -139,9 +136,6 @@ def dashboard(request):
         'properties': properties,
         'transfers': transfers,
         'recent_imports': recent_imports,
-
-        # ADD THIS
-        'national_reports_count': national_reports_count,
     }
     return render(request, 'properties/dashboard.html', context)
 
@@ -250,25 +244,28 @@ def property_list(request):
 
 @login_required(login_url='properties:login')
 def inventory_list(request):
-    """Display list of all inventory items with filtering"""
     inventory_items = PropertyInventory.objects.select_related('housing_unit').all()
-    
-    # Filter by housing unit if specified
+
     housing_unit_id = request.GET.get('housing_unit')
+
+    selected_unit = None
     if housing_unit_id:
-        inventory_items = inventory_items.filter(housing_unit_id=housing_unit_id)
-    
+        try:
+            selected_unit = int(housing_unit_id)
+            inventory_items = inventory_items.filter(housing_unit_id=selected_unit)
+        except ValueError:
+            selected_unit = None
+
     housing_units = HousingUnit.objects.all()
-    
+
     context = {
         'inventory_items': inventory_items,
         'housing_units': housing_units,
-        'selected_unit': housing_unit_id,
+        'selected_unit': selected_unit,
     }
     return render(request, 'properties/inventory_list.html', context)
 
 
-@login_required(login_url='properties:login')
 @login_required(login_url='properties:login')
 def upload_file(request):
     """Handle file upload and automatic import"""
@@ -581,4 +578,101 @@ def transfer_history(request):
         'selected_item': inventory_item_id,
     }
     return render(request, 'properties/transfer_history.html', context)
+
+@login_required
+def district_search(request):
+    """Search engine for Districts"""
+    query = request.GET.get('q', '').strip()
+    districts = District.objects.all()
+    if query:
+        districts = districts.filter(Q(name__icontains=query) | Q(dcode__icontains=query))
+    
+    context = {'districts': districts, 'query': query}
+    return render(request, 'properties/district_search.html', context)
+
+@login_required
+def district_detail(request, dcode):
+    """View locals within a district"""
+    district = get_object_or_404(District, dcode=dcode)
+    locals_list = Local.objects.filter(district=district).order_by('name')
+    context = {
+        'district': district,
+        'locals': locals_list
+    }
+    return render(request, 'properties/district_detail.html', context)
+
+@login_required
+def local_summary(request, lcode):
+    """Aggregate summary for a specific Local across all National apps"""
+    from gusali.models import Building
+    from kagamitan.models import Item
+    from lupa.models import Land
+    from plants.models import Plant
+    
+    local = get_object_or_404(Local, lcode=lcode)
+    
+    # Cost Summaries
+    gusali_cost = Building.objects.filter(local=local).aggregate(total=Sum('current_total_cost'))['total'] or 0
+    kagamitan_cost = Item.objects.filter(local=local).aggregate(total=Sum('total_price'))['total'] or 0
+    lupa_cost = Land.objects.filter(local=local).aggregate(total=Sum('market_value'))['total'] or 0
+    plants_cost = Plant.objects.filter(local=local).aggregate(total=Sum('total_value'))['total'] or 0
+    
+    total_local_cost = gusali_cost + kagamitan_cost + lupa_cost + plants_cost
+    
+    context = {
+        'local': local,
+        'gusali_cost': gusali_cost,
+        'kagamitan_cost': kagamitan_cost,
+        'lupa_cost': lupa_cost,
+        'plants_cost': plants_cost,
+        'total_local_cost': total_local_cost,
+    }
+    return render(request, 'properties/local_summary.html', context)
+
+@login_required
+def housing_search(request):
+    query = request.GET.get('q', '').strip()
+
+    buildings = []
+    units = []
+
+    if query:
+        # Search buildings by name only
+        buildings = Property.objects.filter(name__icontains=query)
+
+        # Search workers / occupants by name only
+        units = HousingUnit.objects.select_related('property') \
+            .filter(occupant_name__icontains=query)
+
+    return render(request, 'properties/housing_search.html', {
+        'query': query,
+        'buildings': buildings,
+        'units': units,
+    })
+@login_required
+def building_map(request, pk):
+    """Visualizes housing units in a grid layout (Map-like table)"""
+    building = get_object_or_404(Property, pk=pk)
+    # Get units and group by Floor/Unit Number
+    units_list = HousingUnit.objects.filter(property=building).order_by('floor', 'housing_unit_name')
+    
+    # Organize into a grid dictionary {floor: [units]}
+    grid = {}
+    for unit in units_list:
+        floor = unit.floor or "Other"
+        if floor not in grid:
+            grid[floor] = []
+        grid[floor].append(unit)
+    
+    # Prepare sorted list of tuples [(floor, [units])] for template
+    sorted_floors = sorted(grid.keys(), reverse=True)
+    floor_data = []
+    for floor in sorted_floors:
+        floor_data.append((floor, grid[floor]))
+    
+    context = {
+        'building': building,
+        'floor_data': floor_data,
+    }
+    return render(request, 'properties/building_map.html', context)
 

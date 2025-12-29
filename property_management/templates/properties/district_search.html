@@ -1,0 +1,44 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}District Search - Property Management System{% endblock %}
+
+{% block content %}
+<div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <h1 style="color: #2c3e50; margin-bottom: 2rem; border-bottom: 2px solid #3498db; padding-bottom: 0.5rem;">
+        District Summary Search
+    </h1>
+
+    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <form method="GET" action="{% url 'properties:district_search' %}" style="display: flex; gap: 1rem;">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search by District name or code..."
+                style="flex-grow: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            <button type="submit" class="btn btn-primary" style="padding: 0 2rem;">Search</button>
+        </form>
+    </div>
+
+    {% if query %}
+    <p style="margin-bottom: 1rem;">Showing results for: <strong>"{{ query }}"</strong></p>
+    {% endif %}
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+        {% for district in districts %}
+        <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; transition: transform 0.2s; background: #fff;"
+            onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='#3498db';"
+            onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#eee';">
+            <h3 style="color: #2c3e50; margin-bottom: 0.5rem;">{{ district.name }}</h3>
+            <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 1rem;">Code: {{ district.dcode }}</p>
+            <a href="{% url 'properties:district_detail' district.dcode %}" class="btn btn-success"
+                style="width: 100%; text-align: center;">View Locals</a>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #7f8c8d;">
+            {% if query %}
+            No districts found matching your search.
+            {% else %}
+            Start typing to search for a district.
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

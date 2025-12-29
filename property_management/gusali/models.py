@@ -32,6 +32,18 @@ class Building(models.Model):
         help_text="Building classification (e.g., A-3, A-PH, ADL-1)"
     )
     
+    # Location codes
+    dcode = models.CharField(
+        max_length=10,
+        blank=True,
+        help_text="District code (DCODE)"
+    )
+    lcode = models.CharField(
+        max_length=10,
+        blank=True,
+        help_text="Local code (LCODE)"
+    )
+    
     # Donation information
     is_donated = models.BooleanField(
         default=False,
