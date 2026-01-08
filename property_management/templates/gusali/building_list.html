@@ -1,45 +1,261 @@
 {% extends 'properties/base.html' %}
+{% load static %}
 
 {% block title %}Buildings (Gusali) - Property Management{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.04);
+        --card-shadow-hover: 0 10px 20px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: white;
+        position: relative;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--card-shadow-hover);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary-gradient);
+    }
+
+    .stat-card.bg-success::before {
+        background: var(--success-gradient);
+    }
+
+    .stat-card.bg-primary::before {
+        background: var(--primary-gradient);
+    }
+
+    .card-header-gradient {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+    }
+
+    .badge-gradient {
+        background: var(--secondary-gradient);
+        color: white;
+        border: none;
+    }
+
+    .filter-card {
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 10px;
+        background: white;
+    }
+
+    .table-container {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody tr {
+        transition: all 0.2s ease;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .table tbody tr:hover {
+        background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        transform: scale(1.002);
+    }
+
+    .search-box {
+        background: white;
+        border-radius: 10px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .search-box .input-group {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .search-box .input-group-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1rem;
+    }
+
+    .search-box input {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-left: none;
+        padding: 0.75rem;
+    }
+
+    .search-box input:focus {
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .action-btn {
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .filter-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+        border-radius: 10px;
+        border: 2px dashed rgba(102, 126, 234, 0.3);
+    }
+
+    .empty-state i {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 3rem;
+    }
+
+    .custom-select {
+        border-radius: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 0.5rem 1rem;
+        background: white;
+        transition: all 0.2s ease;
+    }
+
+    .custom-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .status-badge {
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    .cost-cell {
+        font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', monospace;
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    .header-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+    }
+
+    .header-section h2 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .header-section .lead {
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <h2><i class="fas fa-building me-2"></i>Buildings (Gusali)</h2>
-                <div>
-                    <a href="{% url 'gusali:building_report' %}" class="btn btn-outline-info me-2">
-                        <i class="fas fa-chart-bar me-1"></i>Report
-                    </a>
-                    <a href="{% url 'gusali:building_upload' %}" class="btn btn-primary">
-                        <i class="fas fa-upload me-2"></i>Upload Report
-                    </a>
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2><i class="fas fa-building me-3"></i>Building Management System</h2>
+                <p class="lead mb-0">Manage and track all buildings (Gusali) across districts and locals</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'gusali:building_report' %}" class="btn btn-light me-2 action-btn">
+                    <i class="fas fa-chart-bar me-2"></i>Analytics
+                </a>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-plus-circle me-2"></i>Manual Entry
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'gusali:building_create' %}">Add New Building</a></li>
+                        <li><a class="dropdown-item" href="{% url 'gusali:gusali_csv_upload' %}">Mass Upload (CSV)</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Search Box -->
-    <div class="row mb-3">
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
+            <div class="search-box">
                 <div class="card-body py-3">
                     <form method="get" class="row g-2 align-items-center">
-                        <div class="col-md-6">
+                        <div class="col-md-8">
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-search"></i></span>
                                 <input type="text" name="q" class="form-control"
-                                    placeholder="Search by District, Local, or Building Name..."
+                                    placeholder="Search buildings by name, district, local, or code..."
                                     value="{{ search_query }}">
-                                <button type="submit" class="btn btn-primary">Search</button>
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="fas fa-search me-2"></i>Search
+                                </button>
                             </div>
                         </div>
-                        <div class="col-md-6 text-end">
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle"></i>
-                                Search: distrito, lokal, building name
-                            </small>
+                        <div class="col-md-4 text-end">
+                            <div class="d-flex align-items-center justify-content-end gap-2">
+                                <span class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    {{ buildings.count }} buildings found
+                                </span>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -47,227 +263,399 @@
         </div>
     </div>
 
-    <!-- Filters -->
+    <!-- Summary Stats -->
     <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header py-2">
-                    <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filter Buildings</h6>
-                </div>
-                <div class="card-body">
-                    <form method="get" class="row g-3">
-                        <!-- Keep search query -->
-                        {% if search_query %}
-                        <input type="hidden" name="q" value="{{ search_query }}">
-                        {% endif %}
-
-                        <!-- District Filter -->
-                        <div class="col-md-3">
-                            <label class="form-label">District (Distrito)</label>
-                            <select name="district" class="form-select"
-                                onchange="this.form.local.value=''; this.form.submit();">
-                                <option value="">All Districts</option>
-                                {% for district in districts %}
-                                <option value="{{ district.dcode }}" {% if current_district == district.dcode %}selected{% endif %}
-                                    endif %}>{{ district.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <!-- Local Filter -->
-                        <div class="col-md-3">
-                            <label class="form-label">Local (Lokal)</label>
-                            <select name="local" class="form-select">
-                                <option value="">All Locals</option>
-                                {% for local in locals %}
-                                <option value="{{ local.lcode }}" {% if current_local == local.lcode %}selected{% endif %}
-                                    %}>{{ local.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <!-- Building Code Filter -->
-                        <div class="col-md-2">
-                            <label class="form-label">Building Code</label>
-                            <select name="code" class="form-select">
-                                <option value="">All Codes</option>
-                                {% for code, label in code_choices %}
-                                <option value="{{ code }}" {% if current_code == code %}selected{% endif %}>
-                                    {{ label }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <!-- Year Filter -->
-                        <div class="col-md-2">
-                            <label class="form-label">Year</label>
-                            <select name="year" class="form-select">
-                                <option value="">All Years</option>
-                                {% for year in years %}
-                                <option value="{{ year }}" {% if current_year == year|stringformat:"s" %}selected{% endif %}
-                                    %}>
-                                    {{ year }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <!-- Filter Buttons -->
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-outline-primary me-2">
-                                <i class="fas fa-filter me-1"></i>Filter
-                            </button>
-                            <a href="{% url 'gusali:building_list' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-times"></i>
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Summary Card -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card bg-primary text-white">
+        <div class="col-md-3">
+            <div class="stat-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-title mb-0">Total Buildings</h6>
+                            <h6 class="text-uppercase text-muted small mb-2">Total Buildings</h6>
                             <h2 class="mb-0">{{ buildings.count }}</h2>
+                            <small class="text-muted">Across all districts</small>
                         </div>
-                        <i class="fas fa-building fa-2x opacity-50"></i>
+                        <div class="icon-circle bg-primary bg-gradient">
+                            <i class="fas fa-building text-white"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card bg-success text-white">
+        <div class="col-md-3">
+            <div class="stat-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-title mb-0">Total Cost</h6>
-                            <h2 class="mb-0">₱{{ total_cost|floatformat:2|default:"0.00" }}</h2>
+                            <h6 class="text-uppercase text-muted small mb-2">Total Value</h6>
+                            <h2 class="mb-0">₱{{ total_cost|floatformat:0|default:"0" }}</h2>
+                            <small class="text-muted">Current market value</small>
                         </div>
-                        <i class="fas fa-peso-sign fa-2x opacity-50"></i>
+                        <div class="icon-circle bg-success bg-gradient">
+                            <i class="fas fa-peso-sign text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted small mb-2">Donated</h6>
+                            <h2 class="mb-0">{{ donated_count|default:"0" }}</h2>
+                            <small class="text-muted">HANDOG buildings</small>
+                        </div>
+                        <div class="icon-circle bg-info bg-gradient">
+                            <i class="fas fa-hand-holding-heart text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted small mb-2">Active Districts</h6>
+                            <h2 class="mb-0">{{ districts|length }}</h2>
+                            <small class="text-muted">With registered buildings</small>
+                        </div>
+                        <div class="icon-circle bg-warning bg-gradient">
+                            <i class="fas fa-map-marker-alt text-white"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Active Filters Display -->
-    {% if search_query or current_district or current_local or current_code or current_year %}
-    <div class="row mb-3">
+    <!-- Filters Section -->
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex flex-wrap gap-2 align-items-center">
-                <span class="text-muted">Active Filters:</span>
-                {% if search_query %}
-                <span class="badge bg-info">Search: {{ search_query }}</span>
-                {% endif %}
-                {% if current_district %}
-                <span class="badge bg-secondary">District: {{ current_district_name|default:current_district }}</span>
-                {% endif %}
-                {% if current_local %}
-                <span class="badge bg-secondary">Local: {{ current_local_name|default:current_local }}</span>
-                {% endif %}
-                {% if current_code %}
-                <span class="badge bg-primary">Code: {{ current_code }}</span>
-                {% endif %}
-                {% if current_year %}
-                <span class="badge bg-warning text-dark">Year: {{ current_year }}</span>
-                {% endif %}
-                <a href="{% url 'gusali:building_list' %}" class="btn btn-sm btn-outline-danger">
-                    <i class="fas fa-times me-1"></i>Clear All
-                </a>
+            <div class="filter-card">
+                <div class="card-header py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Advanced Filters</h6>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" 
+                                data-bs-target="#filterCollapse" aria-expanded="true">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse show" id="filterCollapse">
+                    <div class="card-body pt-3">
+                        <form method="get" class="row g-3">
+                            <!-- Keep search query -->
+                            {% if search_query %}
+                            <input type="hidden" name="q" value="{{ search_query }}">
+                            {% endif %}
+
+                            <div class="col-md-3">
+                                <label class="form-label small text-uppercase text-muted">District</label>
+                                <select name="district" class="form-select custom-select" 
+                                        onchange="this.form.local.value=''; this.form.submit();">
+                                    <option value="">All Districts</option>
+                                    {% for district in districts %}
+                                    <option value="{{ district.dcode }}" 
+                                            {% if current_district == district.dcode %}selected{% endif %}>
+                                        {{ district.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label small text-uppercase text-muted">Local</label>
+                                <select name="local" class="form-select custom-select">
+                                    <option value="">All Locals</option>
+                                    {% for local in locals %}
+                                    <option value="{{ local.lcode }}" 
+                                            {% if current_local == local.lcode %}selected{% endif %}>
+                                        {{ local.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label small text-uppercase text-muted">Building Code</label>
+                                <select name="code" class="form-select custom-select">
+                                    <option value="">All Codes</option>
+                                    {% for code, label in code_choices %}
+                                    <option value="{{ code }}" {% if current_code == code %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label small text-uppercase text-muted">Year</label>
+                                <select name="year" class="form-select custom-select">
+                                    <option value="">All Years</option>
+                                    {% for year in years %}
+                                    <option value="{{ year }}" 
+                                            {% if current_year == year|stringformat:"s" %}selected{% endif %}>
+                                        {{ year }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-2 d-flex align-items-end gap-2">
+                                <button type="submit" class="btn btn-primary flex-grow-1">
+                                    <i class="fas fa-filter me-1"></i>Apply
+                                </button>
+                                <a href="{% url 'gusali:building_list' %}" class="btn btn-outline-secondary" 
+                                   title="Reset all filters">
+                                    <i class="fas fa-redo"></i>
+                                </a>
+                            </div>
+                        </form>
+
+                        <!-- Active Filters -->
+                        {% if search_query or current_district or current_local or current_code or current_year %}
+                        <div class="mt-4 pt-3 border-top">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-muted small">Active filters:</span>
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% if search_query %}
+                                    <span class="filter-badge">
+                                        <i class="fas fa-search"></i>
+                                        {{ search_query }}
+                                    </span>
+                                    {% endif %}
+                                    {% if current_district %}
+                                    <span class="filter-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ current_district_name|default:current_district }}
+                                    </span>
+                                    {% endif %}
+                                    {% if current_local %}
+                                    <span class="filter-badge" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                        <i class="fas fa-map-pin"></i>
+                                        {{ current_local_name|default:current_local }}
+                                    </span>
+                                    {% endif %}
+                                    {% if current_code %}
+                                    <span class="filter-badge" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                        <i class="fas fa-code"></i>
+                                        {{ current_code }}
+                                    </span>
+                                    {% endif %}
+                                    {% if current_year %}
+                                    <span class="filter-badge" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ current_year }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    {% endif %}
 
     <!-- Buildings Table -->
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Building List</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Code</th>
-                                    <th>Building Name</th>
-                                    <th>Classification</th>
-                                    <th>Local</th>
-                                    <th>District</th>
-                                    <th>Capacity</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Current Cost</th>
-                                    <th>Year</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for building in buildings %}
-                                <tr>
-                                    <td><span class="badge bg-primary">{{ building.code }}</span></td>
-                                    <td>{{ building.name }}</td>
-                                    <td>{{ building.classification|default:"-" }}</td>
-                                    <td>
-                                        {% if building.local %}
-                                        {{ building.local.name }}
-                                        {% else %}
-                                        <span class="text-muted">-</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if building.local and building.local.district %}
-                                        {{ building.local.district.name }}
-                                        {% else %}
-                                        <span class="text-muted">-</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ building.capacity|default:"-" }}</td>
-                                    <td>
-                                        {% if building.is_donated %}
-                                        <span class="badge bg-success">HANDOG</span>
-                                        {% else %}
-                                        <span class="badge bg-secondary">-</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-end">₱{{ building.current_total_cost|floatformat:2 }}</td>
-                                    <td>{{ building.year_covered }}</td>
-                                    <td>
-                                        <a href="{% url 'gusali:building_detail' building.pk %}"
-                                            class="btn btn-sm btn-outline-primary" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="10" class="text-center text-muted py-4">
-                                        <i class="fas fa-building fa-3x mb-3 d-block"></i>
-                                        {% if search_query or current_district or current_local %}
-                                        No buildings found matching your search criteria.
-                                        <br><a href="{% url 'gusali:building_list' %}">Clear filters</a>
-                                        {% else %}
-                                        No buildings found. <a href="{% url 'gusali:building_upload' %}">Upload a GUSALI
-                                            report</a> to get started.
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+            <div class="table-container">
+                <div class="card">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Building Registry</h5>
+                        <div class="d-flex gap-2">
+                            <span class="badge badge-gradient">
+                                {{ buildings.count }} Records
+                            </span>
+                        </div>
                     </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Code</th>
+                                        <th>Building Name</th>
+                                        <th>Classification</th>
+                                        <th>Location</th>
+                                        <th>Capacity</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Current Cost</th>
+                                        <th>Year</th>
+                                        <th class="text-center pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for building in buildings %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <span class="badge bg-primary rounded-pill px-3 py-1">
+                                                {{ building.code }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ building.name }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">{{ building.classification|default:"-" }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="location-info">
+                                                <small class="text-muted d-block">
+                                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                                    {% if building.local and building.local.district %}
+                                                    {{ building.local.name }}, {{ building.local.district.name }}
+                                                    {% else %}
+                                                    <span class="text-danger">Location not set</span>
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if building.capacity %}
+                                            <span class="badge bg-info rounded-pill px-3">
+                                                {{ building.capacity }}
+                                            </span>
+                                            {% else %}
+                                            <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if building.is_donated %}
+                                            <span class="status-badge" style="background: linear-gradient(135deg, #4ade80 0%, #22d3ee 100%);">
+                                                <i class="fas fa-gift me-1"></i>HANDOG
+                                            </span>
+                                            {% else %}
+                                            <span class="status-badge bg-secondary">
+                                                Standard
+                                            </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end cost-cell">
+                                            ₱{{ building.current_total_cost|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">
+                                                {{ building.year_covered }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center pe-4">
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="{% url 'gusali:building_detail' building.pk %}" class="btn btn-sm btn-outline-primary action-btn" title="View Details"><i class="fas fa-eye"></i></a>
+                                                <a href="{% url 'gusali:building_update' building.pk %}" class="btn btn-sm btn-outline-info action-btn" title="Edit Building"><i class="fas fa-edit"></i></a>
+                                                <a href="{% url 'gusali:building_delete' building.pk %}" class="btn btn-sm btn-outline-danger action-btn" title="Delete Building"><i class="fas fa-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="9">
+                                            <div class="empty-state">
+                                                <i class="fas fa-building mb-3"></i>
+                                                <h4 class="mb-2">No Buildings Found</h4>
+                                                <p class="text-muted mb-4">
+                                                    {% if search_query or current_district or current_local %}
+                                                    Try adjusting your search or filters
+                                                    {% else %}
+                                                    Start by uploading your first GUSALI report
+                                                    {% endif %}
+                                                </p>
+                                                <div class="d-flex gap-3 justify-content-center">
+                                                    {% if search_query or current_district or current_local %}
+                                                    <a href="{% url 'gusali:building_list' %}" 
+                                                       class="btn btn-primary">
+                                                        <i class="fas fa-redo me-2"></i>Clear Filters
+                                                    </a>
+                                                    {% endif %}
+                                                    <a href="{% url 'gusali:building_upload' %}" 
+                                                       class="btn btn-success">
+                                                        <i class="fas fa-upload me-2"></i>Upload Report
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% if buildings %}
+                    <div class="card-footer py-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    Showing {{ buildings.count }} building{{ buildings.count|pluralize }}
+                                    {% if total_cost %}
+                                    • Total value: ₱{{ total_cost|floatformat:2 }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Last updated: {{ request.timestamp|date:"M d, Y H:i"|default:"Recently" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Custom JS for interactivity -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth transitions to filter collapse
+    const filterCollapse = document.getElementById('filterCollapse');
+    if (filterCollapse) {
+        filterCollapse.addEventListener('show.bs.collapse', function() {
+            this.style.transition = 'all 0.3s ease';
+        });
+    }
+
+    // Enhance table row clicks
+    const tableRows = document.querySelectorAll('tbody tr[data-href]');
+    tableRows.forEach(row => {
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function() {
+            window.location.href = this.dataset.href;
+        });
+    });
+
+    // Add search input focus animation
+    const searchInput = document.querySelector('input[name="q"]');
+    if (searchInput) {
+        searchInput.addEventListener('focus', function() {
+            this.parentElement.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.2)';
+        });
+        searchInput.addEventListener('blur', function() {
+            this.parentElement.style.boxShadow = 'none';
+        });
+    }
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add icon circle styling dynamically
+document.querySelectorAll('.icon-circle').forEach(icon => {
+    icon.style.width = '50px';
+    icon.style.height = '50px';
+    icon.style.borderRadius = '50%';
+    icon.style.display = 'flex';
+    icon.style.alignItems = 'center';
+    icon.style.justifyContent = 'center';
+    icon.style.fontSize = '1.2rem';
+});
+</script>
 {% endblock %}

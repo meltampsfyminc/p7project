@@ -5,9 +5,12 @@ from django.db.models import Sum
 from django.core.management import call_command
 from io import StringIO
 import os
+import csv
+from django.http import HttpResponse
 
 from .models import Building, BuildingYearlyRecord
 from properties.models import District, Local
+from .forms import BuildingForm, BuildingYearlyRecordForm
 
 
 @login_required
@@ -200,13 +203,23 @@ def building_report(request):
     total_buildings = buildings.count()
     total_cost = buildings.aggregate(total=Sum('current_total_cost'))['total'] or 0
     
-    # Yearly totals
-    yearly_records = BuildingYearlyRecord.objects.values('year').annotate(
-        total_added=Sum('total_added'),
-        total_removed=Sum('broken_removed_cost'),
-        year_end_total=Sum('year_end_total'),
-    ).order_by('-year')
-    
+    # Yearly totals (materialize as list)
+    yearly_records = list(
+        BuildingYearlyRecord.objects.values('year').annotate(
+            total_added=Sum('total_added'),
+            total_removed=Sum('broken_removed_cost'),
+            year_end_total=Sum('year_end_total'),
+        ).order_by('-year')
+    )
+
+    # ── Add computed financial values ──
+    for r in yearly_records:
+        added = r['total_added'] or 0
+        removed = r['total_removed'] or 0
+
+        r['net_change'] = added + removed
+        r['net_change_abs'] = abs(r['net_change'])
+
     context = {
         'code_summary': code_summary,
         'total_buildings': total_buildings,
@@ -214,3 +227,100 @@ def building_report(request):
         'yearly_records': yearly_records,
     }
     return render(request, 'gusali/building_report.html', context)
+
+@login_required
+def building_create(request):
+    if request.method == 'POST':
+        form = BuildingForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Building created successfully.')
+            return redirect('gusali:building_list')
+    else:
+        form = BuildingForm()
+    return render(request, 'gusali/building_form.html', {'form': form, 'title': 'Create Building'})
+
+@login_required
+def building_update(request, pk):
+    building = get_object_or_404(Building, pk=pk)
+    if request.method == 'POST':
+        form = BuildingForm(request.POST, instance=building)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Building updated successfully.')
+            return redirect('gusali:building_detail', pk=pk)
+    else:
+        form = BuildingForm(instance=building)
+    return render(request, 'gusali/building_form.html', {'form': form, 'title': 'Update Building'})
+
+@login_required
+def building_delete(request, pk):
+    building = get_object_or_404(Building, pk=pk)
+    if request.method == 'POST':
+        building.delete()
+        messages.success(request, 'Building deleted successfully.')
+        return redirect('gusali:building_list')
+    return render(request, 'gusali/building_confirm_delete.html', {'building': building})
+
+@login_required
+def yearly_record_create(request, building_pk):
+    building = get_object_or_404(Building, pk=building_pk)
+    if request.method == 'POST':
+        form = BuildingYearlyRecordForm(request.POST)
+        if form.is_valid():
+            record = form.save(commit=False)
+            record.building = building
+            record.save()
+            messages.success(request, 'Yearly record created successfully.')
+            return redirect('gusali:building_detail', pk=building_pk)
+    else:
+        form = BuildingYearlyRecordForm()
+    return render(request, 'gusali/yearly_record_form.html', {'form': form, 'building': building, 'title': 'Create Yearly Record'})
+
+@login_required
+def yearly_record_update(request, pk):
+    record = get_object_or_404(BuildingYearlyRecord, pk=pk)
+    if request.method == 'POST':
+        form = BuildingYearlyRecordForm(request.POST, instance=record)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Yearly record updated successfully.')
+            return redirect('gusali:building_detail', pk=record.building.pk)
+    else:
+        form = BuildingYearlyRecordForm(instance=record)
+    return render(request, 'gusali/yearly_record_form.html', {'form': form, 'building': record.building, 'title': 'Update Yearly Record'})
+
+@login_required
+def yearly_record_delete(request, pk):
+    record = get_object_or_404(BuildingYearlyRecord, pk=pk)
+    building_pk = record.building.pk
+    if request.method == 'POST':
+        record.delete()
+        messages.success(request, 'Yearly record deleted successfully.')
+        return redirect('gusali:building_detail', pk=building_pk)
+    return render(request, 'gusali/yearly_record_confirm_delete.html', {'record': record})
+
+@login_required
+def gusali_csv_upload(request):
+    if request.method == 'POST':
+        csv_file = request.FILES['csv_file']
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, 'This is not a CSV file')
+            return redirect('gusali:gusali_csv_upload')
+
+        try:
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            reader = csv.DictReader(decoded_file)
+            
+            for row in reader:
+                # Assuming your CSV has headers that match model fields
+                Building.objects.create(**row)
+
+            messages.success(request, 'CSV file has been uploaded and processed successfully.')
+        except Exception as e:
+            messages.error(request, f'An error occurred: {e}')
+        
+        return redirect('gusali:building_list')
+
+    return render(request, 'gusali/gusali_csv_upload.html')
+

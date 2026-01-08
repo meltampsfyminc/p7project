@@ -1,98 +1,29 @@
 {% extends 'properties/base.html' %}
 
-{% block title %}{{ item.item_name }} - Details{% endblock %}
-
 {% block content %}
-<div class="container py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'kagamitan:item_list' %}">Kagamitan</a></li>
-                    <li class="breadcrumb-item active">{{ item.item_name }}</li>
-                </ol>
-            </nav>
-            <div class="d-flex justify-content-between align-items-center">
-                <h2>{{ item.item_name }}</h2>
-                <span class="badge bg-primary fs-6">{{ item.location }}</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Main Details -->
-        <div class="col-md-8">
-            <div class="card mb-4">
-                <div class="card-header">Item Information</div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <strong>Local:</strong>
-                            <p class="text-muted">{{ item.local.name|default:"Unassigned" }} ({{
-                                item.local.district.name }})</p>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Report Year:</strong>
-                            <p class="text-muted">{{ item.year_reported }}</p>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <strong>Brand:</strong> <br>{{ item.brand|default:"-" }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Model:</strong> <br>{{ item.model_number|default:"-" }}
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <strong>Material:</strong> <br>{{ item.material|default:"-" }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Color:</strong> <br>{{ item.color|default:"-" }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Size:</strong> <br>{{ item.size|default:"-" }}
-                        </div>
-                    </div>
-
-                    {% if item.remarks %}
-                    <div class="alert alert-light border">
-                        <strong>Remarks:</strong> {{ item.remarks }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Costs Card -->
-        <div class="col-md-4">
-            <div class="card border-success mb-4">
-                <div class="card-header bg-success text-white">Financial Details</div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="text-muted">Unit Price</label>
-                        <h3>₱{{ item.unit_price|floatformat:2 }}</h3>
-                    </div>
-                    <div class="mb-3">
-                        <label class="text-muted">Quantity</label>
-                        <h3>{{ item.quantity }}</h3>
-                    </div>
-                    <hr>
-                    <div class="mb-0">
-                        <label class="text-muted fw-bold">Total Value</label>
-                        <h2 class="text-success">₱{{ item.total_price|floatformat:2 }}</h2>
-                    </div>
-                </div>
-            </div>
-
-            {% if item.is_new_addition %}
-            <div class="alert alert-info">
-                <i class="fas fa-star me-2"></i> New Addition this year
-            </div>
-            {% endif %}
-        </div>
-    </div>
+<div class="container mt-4">
+    <h2>{{ item.item_name }}</h2>
+    <table class="table">
+        <tbody>
+            <tr><th>Location</th><td>{{ item.location }}</td></tr>
+            <tr><th>Property Number</th><td>{{ item.property_number }}</td></tr>
+            <tr><th>Date Acquired</th><td>{{ item.date_acquired }}</td></tr>
+            <tr><th>Quantity</th><td>{{ item.quantity }}</td></tr>
+            <tr><th>Brand</th><td>{{ item.brand }}</td></tr>
+            <tr><th>Model</th><td>{{ item.model }}</td></tr>
+            <tr><th>Material</th><td>{{ item.material }}</td></tr>
+            <tr><th>Color</th><td>{{ item.color }}</td></tr>
+            <tr><th>Size</th><td>{{ item.size }}</td></tr>
+            <tr><th>Unit Price</th><td>{{ item.unit_price }}</td></tr>
+            <tr><th>Total Price</th><td>{{ item.total_price }}</td></tr>
+            <tr><th>Reference Number</th><td>{{ item.reference_number }}</td></tr>
+            <tr><th>Remarks</th><td>{{ item.remarks }}</td></tr>
+            <tr><th>Year Reported</th><td>{{ item.year_reported }}</td></tr>
+            <tr><th>Is New</th><td>{{ item.is_new }}</td></tr>
+        </tbody>
+    </table>
+    <a href="{% url 'kagamitan:item_list' %}" class="btn btn-secondary">Back to List</a>
+    <a href="{% url 'kagamitan:item_update' item.pk %}" class="btn btn-info">Edit</a>
+    <a href="{% url 'kagamitan:item_delete' item.pk %}" class="btn btn-danger">Delete</a>
 </div>
 {% endblock %}

@@ -4,10 +4,19 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Django / Migrations caches
+# Django / Logs / DB
 *.sqlite3
 *.log
 
 # Virtual environment
 venv/
-.env/
+
+# Environment variables
+.env
+.env.*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

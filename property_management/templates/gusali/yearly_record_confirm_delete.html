@@ -1,0 +1,13 @@
+{% extends 'properties/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Delete Yearly Record</h2>
+    <p>Are you sure you want to delete the record for the year {{ record.year }} for "{{ record.building.name }}"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="{% url 'gusali:building_detail' pk=record.building.pk %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

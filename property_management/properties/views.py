@@ -15,6 +15,8 @@ from django.db.models import Sum, Q, Count
 from django.core.management import call_command
 import os
 from io import StringIO
+import uuid
+from django.utils.text import get_valid_filename
 
 def get_client_ip(request):
     """Get client IP address from request"""
@@ -289,8 +291,11 @@ def upload_file(request):
         uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
         os.makedirs(uploads_dir, exist_ok=True)
         
-        # Save file
-        file_path = os.path.join(uploads_dir, uploaded_file.name)
+        # Sanitize filename to prevent path traversal
+        base_name = os.path.basename(uploaded_file.name)
+        safe_basename = get_valid_filename(base_name)
+        unique_filename = f"{uuid.uuid4().hex[:8]}-{safe_basename}"
+        file_path = os.path.join(uploads_dir, unique_filename)
         
         try:
             with open(file_path, 'wb+') as destination:

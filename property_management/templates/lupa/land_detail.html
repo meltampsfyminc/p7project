@@ -1,0 +1,25 @@
+{% extends 'properties/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ land.location }}</h2>
+    <table class="table">
+        <tbody>
+            <tr><th>Local</th><td>{{ land.local }}</td></tr>
+            <tr><th>Location</th><td>{{ land.location }}</td></tr>
+            <tr><th>Lot Area (sqm)</th><td>{{ land.lot_area|floatformat:2 }}</td></tr>
+            <tr><th>Lot Type</th><td>{{ land.lot_type }}</td></tr>
+            <tr><th>Title Number</th><td>{{ land.title_number }}</td></tr>
+            <tr><th>Owner</th><td>{{ land.owner }}</td></tr>
+            <tr><th>Status</th><td>{{ land.get_status_display }}</td></tr>
+            <tr><th>Market Value</th><td>₱{{ land.market_value|floatformat:2 }}</td></tr>
+            <tr><th>Acquisition Cost</th><td>₱{{ land.acquisition_cost|floatformat:2 }}</td></tr>
+            <tr><th>Use Classification</th><td>{{ land.use_classification }}</td></tr>
+            <tr><th>Remarks</th><td>{{ land.remarks }}</td></tr>
+        </tbody>
+    </table>
+    <a href="{% url 'lupa:land_list' %}" class="btn btn-secondary">Back to List</a>
+    <a href="{% url 'lupa:land_update' land.pk %}" class="btn btn-info">Edit</a>
+    <a href="{% url 'lupa:land_delete' land.pk %}" class="btn btn-danger">Delete</a>
+</div>
+{% endblock %}

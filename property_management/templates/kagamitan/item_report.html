@@ -1,97 +1,10 @@
 {% extends 'properties/base.html' %}
 
-{% block title %}Kagamitan Summary Report{% endblock %}
-
 {% block content %}
-<div class="container py-4">
-    <h2 class="mb-4"><i class="fas fa-chart-pie me-2"></i>Kagamitan Summary Report</h2>
-
-    <div class="row mb-4">
-        <!-- Stats Cards -->
-        <div class="col-md-4">
-            <div class="card bg-info text-white h-100">
-                <div class="card-body text-center">
-                    <h1>{{ total_items }}</h1>
-                    <p>Total Items</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body text-center">
-                    <h1>₱{{ total_value|floatformat:0 }}</h1>
-                    <p>Total Value</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-warning text-dark h-100">
-                <div class="card-body text-center">
-                    <h1>{{ new_items }}</h1>
-                    <p>New Items (This Year)</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Location Breakdown -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">Breakdown by Location</div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Location</th>
-                                    <th class="text-end">Count</th>
-                                    <th class="text-end">Value</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for code, stats in location_summary.items %}
-                                <tr>
-                                    <td>{{ stats.label }}</td>
-                                    <td class="text-end">{{ stats.count }}</td>
-                                    <td class="text-end">₱{{ stats.total_value|floatformat:2 }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Yearly Summary -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">History by Report Year</div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Year</th>
-                                    <th class="text-end">Items</th>
-                                    <th class="text-end">Total Value</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for year_stats in yearly_summary %}
-                                <tr>
-                                    <td>{{ year_stats.year_reported }}</td>
-                                    <td class="text-end">{{ year_stats.item_count }}</td>
-                                    <td class="text-end">₱{{ year_stats.total_value|floatformat:2 }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="container mt-4">
+    <h2>Kagamitan Report</h2>
+    <p>Total Items: {{ total_items }}</p>
+    <p>Total Value: ₱{{ total_value|floatformat:2 }}</p>
+    <a href="{% url 'kagamitan:item_list' %}" class="btn btn-secondary">Back to List</a>
 </div>
 {% endblock %}
