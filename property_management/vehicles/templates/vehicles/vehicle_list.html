@@ -1,16 +1,41 @@
-
 {% extends "base.html" %}
 
+{% block title %}Vehicles List{% endblock %}
+
 {% block content %}
-  <h2>Vehicles List</h2>
-  <a href="{% url 'vehicle_create' %}">Add New Vehicle</a>
-  <ul>
-    {% for item in vehicles %}
-      <li>
-        <a href="{% url 'vehicle_detail' item.pk %}">{{ item.brand }} {{ item.model }}</a>
-        <a href="{% url 'vehicle_update' item.pk %}">Edit</a>
-        <a href="{% url 'vehicle_delete' item.pk %}">Delete</a>
-      </li>
-    {% endfor %}
-  </ul>
+<div class="card mt-4">
+  <div class="card-header">
+    <h2 class="card-title">Vehicles List</h2>
+  </div>
+  <div class="card-body">
+    <a href="{% url 'vehicle_create' %}" class="btn btn-primary mb-3">Add New Vehicle</a>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Brand</th>
+          <th>Model</th>
+          <th>Plate Number</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in vehicles %}
+          <tr>
+            <td><a href="{% url 'vehicle_detail' item.pk %}">{{ item.brand }}</a></td>
+            <td>{{ item.model }}</td>
+            <td>{{ item.plate_number }}</td>
+            <td>
+              <a href="{% url 'vehicle_update' item.pk %}" class="btn btn-sm btn-warning">Edit</a>
+              <a href="{% url 'vehicle_delete' item.pk %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">No vehicles found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

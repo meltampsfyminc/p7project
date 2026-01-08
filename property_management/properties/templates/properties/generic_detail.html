@@ -1,10 +1,19 @@
-
 {% extends "base.html" %}
 
+{% block title %}{{ item }}{% endblock %}
+
 {% block content %}
-  <h2>{{ item }}</h2>
-  {% for field in item._meta.fields %}
-    <p><strong>{{ field.verbose_name }}:</strong> {{ field.value_to_string }}</p>
-  {% endfor %}
-  <a href="{% url model_name|add:'_list' %}">Back to List</a>
+<div class="card mt-4">
+  <div class="card-header">
+    <h2 class="card-title">{{ item }}</h2>
+  </div>
+  <div class="card-body">
+    {% for field in item._meta.fields %}
+      <p><strong>{{ field.verbose_name }}:</strong> {{ field.value_to_string|safe }}</p>
+    {% endfor %}
+  </div>
+  <div class="card-footer">
+    <a href="{% url model_name|add:'_list' %}" class="btn btn-secondary">Back to List</a>
+  </div>
+</div>
 {% endblock %}

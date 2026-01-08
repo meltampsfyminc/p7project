@@ -1,8 +1,25 @@
-
 {% extends "base.html" %}
 
+{% block title %}{{ vehicle.brand }} {{ vehicle.model }}{% endblock %}
+
 {% block content %}
-  <h2>{{ vehicle.brand }} {{ vehicle.model }}</h2>
-  <p><strong>Plate Number:</strong> {{ vehicle.plate_number }}</p>
-  <a href="{% url 'vehicle_list' %}">Back to List</a>
+<div class="card mt-4">
+  <div class="card-header">
+    <h2 class="card-title">{{ vehicle.brand }} {{ vehicle.model }}</h2>
+  </div>
+  <div class="card-body">
+    <p><strong>Plate Number:</strong> {{ vehicle.plate_number }}</p>
+    <p><strong>Conduction Sticker:</strong> {{ vehicle.conduction_sticker }}</p>
+    <p><strong>Engine Number:</strong> {{ vehicle.engine_number }}</p>
+    <p><strong>Chassis Number:</strong> {{ vehicle.chassis_number }}</p>
+    <p><strong>Year Model:</strong> {{ vehicle.year_model }}</p>
+    <p><strong>Color:</strong> {{ vehicle.color }}</p>
+    <p><strong>Acquisition Cost:</strong> {{ vehicle.acquisition_cost }}</p>
+    <p><strong>Date Acquired:</strong> {{ vehicle.date_acquired }}</p>
+    <p><strong>Remarks:</strong> {{ vehicle.remarks }}</p>
+  </div>
+  <div class="card-footer">
+    <a href="{% url 'vehicle_list' %}" class="btn btn-secondary">Back to List</a>
+  </div>
+</div>
 {% endblock %}

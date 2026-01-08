@@ -1,11 +1,19 @@
-
 {% extends "base.html" %}
 
+{% block title %}Confirm Delete{% endblock %}
+
 {% block content %}
-  <h2>Are you sure you want to delete "{{ lupa.name }}"?</h2>
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit">Confirm Delete</button>
-  </form>
-  <a href="{% url 'lupa_list' %}">Cancel</a>
+<div class="card mt-4">
+  <div class="card-header">
+    <h2 class="card-title">Confirm Delete</h2>
+  </div>
+  <div class="card-body">
+    <p>Are you sure you want to delete "{{ lupa.name }}"?</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Confirm Delete</button>
+      <a href="{% url 'lupa_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
 {% endblock %}

@@ -1,16 +1,41 @@
-
 {% extends "base.html" %}
 
+{% block title %}Plants List{% endblock %}
+
 {% block content %}
-  <h2>Plants List</h2>
-  <a href="{% url 'plant_create' %}">Add New Plant</a>
-  <ul>
-    {% for item in plants %}
-      <li>
-        <a href="{% url 'plant_detail' item.pk %}">{{ item.name }}</a>
-        <a href="{% url 'plant_update' item.pk %}">Edit</a>
-        <a href="{% url 'plant_delete' item.pk %}">Delete</a>
-      </li>
-    {% endfor %}
-  </ul>
+<div class="card mt-4">
+  <div class="card-header">
+    <h2 class="card-title">Plants List</h2>
+  </div>
+  <div class="card-body">
+    <a href="{% url 'plant_create' %}" class="btn btn-primary mb-3">Add New Plant</a>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Variety</th>
+          <th>Total Quantity</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in plants %}
+          <tr>
+            <td><a href="{% url 'plant_detail' item.pk %}">{{ item.name }}</a></td>
+            <td>{{ item.variety }}</td>
+            <td>{{ item.total_quantity }}</td>
+            <td>
+              <a href="{% url 'plant_update' item.pk %}" class="btn btn-sm btn-warning">Edit</a>
+              <a href="{% url 'plant_delete' item.pk %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">No plants found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

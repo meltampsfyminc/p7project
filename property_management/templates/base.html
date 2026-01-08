@@ -7,6 +7,36 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Property Management</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'gusali_list' %}">Gusali</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'kagamitan_list' %}">Kagamitan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'lupa_list' %}">Lupa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'plant_list' %}">Plants</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'property_list' %}">Properties</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'vehicle_list' %}">Vehicles</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
     <div class="container">
         {% block content %}{% endblock %}
     </div>

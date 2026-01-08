@@ -1,16 +1,37 @@
-
 {% extends "base.html" %}
 
+{% block title %}{{ model_name|title }} List{% endblock %}
+
 {% block content %}
-  <h2>{{ model_name|title }} List</h2>
-  <a href="{% url model_name|add:'_create' %}">Add New {{ model_name|title }}</a>
-  <ul>
-    {% for item in items %}
-      <li>
-        <a href="{% url model_name|add:'_detail' item.pk %}">{{ item }}</a>
-        <a href="{% url model_name|add:'_update' item.pk %}">Edit</a>
-        <a href="{% url model_name|add:'_delete' item.pk %}">Delete</a>
-      </li>
-    {% endfor %}
-  </ul>
+<div class="card mt-4">
+  <div class="card-header">
+    <h2 class="card-title">{{ model_name|title }} List</h2>
+  </div>
+  <div class="card-body">
+    <a href="{% url model_name|add:'_create' %}" class="btn btn-primary mb-3">Add New {{ model_name|title }}</a>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr>
+            <td><a href="{% url model_name|add:'_detail' item.pk %}">{{ item }}</a></td>
+            <td>
+              <a href="{% url model_name|add:'_update' item.pk %}" class="btn btn-sm btn-warning">Edit</a>
+              <a href="{% url model_name|add:'_delete' item.pk %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">No items found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

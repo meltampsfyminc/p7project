@@ -18,6 +18,9 @@ urlpatterns = [
     path('upload/', views.upload_file, name='upload_file'),
     path('import-history/', views.import_history, name='import_history'),
     path('housing-unit/<int:pk>/', views.housing_unit_detail, name='housing_unit_detail'),
+    path('housing-unit/create/', views.housing_unit_create, name='housing_unit_create'),
+    path('housing-unit/<int:pk>/update/', views.housing_unit_update, name='housing_unit_update'),
+    path('housing-unit/<int:pk>/delete/', views.housing_unit_delete, name='housing_unit_delete'),
     path('building/<int:property_id>/', views.building_occupants, name='building_occupants'),
     path('building/<int:pk>/map/', views.building_map, name='building_map'),
     

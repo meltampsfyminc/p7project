@@ -17,6 +17,7 @@ import os
 from io import StringIO
 import uuid
 from django.utils.text import get_valid_filename
+from .forms import HousingUnitForm
 
 def get_client_ip(request):
     """Get client IP address from request"""
@@ -680,4 +681,35 @@ def building_map(request, pk):
         'floor_data': floor_data,
     }
     return render(request, 'properties/building_map.html', context)
+
+@login_required
+def housing_unit_create(request):
+    if request.method == 'POST':
+        form = HousingUnitForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('properties:property_list')
+    else:
+        form = HousingUnitForm()
+    return render(request, 'properties/housing_unit_form.html', {'form': form, 'title': 'Create Housing Unit'})
+
+@login_required
+def housing_unit_update(request, pk):
+    housing_unit = get_object_or_404(HousingUnit, pk=pk)
+    if request.method == 'POST':
+        form = HousingUnitForm(request.POST, instance=housing_unit)
+        if form.is_valid():
+            form.save()
+            return redirect('properties:housing_unit_detail', pk=pk)
+    else:
+        form = HousingUnitForm(instance=housing_unit)
+    return render(request, 'properties/housing_unit_form.html', {'form': form, 'title': 'Update Housing Unit'})
+
+@login_required
+def housing_unit_delete(request, pk):
+    housing_unit = get_object_or_404(HousingUnit, pk=pk)
+    if request.method == 'POST':
+        housing_unit.delete()
+        return redirect('properties:property_list')
+    return render(request, 'properties/housing_unit_confirm_delete.html', {'housing_unit': housing_unit})
 

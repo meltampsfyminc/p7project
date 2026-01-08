@@ -1,8 +1,17 @@
-
 {% extends "base.html" %}
 
+{% block title %}{{ lupa.name }}{% endblock %}
+
 {% block content %}
-  <h2>{{ lupa.name }}</h2>
-  <p><strong>Description:</strong> {{ lupa.description }}</p>
-  <a href="{% url 'lupa_list' %}">Back to List</a>
+<div class="card mt-4">
+  <div class="card-header">
+    <h2 class="card-title">{{ lupa.name }}</h2>
+  </div>
+  <div class="card-body">
+    <p><strong>Description:</strong> {{ lupa.description }}</p>
+  </div>
+  <div class="card-footer">
+    <a href="{% url 'lupa_list' %}" class="btn btn-secondary">Back to List</a>
+  </div>
+</div>
 {% endblock %}
