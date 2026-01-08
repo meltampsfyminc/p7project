@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Gusali List{% endblock %}
+
+{% block content %}
+<div class="card mt-4">
+  <div class="card-header">
+    <h2 class="card-title">Gusali List</h2>
+  </div>
+  <div class="card-body">
+    <a href="{% url 'gusali_create' %}" class="btn btn-primary mb-3">Add New Gusali</a>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in gusali %}
+          <tr>
+            <td><a href="{% url 'gusali_detail' item.pk %}">{{ item.name }}</a></td>
+            <td>
+              <a href="{% url 'gusali_update' item.pk %}" class="btn btn-sm btn-warning">Edit</a>
+              <a href="{% url 'gusali_delete' item.pk %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">No gusali found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

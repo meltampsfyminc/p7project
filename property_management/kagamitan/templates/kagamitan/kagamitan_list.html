@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Kagamitan List{% endblock %}
+
+{% block content %}
+<div class="card mt-4">
+  <div class="card-header">
+    <h2 class="card-title">Kagamitan List</h2>
+  </div>
+  <div class="card-body">
+    <a href="{% url 'kagamitan_create' %}" class="btn btn-primary mb-3">Add New Kagamitan</a>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in kagamitan %}
+          <tr>
+            <td><a href="{% url 'kagamitan_detail' item.pk %}">{{ item.name }}</a></td>
+            <td>
+              <a href="{% url 'kagamitan_update' item.pk %}" class="btn btn-sm btn-warning">Edit</a>
+              <a href="{% url 'kagamitan_delete' item.pk %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">No kagamitan found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

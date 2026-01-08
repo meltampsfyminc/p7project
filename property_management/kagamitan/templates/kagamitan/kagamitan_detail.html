@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{ kagamitan.name }}{% endblock %}
+
+{% block content %}
+<div class="card mt-4">
+  <div class="card-header">
+    <h2 class="card-title">{{ kagamitan.name }}</h2>
+  </div>
+  <div class="card-body">
+    <p><strong>Description:</strong> {{ kagamitan.description }}</p>
+  </div>
+  <div class="card-footer">
+    <a href="{% url 'kagamitan_list' %}" class="btn btn-secondary">Back to List</a>
+  </div>
+</div>
+{% endblock %}

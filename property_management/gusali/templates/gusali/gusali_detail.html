@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{ gusali.name }}{% endblock %}
+
+{% block content %}
+<div class="card mt-4">
+  <div class="card-header">
+    <h2 class="card-title">{{ gusali.name }}</h2>
+  </div>
+  <div class="card-body">
+    <p><strong>Description:</strong> {{ gusali.description }}</p>
+  </div>
+  <div class="card-footer">
+    <a href="{% url 'gusali_list' %}" class="btn btn-secondary">Back to List</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>{{ plant.name }}</h2>
+  <p><strong>Description:</strong> {{ plant.description }}</p>
+  <a href="{% url 'plant_list' %}">Back to List</a>
+{% endblock %}

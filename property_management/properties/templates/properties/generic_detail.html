@@ -1,0 +1,10 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>{{ item }}</h2>
+  {% for field in item._meta.fields %}
+    <p><strong>{{ field.verbose_name }}:</strong> {{ field.value_to_string }}</p>
+  {% endfor %}
+  <a href="{% url model_name|add:'_list' %}">Back to List</a>
+{% endblock %}

@@ -1,0 +1,16 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Plants List</h2>
+  <a href="{% url 'plant_create' %}">Add New Plant</a>
+  <ul>
+    {% for item in plants %}
+      <li>
+        <a href="{% url 'plant_detail' item.pk %}">{{ item.name }}</a>
+        <a href="{% url 'plant_update' item.pk %}">Edit</a>
+        <a href="{% url 'plant_delete' item.pk %}">Delete</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
