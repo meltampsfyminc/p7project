@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'properties/base.html' %}
 
 {% block title %}Vehicles List{% endblock %}
 
@@ -8,7 +8,7 @@
     <h2 class="card-title">Vehicles List</h2>
   </div>
   <div class="card-body">
-    <a href="{% url 'vehicle_create' %}" class="btn btn-primary mb-3">Add New Vehicle</a>
+    <a href="{% url 'vehicles:vehicle_create' %}" class="btn btn-primary mb-3">Add New Vehicle</a>
     <table class="table table-striped">
       <thead>
         <tr>
@@ -21,12 +21,12 @@
       <tbody>
         {% for item in vehicles %}
           <tr>
-            <td><a href="{% url 'vehicle_detail' item.pk %}">{{ item.brand }}</a></td>
+            <td><a href="{% url 'vehicles:vehicle_detail' item.pk %}">{{ item.brand }}</a></td>
             <td>{{ item.model }}</td>
             <td>{{ item.plate_number }}</td>
             <td>
-              <a href="{% url 'vehicle_update' item.pk %}" class="btn btn-sm btn-warning">Edit</a>
-              <a href="{% url 'vehicle_delete' item.pk %}" class="btn btn-sm btn-danger">Delete</a>
+              <a href="{% url 'vehicles:vehicle_update' item.pk %}" class="btn btn-sm btn-warning">Edit</a>
+              <a href="{% url 'vehicles:vehicle_delete' item.pk %}" class="btn btn-sm btn-danger">Delete</a>
             </td>
           </tr>
         {% empty %}

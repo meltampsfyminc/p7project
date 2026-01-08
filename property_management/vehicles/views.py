@@ -65,3 +65,42 @@ def vehicle_list(request):
         'current_local_name': current_local_obj.name if current_local_obj else '',
     }
     return render(request, 'vehicles/vehicle_list.html', context)
+
+@login_required
+def vehicle_detail(request, pk):
+    vehicle = get_object_or_404(Vehicle, pk=pk)
+    return render(request, 'vehicles/vehicle_detail.html', {'vehicle': vehicle})
+
+@login_required
+def vehicle_create(request):
+    if request.method == 'POST':
+        form = VehicleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Vehicle created successfully.')
+            return redirect('vehicles:vehicle_list')
+    else:
+        form = VehicleForm()
+    return render(request, 'vehicles/vehicle_form.html', {'form': form, 'title': 'Create Vehicle'})
+
+@login_required
+def vehicle_update(request, pk):
+    vehicle = get_object_or_404(Vehicle, pk=pk)
+    if request.method == 'POST':
+        form = VehicleForm(request.POST, instance=vehicle)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Vehicle updated successfully.')
+            return redirect('vehicles:vehicle_detail', pk=pk)
+    else:
+        form = VehicleForm(instance=vehicle)
+    return render(request, 'vehicles/vehicle_form.html', {'form': form, 'title': 'Update Vehicle'})
+
+@login_required
+def vehicle_delete(request, pk):
+    vehicle = get_object_or_404(Vehicle, pk=pk)
+    if request.method == 'POST':
+        vehicle.delete()
+        messages.success(request, 'Vehicle deleted successfully.')
+        return redirect('vehicles:vehicle_list')
+    return render(request, 'vehicles/vehicle_confirm_delete.html', {'vehicle': vehicle})
