@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'properties/base.html' %}
 
 {% block title %}{{ plant.name }}{% endblock %}
 
@@ -18,7 +18,9 @@
     <p><strong>Remarks:</strong> {{ plant.remarks }}</p>
   </div>
   <div class="card-footer">
-    <a href="{% url 'plant_list' %}" class="btn btn-secondary">Back to List</a>
+    <a href="{% url 'plants:plant_list' %}" class="btn btn-secondary">Back to List</a>
+    <a href="{% url 'plants:plant_update' plant.pk %}" class="btn btn-primary">Edit</a>
+    <a href="{% url 'plants:plant_delete' plant.pk %}" class="btn btn-danger">Delete</a>
   </div>
 </div>
 {% endblock %}

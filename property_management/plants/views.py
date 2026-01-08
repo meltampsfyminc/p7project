@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Plant
+from .forms import PlantForm
 from properties.models import District, Local
 
 @login_required
@@ -64,6 +66,45 @@ def plant_list(request):
         'current_local_name': current_local_obj.name if current_local_obj else '',
     }
     return render(request, 'plants/plant_list.html', context)
+
+@login_required
+def plant_detail(request, pk):
+    plant = get_object_or_404(Plant, pk=pk)
+    return render(request, 'plants/plant_detail.html', {'plant': plant})
+
+@login_required
+def plant_create(request):
+    if request.method == 'POST':
+        form = PlantForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Plant created successfully.')
+            return redirect('plants:plant_list')
+    else:
+        form = PlantForm()
+    return render(request, 'plants/plant_form.html', {'form': form, 'title': 'Create Plant'})
+
+@login_required
+def plant_update(request, pk):
+    plant = get_object_or_404(Plant, pk=pk)
+    if request.method == 'POST':
+        form = PlantForm(request.POST, instance=plant)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Plant updated successfully.')
+            return redirect('plants:plant_detail', pk=pk)
+    else:
+        form = PlantForm(instance=plant)
+    return render(request, 'plants/plant_form.html', {'form': form, 'title': 'Update Plant'})
+
+@login_required
+def plant_delete(request, pk):
+    plant = get_object_or_404(Plant, pk=pk)
+    if request.method == 'POST':
+        plant.delete()
+        messages.success(request, 'Plant deleted successfully.')
+        return redirect('plants:plant_list')
+    return render(request, 'plants/plant_confirm_delete.html', {'plant': plant})
 
 @login_required
 def plant_upload(request):

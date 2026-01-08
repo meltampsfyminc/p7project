@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'properties/base.html' %}
 
 {% block title %}{{ vehicle.brand }} {{ vehicle.model }}{% endblock %}
 
@@ -19,7 +19,9 @@
     <p><strong>Remarks:</strong> {{ vehicle.remarks }}</p>
   </div>
   <div class="card-footer">
-    <a href="{% url 'vehicle_list' %}" class="btn btn-secondary">Back to List</a>
+    <a href="{% url 'vehicles:vehicle_list' %}" class="btn btn-secondary">Back to List</a>
+    <a href="{% url 'vehicles:vehicle_update' vehicle.pk %}" class="btn btn-primary">Edit</a>
+    <a href="{% url 'vehicles:vehicle_delete' vehicle.pk %}" class="btn btn-danger">Delete</a>
   </div>
 </div>
 {% endblock %}
