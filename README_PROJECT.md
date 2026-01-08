@@ -219,7 +219,7 @@ gunicorn property_management.wsgi:application --bind 0.0.0.0:8000
 
 - **[QUICKSTART.md](QUICKSTART.md)** - 5-minute getting started guide
 - **[COMPLETE_DOCUMENTATION.md](COMPLETE_DOCUMENTATION.md)** - Full project documentation
-- **[FILE_UPLOAD_SYSTEM.md](property_management/FILE_UPLOAD_SYSTEM.md)** - File upload system details
+- **[FILE_UPLOAD_SYSTEM.md](FILE_UPLOAD_SYSTEM.md)** - File upload system details
 - **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Comprehensive testing procedures
 - **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - What was implemented
 - **[SETUP_GUIDE.md](property_management/SETUP_GUIDE.md)** - Installation steps
