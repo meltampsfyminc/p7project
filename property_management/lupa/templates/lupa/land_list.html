@@ -1,0 +1,34 @@
+
+{% extends 'properties/base.html' %}
+
+{% block title %}Lands - Lupa Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Lands</h2>
+    <a href="{% url 'lupa:land_create' %}" class="btn btn-primary mb-3">Create Land</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Location</th>
+                <th>Area (sqm)</th>
+                <th>Owner</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for land in lands %}
+            <tr>
+                <td><a href="{% url 'lupa:land_detail' land.pk %}">{{ land.location }}</a></td>
+                <td>{{ land.lot_area }}</td>
+                <td>{{ land.owner }}</td>
+                <td>
+                    <a href="{% url 'lupa:land_update' land.pk %}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="{% url 'lupa:land_delete' land.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
