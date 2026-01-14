@@ -677,3 +677,38 @@ def admin_building_bulk_create(request):
             "title": "Mass Encode Admin Buildings"
         }
     )
+
+# admin_core/views.py
+@login_required
+def office_assignment_bulk_create(request):
+    title = "Mass Encode Office Assignments"
+
+    AssignmentFormSet = modelformset_factory(
+        WorkerOfficeAssignment,
+        form=WorkerOfficeAssignmentForm,
+        extra=5,
+        can_delete=False
+    )
+
+    if request.method == "POST":
+        formset = AssignmentFormSet(
+            request.POST,
+            queryset=WorkerOfficeAssignment.objects.none()
+        )
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, "Office assignments saved.")
+            return redirect("admin_core:dashboard")
+    else:
+        formset = AssignmentFormSet(
+            queryset=WorkerOfficeAssignment.objects.none()
+        )
+
+    return render(
+        request,
+        "admin_core/office_assignment_bulk_form.html",
+        {
+            "title": title,
+            "formset": formset,
+        }
+    )

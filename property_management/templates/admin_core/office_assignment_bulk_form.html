@@ -11,15 +11,22 @@
     <table class="mass-table">
         <thead>
             <tr>
-                <th>Department</th>
-                <th>Section Name</th>
+                <th>Worker</th>
+                <th>Office</th>
+                <th>Primary</th>
+                <th>Start Date</th>
+                <th>End Date</th>
             </tr>
         </thead>
+
         <tbody id="formset-body">
             {% for form in formset %}
             <tr>
-                <td>{{ form.department }}</td>
-                <td>{{ form.name }}</td>
+                <td>{{ form.worker }}</td>
+                <td>{{ form.office }}</td>
+                <td style="text-align:center">{{ form.is_primary }}</td>
+                <td>{{ form.start_date }}</td>
+                <td>{{ form.end_date }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -37,8 +44,11 @@
 
 <template id="empty-form">
 <tr>
-    <td>{{ formset.empty_form.department }}</td>
-    <td>{{ formset.empty_form.name }}</td>
+    <td>{{ formset.empty_form.worker }}</td>
+    <td>{{ formset.empty_form.office }}</td>
+    <td style="text-align:center">{{ formset.empty_form.is_primary }}</td>
+    <td>{{ formset.empty_form.start_date }}</td>
+    <td>{{ formset.empty_form.end_date }}</td>
 </tr>
 </template>
 

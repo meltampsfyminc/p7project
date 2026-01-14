@@ -24,9 +24,12 @@ urlpatterns = [
     path("workers/add/", views.worker_create, name="worker_create"),
     path("workers/<int:pk>/edit/", views.worker_update, name="worker_update"),
     path("workers/<int:pk>/detail/", views.worker_detail, name="worker_detail"),
+    # admin_core/urls.py
+    path("workers/bulk-add/", views.worker_bulk_create, name="worker_bulk_add"),
     path("worker-offices/", views.worker_office_list, name="worker_office_list"),
     path("worker-offices/add/", views.worker_office_create, name="worker_office_create"),
     path("worker-offices/<int:pk>/edit/", views.worker_office_update, name="worker_office_update"),
+     
     path("housing-assignments/", views.housing_assignment_list, name="housing_assignment_list"),
     path("housing-assignments/add/", views.housing_assignment_create, name="housing_assignment_create"),
     path("housing-assignments/<int:pk>/edit/", views.housing_assignment_update, name="housing_assignment_update"),
@@ -48,4 +51,5 @@ urlpatterns = [
     path("buildings/<int:pk>/edit/", views.admin_building_update, name="admin_building_edit"),
     path("buildings/<int:pk>/delete/", views.admin_building_delete, name="admin_building_delete"),
     path("buildings/bulk-add/", views.admin_building_bulk_create, name="admin_building_bulk_add"),
+    path("office-assignments/bulk-add/",views.office_assignment_bulk_create,name="office_assignment_bulk_add"),
 ]

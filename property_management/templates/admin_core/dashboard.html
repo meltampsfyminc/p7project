@@ -193,11 +193,28 @@
         </div>
 
         <div class="admin-card">
-            <h3>🏢 Add Admin Building</h3>
-            <a href="#">
-                (Next Step)
-            </a>
-        </div>
+    <h3>🏢 Admin Buildings</h3>
+    <a href="{% url 'admin_core:admin_building_list' %}">
+        Manage Buildings
+    </a>
+</div>
+<div class="admin-card">
+    <h3>➕ Add Admin Building</h3>
+    <a href="{% url 'admin_core:admin_building_add' %}">
+        Create Building
+    </a>
+</div>
+
+<div class="admin-card">
+    <h3>🧩 Mass Encode Sections</h3>
+    <a href="{% url 'admin_core:section_bulk_add' %}">Start</a>
+</div>
+
+<div class="admin-card">
+    <h3>🧭 Mass Encode Office Assignments</h3>
+    <a href="{% url 'admin_core:office_assignment_bulk_add' %}">Start</a>
+</div>
+
 
     </div>
 </div>
