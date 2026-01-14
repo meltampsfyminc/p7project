@@ -1,0 +1,92 @@
+{% extends "properties/base.html" %}
+
+{% block title %}Bulk Add Workers{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+<h2>Bulk Worker Encoding</h2>
+<p style="color:#6c757d;">
+    You may leave rows blank. Only completed rows will be saved.
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <table class="table table-bordered">
+        <thead>
+            <tr style="background:#f1f3f5;">
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Type</th>
+                <th>Department</th>
+                <th>Section</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="formset-body">
+            {% for form in formset %}
+            <tr>
+                {% for field in form.visible_fields %}
+                <td>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color:red;font-size:.85em;">
+                            {{ field.errors|striptags }}
+                        </div>
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if formset.non_form_errors %}
+        <div class="alert alert-danger">
+            {{ formset.non_form_errors }}
+        </div>
+    {% endif %}
+
+    <div style="display:flex; gap:12px;">
+        <button type="button"
+                class="btn btn-secondary"
+                onclick="addRow()">
+            + Next Row
+        </button>
+
+        <button type="submit"
+                class="btn btn-success">
+            Save All
+        </button>
+
+        <a href="{% url 'admin_core:worker_list' %}"
+           class="btn btn-outline-secondary">
+            Cancel
+        </a>
+    </div>
+
+</form>
+</div>
+
+<script>
+function addRow() {
+    const body = document.getElementById("formset-body");
+    const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+    const index = parseInt(totalForms.value);
+
+    const newRow = body.children[0].cloneNode(true);
+
+    newRow.querySelectorAll("input, select").forEach(el => {
+        el.name = el.name.replace(/\d+/, index);
+        el.id = el.id.replace(/\d+/, index);
+        el.value = "";
+    });
+
+    body.appendChild(newRow);
+    totalForms.value = index + 1;
+}
+</script>
+
+{% endblock %}

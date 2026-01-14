@@ -2,12 +2,173 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>{{ title }}</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Save</button>
-        <a href="{% url 'gusali:building_list' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+
+<style>
+:root{
+    --nerio-green:#2A8A6E;
+    --nerio-green-dark:#1F6F58;
+    --border-soft:#d9eee6;
+    --text-main:#0f2f27;
+    --text-muted:#6b7f78;
+    --radius:12px;
+}
+
+/* Card */
+.nerio-card{
+    max-width:1000px;
+    margin:auto;
+    background:#fff;
+    border-radius:var(--radius);
+    box-shadow:0 12px 28px rgba(0,0,0,.08);
+    border:1px solid rgba(31,111,88,.08);
+}
+
+/* Header */
+.nerio-header{
+    padding:22px 26px;
+    background:linear-gradient(135deg,var(--nerio-green),var(--nerio-green-dark));
+    color:#fff;
+    border-radius:var(--radius) var(--radius) 0 0;
+}
+.nerio-header h2{
+    margin:0;
+    font-weight:700;
+}
+
+/* Body */
+.nerio-body{
+    padding:28px;
+}
+
+/* Two-column grid */
+.nerio-form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px 22px;
+}
+@media (max-width:768px){
+    .nerio-form-grid{grid-template-columns:1fr}
+}
+
+/* Fields */
+.nerio-form-grid p{
+    margin:0;
+}
+label{
+    font-weight:600;
+    margin-bottom:6px;
+    display:block;
+    color:var(--text-main);
+}
+input, select, textarea{
+    width:100%;
+    padding:11px 14px;
+    border-radius:9px;
+    border:1px solid var(--border-soft);
+}
+input:focus, select:focus, textarea:focus{
+    outline:none;
+    border-color:var(--nerio-green);
+    box-shadow:0 0 0 3px rgba(42,138,110,.18);
+}
+textarea{
+    grid-column:1 / -1;
+}
+
+/* Buttons */
+.form-actions{
+    display:flex;
+    gap:14px;
+    margin-top:28px;
+}
+.btn-nerio{
+    background:linear-gradient(135deg,var(--nerio-green),var(--nerio-green-dark));
+    color:#fff;
+    border:none;
+    padding:11px 22px;
+    border-radius:10px;
+    font-weight:600;
+}
+.btn-ghost{
+    background:transparent;
+    border:1px solid rgba(15,47,39,.15);
+    color:var(--text-muted);
+    padding:10px 18px;
+    border-radius:10px;
+}
+</style>
+
+<div class="nerio-card">
+    <div class="nerio-header">
+        <h2>{{ title }}</h2>
+    </div>
+
+    <div class="nerio-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="nerio-form-grid">
+
+                <!-- District -->
+                <p>
+                    {{ form.district.label_tag }}
+                    {{ form.district }}
+                </p>
+
+                <!-- Local -->
+                <p>
+                    {{ form.local.label_tag }}
+                    {{ form.local }}
+                </p>
+
+                <!-- Other fields -->
+                {% for field in form %}
+                    {% if field.name not in "district local" %}
+                    <p>
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <small class="text-danger">{{ field.errors|striptags }}</small>
+                        {% endif %}
+                    </p>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-nerio">Save</button>
+                <a href="{% url 'gusali:building_list' %}" class="btn-ghost">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
+
+</div>
+
+<!-- Dependent Dropdown Script -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const districtSelect = document.getElementById("id_district");
+    const localSelect = document.getElementById("id_local");
+
+    districtSelect.addEventListener("change", function () {
+        const districtId = this.value;
+        localSelect.innerHTML = '<option value="">Loading...</option>';
+
+        fetch("{% url 'gusali:ajax_load_locals' %}?district=" + districtId)
+            .then(res => res.json())
+            .then(data => {
+                localSelect.innerHTML = '<option value="">Select Local</option>';
+                data.forEach(item => {
+                    const opt = document.createElement("option");
+                    opt.value = item.id;
+                    opt.textContent = item.name;
+                    localSelect.appendChild(opt);
+                });
+            });
+    });
+});
+</script>
+
 {% endblock %}

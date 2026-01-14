@@ -15,4 +15,6 @@ urlpatterns = [
     path('yearly-record/<int:pk>/update/', views.yearly_record_update, name='yearly_record_update'),
     path('yearly-record/<int:pk>/delete/', views.yearly_record_delete, name='yearly_record_delete'),
     path('upload-csv/', views.gusali_csv_upload, name='gusali_csv_upload'),
+    path("ajax/load-locals/", views.load_locals, name="ajax_load_locals"),
+
 ]

@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.db import IntegrityError
 from django.contrib import messages
 from django.utils.timezone import now
@@ -18,7 +18,10 @@ from io import StringIO
 import uuid
 from django.utils.text import get_valid_filename
 from .forms import HousingUnitForm
-
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import District, Local
+from .forms import DistrictForm, LocalForm
 def get_client_ip(request):
     """Get client IP address from request"""
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -712,4 +715,125 @@ def housing_unit_delete(request, pk):
         housing_unit.delete()
         return redirect('properties:property_list')
     return render(request, 'properties/housing_unit_confirm_delete.html', {'housing_unit': housing_unit})
+
+
+@login_required
+def district_list(request):
+    districts = District.objects.all().order_by("name")
+    return render(request, "properties/district_list.html", {"districts": districts})
+
+
+@login_required
+def district_create(request):
+    form = DistrictForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect("properties:district_list")
+
+    return render(
+        request,
+        "properties/district_form.html",
+        {
+            "form": form,
+            "title": "Add District"
+        }
+    )
+
+
+@login_required
+def district_update(request, dcode):
+    district = get_object_or_404(District, dcode=dcode)
+
+    form = DistrictForm(request.POST or None, instance=district)
+    if form.is_valid():
+        form.save()
+        return redirect("properties:district_list")
+
+    return render(
+        request,
+        "properties/district_form.html",
+        {
+            "form": form,
+            "title": f"Edit District ({district.dcode})",
+        }
+    )
+
+@login_required
+def local_list(request):
+    locals = Local.objects.select_related("district").order_by("district__name", "name")
+    return render(request, "properties/local_list.html", {"locals": locals})
+
+
+@login_required
+def local_create(request):
+    form = LocalForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect("properties:local_list")
+    return render(request, "properties/local_form.html", {"form": form, "title": "Add Local"})
+
+
+@login_required
+def local_update(request, pk):
+    local = get_object_or_404(Local, pk=pk)
+    form = LocalForm(request.POST or None, instance=local)
+    if form.is_valid():
+        form.save()
+        return redirect("properties:local_list")
+    return render(request, "properties/local_form.html", {"form": form, "title": "Edit Local"})
+
+
+@login_required
+def get_next_lcode(request):
+    district_id = request.GET.get("district")
+
+    if not district_id:
+        return HttpResponse("")
+
+    last_local = (
+        Local.objects
+        .filter(district_id=district_id)
+        .exclude(lcode__isnull=True)
+        .exclude(lcode__exact="")
+        .order_by("-lcode")
+        .first()
+    )
+
+    if last_local:
+        last_code = last_local.lcode
+        length = len(last_code)
+        next_code = str(int(last_code) + 1).zfill(length)
+    else:
+        next_code = "00001"
+
+    return HttpResponse(next_code)
+
+@login_required
+def local_create(request):
+    initial = {}
+
+    district_code = request.GET.get("district")
+    if district_code:
+        try:
+            initial["district"] = District.objects.get(dcode=district_code)
+        except District.DoesNotExist:
+            pass
+
+    if request.method == "POST":
+        form = LocalForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Local added successfully.")
+            return redirect("properties:local_list")
+    else:
+        form = LocalForm(initial=initial)
+
+    return render(
+        request,
+        "properties/local_form.html",
+        {
+            "form": form,
+            "title": "Add Local",
+        }
+    )
 

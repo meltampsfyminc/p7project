@@ -1,0 +1,130 @@
+{% extends "properties/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width:650px;">
+
+<style>
+/* Nerio Green */
+:root{
+    --nerio-green:#2A8A6E;
+    --nerio-green-dark:#1F6F58;
+    --border-soft:#d9eee6;
+    --text-main:#0f2f27;
+}
+
+.nerio-card{
+    background:#fff;
+    border-radius:12px;
+    border:1px solid rgba(31,111,88,.1);
+    box-shadow:0 10px 24px rgba(15,47,39,.08);
+}
+
+.nerio-header{
+    background:linear-gradient(135deg,var(--nerio-green),var(--nerio-green-dark));
+    color:#fff;
+    padding:18px 22px;
+}
+
+.nerio-body{
+    padding:26px;
+}
+
+.form-field{
+    margin-bottom:1.4rem;
+}
+
+.form-field label{
+    font-weight:600;
+    color:var(--text-main);
+    margin-bottom:.4rem;
+    display:block;
+}
+
+.form-field input,
+.form-field select{
+    width:100%;
+    padding:11px 14px;
+    border-radius:9px;
+    border:1px solid var(--border-soft);
+}
+
+.form-field input:focus,
+.form-field select:focus{
+    outline:none;
+    border-color:var(--nerio-green);
+    box-shadow:0 0 0 3px rgba(42,138,110,.18);
+}
+
+.form-help{
+    font-size:.85rem;
+    color:#6b7f78;
+}
+
+.form-error{
+    color:#c0392b;
+    font-size:.85rem;
+}
+
+.btn-nerio{
+    background:linear-gradient(135deg,var(--nerio-green),var(--nerio-green-dark));
+    color:#fff;
+    border:none;
+    padding:10px 20px;
+    border-radius:10px;
+}
+</style>
+
+<div class="nerio-card">
+    <div class="nerio-header">
+        <h3>{{ title }}</h3>
+    </div>
+
+    <div class="nerio-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- District -->
+            <div class="form-field">
+    <label for="id_district">District</label>
+    {{ form.district }}
+</div>
+
+            <!-- LCODE -->
+            <div class="form-field">
+                <label>Local Code</label>
+                {{ form.lcode }}
+                {% if form.lcode.field.disabled %}
+                    <div class="form-help">
+                        Select a District to generate the Local Code.
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Name -->
+            <div class="form-field">
+                <label>Local Name</label>
+                {{ form.name }}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="form-error">
+                    {{ form.non_field_errors|striptags }}
+                </div>
+            {% endif %}
+
+            <div style="display:flex; gap:14px; margin-top:2rem;">
+                <button type="submit" class="btn-nerio">
+                    Save Local
+                </button>
+                <a href="{% url 'properties:local_list' %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</div>
+{% endblock %}

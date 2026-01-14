@@ -1,0 +1,57 @@
+{% extends "properties/base.html" %}
+{% block title %}Housing Assignments{% endblock %}
+
+{% block content %}
+<h2>Worker → Housing Assignments</h2>
+
+<a href="{% url 'admin_core:housing_assignment_create' %}" class="btn btn-success mb-3">
+    + Assign Worker
+</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Worker</th>
+            <th>Housing Unit</th>
+            <th>Building</th>
+            <th>Status</th>
+            <th>Period</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in assignments %}
+        <tr>
+            <td>{{ a.worker }}</td>
+            <td>{{ a.housing_unit }}</td>
+            <td>{{ a.housing_unit.property.name }}</td>
+            <td>
+                {% if a.is_current %}
+                    <span class="badge badge-green">CURRENT</span>
+                {% else %}
+                    <span class="badge badge-blue">PAST</span>
+                {% endif %}
+            </td>
+            <td>
+                {{ a.start_date }}
+                {% if a.end_date %}
+                    → {{ a.end_date }}
+                {% else %}
+                    → Present
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'admin_core:housing_assignment_update' a.id %}"
+                   class="btn btn-sm btn-primary">
+                    Edit
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6">No housing assignments found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

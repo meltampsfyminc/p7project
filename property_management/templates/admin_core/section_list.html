@@ -1,0 +1,35 @@
+{% extends "admin_core/base_admin.html" %}
+{% block content %}
+
+<h2>🧩 Sections</h2>
+
+<div class="actions">
+    <a href="{% url 'admin_core:section_add' %}" class="btn btn-primary">+ Add Section</a>
+    <a href="{% url 'admin_core:section_bulk_add' %}" class="btn btn-success">⚡ Mass Encode</a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Department</th>
+            <th>Section</th>
+            <th width="180">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sec in sections %}
+        <tr>
+            <td>{{ sec.department.name }}</td>
+            <td>{{ sec.name }}</td>
+            <td>
+                <a href="{% url 'admin_core:section_edit' sec.id %}">Edit</a> |
+                <a href="{% url 'admin_core:section_delete' sec.id %}" class="danger">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">No sections found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "properties/base.html" %}
+{% block title %}Worker Details{% endblock %}
+
+{% block content %}
+<h2>{{ worker.last_name }}, {{ worker.first_name }}</h2>
+
+<ul>
+    <li><strong>Category:</strong> {{ worker.get_category_display }}</li>
+    <li><strong>MWA Type:</strong> {{ worker.mwa_type|default:"—" }}</li>
+    <li><strong>Status:</strong> {{ worker.get_employment_status_display }}</li>
+    <li><strong>Marital Status:</strong> {{ worker.get_marital_status_display }}</li>
+    <li><strong>Date Started:</strong> {{ worker.date_started }}</li>
+    <li><strong>Date Ended:</strong> {{ worker.date_ended|default:"—" }}</li>
+</ul>
+
+<a href="{% url 'admin_core:worker_update' worker.id %}" class="btn btn-primary">
+    Edit Worker
+</a>
+{% endblock %}

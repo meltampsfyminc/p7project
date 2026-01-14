@@ -1,0 +1,46 @@
+{% extends "properties/base.html" %}
+{% block content %}
+<h2>{{ title }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                {% for field in formset.forms.0.visible_fields %}
+                    <th>{{ field.label }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for form in formset %}
+            <tr>
+                {% for field in form.visible_fields %}
+                <td>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger small">
+                            {{ field.errors|striptags }}
+                        </div>
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if formset.non_form_errors %}
+        <div class="alert alert-danger">
+            {{ formset.non_form_errors }}
+        </div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-success">
+        💾 Save All
+    </button>
+</form>
+
+{% endblock %}

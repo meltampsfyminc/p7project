@@ -6,7 +6,7 @@ from django.core.management import call_command
 from io import StringIO
 import os
 import csv
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from .models import Building, BuildingYearlyRecord
 from properties.models import District, Local
@@ -323,4 +323,14 @@ def gusali_csv_upload(request):
         return redirect('gusali:building_list')
 
     return render(request, 'gusali/gusali_csv_upload.html')
+
+@login_required
+def load_locals(request):
+    district_id = request.GET.get("district")
+    locals_qs = Local.objects.filter(district_id=district_id).order_by("name")
+    data = [
+        {"id": l.id, "name": f"{l.lcode} - {l.name}"}
+        for l in locals_qs
+    ]
+    return JsonResponse(data, safe=False)
 

@@ -1,0 +1,58 @@
+{% extends "properties/base.html" %}
+{% block title %}Workers{% endblock %}
+
+{% block content %}
+<h2>Workers</h2>
+
+<div style="display:flex; gap:10px; margin-bottom:15px;">
+    <a href="{% url 'admin_core:worker_create' %}" class="btn btn-success">
+        + Add Worker
+    </a>
+
+    <form method="get">
+        <select name="category" onchange="this.form.submit()">
+            <option value="">All Categories</option>
+            <option value="MWA" {% if category == "MWA" %}selected{% endif %}>MWA</option>
+            <option value="VW" {% if category == "VW" %}selected{% endif %}>Volunteer</option>
+            <option value="CW" {% if category == "CW" %}selected{% endif %}>Construction</option>
+        </select>
+
+        <select name="status" onchange="this.form.submit()">
+            <option value="">All Status</option>
+            <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
+            <option value="retired" {% if status == "retired" %}selected{% endif %}>Retired</option>
+            <option value="terminated" {% if status == "terminated" %}selected{% endif %}>Terminated</option>
+        </select>
+    </form>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for w in workers %}
+        <tr>
+            <td>{{ w.last_name }}, {{ w.first_name }}</td>
+            <td>{{ w.get_category_display }}</td>
+            <td>{{ w.mwa_type|default:"—" }}</td>
+            <td>{{ w.get_employment_status_display }}</td>
+            <td>
+                <a href="{% url 'admin_core:worker_detail' w.id %}" class="btn btn-sm btn-info">View</a>
+                <a href="{% url 'admin_core:worker_update' w.id %}" class="btn btn-sm btn-primary">Edit</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No workers found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

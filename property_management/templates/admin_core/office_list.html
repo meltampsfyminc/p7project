@@ -1,0 +1,56 @@
+{% extends "properties/base.html" %}
+
+{% block title %}Offices{% endblock %}
+
+{% block content %}
+<h2>Offices</h2>
+
+<div style="display:flex; gap:10px; margin-bottom:15px;">
+    <a href="{% url 'admin_core:office_create' %}"
+       class="btn btn-success">
+        + Add Office
+    </a>
+
+    <form method="get">
+        <select name="building" onchange="this.form.submit()">
+            <option value="">All Buildings</option>
+            {% for b in buildings %}
+                <option value="{{ b.id }}"
+                    {% if building_filter == b.id|stringformat:"s" %}selected{% endif %}>
+                    {{ b.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Office</th>
+            <th>Building</th>
+            <th>Department</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for o in offices %}
+        <tr>
+            <td>{{ o.name }}</td>
+            <td>{{ o.building.name }}</td>
+            <td>{{ o.department|default:"—" }}</td>
+            <td>
+                <a href="{% url 'admin_core:office_update' o.id %}"
+                   class="btn btn-sm btn-primary">
+                    Edit
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No offices found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

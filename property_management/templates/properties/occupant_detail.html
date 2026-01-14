@@ -1,0 +1,49 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}{{ occupant.name }} - Occupants{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ occupant.name }}</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Department:</strong> {{ occupant.department }}</p>
+            <p><strong>Section:</strong> {{ occupant.section }}</p>
+            <p><strong>Job Title:</strong> {{ occupant.job_title }}</p>
+
+            <hr>
+
+            <h3>Occupancy History</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Housing Unit</th>
+                        <th>Move-in Date</th>
+                        <th>Move-out Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for occupancy in occupant.occupancies.all %}
+                    <tr>
+                        <td><a href="{% url 'properties:housing_unit_detail' occupancy.housing_unit.pk %}">{{ occupancy.housing_unit }}</a></td>
+                        <td>{{ occupancy.move_in_date }}</td>
+                        <td>{{ occupancy.move_out_date|default:"Present" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">No occupancy history.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'properties:occupant_update' occupant.pk %}" class="btn btn-primary">Edit</a>
+            <a href="{% url 'properties:occupant_delete' occupant.pk %}" class="btn btn-danger">Delete</a>
+            <a href="{% url 'properties:occupant_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

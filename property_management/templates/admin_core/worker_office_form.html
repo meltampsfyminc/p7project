@@ -1,0 +1,24 @@
+{% extends "properties/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width:720px;">
+    <h3>{{ title }}</h3>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        {% if form.non_field_errors %}
+            <div class="text-danger">
+                {{ form.non_field_errors|striptags }}
+            </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-success">Save</button>
+        <a href="{% url 'admin_core:worker_office_list' %}" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+</div>
+{% endblock %}

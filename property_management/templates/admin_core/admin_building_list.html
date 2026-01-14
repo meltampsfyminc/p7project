@@ -1,0 +1,35 @@
+{% extends "admin_core/base_admin.html" %}
+{% block content %}
+
+<h2>🏢 Admin Buildings</h2>
+
+<div class="actions">
+    <a href="{% url 'admin_core:admin_building_add' %}" class="btn btn-primary">+ Add Building</a>
+    <a href="{% url 'admin_core:admin_building_bulk_add' %}" class="btn btn-success">⚡ Mass Encode</a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th width="180">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in buildings %}
+        <tr>
+            <td>{{ b.name }}</td>
+            <td>{{ b.address|default:"—" }}</td>
+            <td>
+                <a href="{% url 'admin_core:admin_building_edit' b.id %}">Edit</a> |
+                <a href="{% url 'admin_core:admin_building_delete' b.id %}" class="danger">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">No buildings found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

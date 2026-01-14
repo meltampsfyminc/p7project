@@ -35,4 +35,15 @@ urlpatterns = [
     path('district/<str:dcode>/', views.district_detail, name='district_detail'),
     path('local/<str:lcode>/summary/', views.local_summary, name='local_summary'),
     path('search/housing/', views.housing_search, name='housing_search'),
+    path("districts/", views.district_list, name="district_list"),
+    path("districts/add/", views.district_create, name="district_create"),
+    path("districts/<str:dcode>/edit/",views.district_update,name="district_update"),
+    path("locals/", views.local_list, name="local_list"),
+    path("locals/add/", views.local_create, name="local_create"),
+    path("locals/<int:pk>/edit/", views.local_update, name="local_update"),
+    path(
+    "locals/next-lcode/",
+    views.get_next_lcode,
+    name="next_lcode"
+),
 ]

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'lupa',
     'plants',
     'vehicles',
+    "admin_core",
 ]
 
 MIDDLEWARE = [

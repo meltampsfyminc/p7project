@@ -1,6 +1,7 @@
 """
 URL Configuration for property_management project.
 """
+from django import views
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -16,6 +17,9 @@ urlpatterns = [
     path('lupa/', include('lupa.urls')),
     path('plants/', include('plants.urls')),
     path('vehicles/', include('vehicles.urls')),
+    path('admin_core/',include('admin_core.urls')),
+    
+    
 ]
 
 if settings.DEBUG:

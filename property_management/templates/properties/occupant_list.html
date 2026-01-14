@@ -1,0 +1,45 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Occupants - Property Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Occupants</h1>
+        <a href="{% url 'properties:occupant_create' %}" class="btn btn-primary">Add Occupant</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Section</th>
+                        <th>Job Title</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for occupant in occupants %}
+                    <tr>
+                        <td>{{ occupant.name }}</td>
+                        <td>{{ occupant.department }}</td>
+                        <td>{{ occupant.section }}</td>
+                        <td>{{ occupant.job_title }}</td>
+                        <td>
+                            <a href="{% url 'properties:occupant_detail' occupant.pk %}" class="btn btn-sm btn-info">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No occupants found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

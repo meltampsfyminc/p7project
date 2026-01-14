@@ -1,0 +1,85 @@
+{% extends "admin_core/base_admin.html" %}
+
+{% block title %}Confirm Delete{% endblock %}
+
+{% block content %}
+<div class="confirm-container">
+
+    <h2>⚠ Confirm Deletion</h2>
+
+    <p>
+        Are you sure you want to delete this
+        <strong>{{ type }}</strong>?
+    </p>
+
+    <div class="confirm-box">
+        <strong>{{ object }}</strong>
+    </div>
+
+    <p class="warning-text">
+        This action <strong>cannot be undone</strong>.
+    </p>
+
+    <form method="post" style="margin-top: 20px;">
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-danger">
+            Yes, Delete
+        </button>
+
+        <a href="javascript:history.back()" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+
+</div>
+
+<style>
+.confirm-container {
+    max-width: 520px;
+    margin: auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+.confirm-container h2 {
+    color: #c0392b;
+    margin-bottom: 15px;
+}
+
+.confirm-box {
+    background: #f8f9fa;
+    border-left: 5px solid #c0392b;
+    padding: 15px;
+    margin: 15px 0;
+    font-size: 1.05rem;
+}
+
+.warning-text {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.btn {
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+}
+
+.btn-secondary {
+    background: #bdc3c7;
+    color: #2c3e50;
+    margin-left: 10px;
+}
+</style>
+
+{% endblock %}

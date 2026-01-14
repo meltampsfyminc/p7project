@@ -1,0 +1,206 @@
+{% extends "properties/base.html" %}
+
+{% block title %}Admin Core Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+:root{
+    --nerio-green:#2A8A6E;
+    --nerio-green-dark:#1F6F58;
+    --nerio-bg:#f3faf7;
+    --card-radius:14px;
+}
+
+/* Layout */
+.admin-dashboard{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:22px;
+    margin-bottom:3rem;
+}
+
+/* Card */
+.admin-card{
+    background:#fff;
+    border-radius:var(--card-radius);
+    padding:22px;
+    box-shadow:0 10px 24px rgba(0,0,0,.08);
+    border-left:6px solid var(--nerio-green);
+    transition:.25s ease;
+}
+.admin-card:hover{
+    transform:translateY(-4px);
+}
+
+/* Headings */
+.admin-card h3{
+    margin:0;
+    font-size:1.05rem;
+    color:#0f2f27;
+}
+.admin-card .count{
+    font-size:2.4rem;
+    font-weight:700;
+    color:var(--nerio-green);
+    margin:.4rem 0;
+}
+.admin-card small{
+    color:#6b7f78;
+}
+
+/* Links */
+.admin-card a{
+    display:inline-block;
+    margin-top:.6rem;
+    text-decoration:none;
+    font-weight:600;
+    color:var(--nerio-green-dark);
+}
+
+/* Section */
+.section-box{
+    background:#fff;
+    padding:26px;
+    border-radius:var(--card-radius);
+    box-shadow:0 10px 24px rgba(0,0,0,.08);
+    margin-bottom:2.5rem;
+}
+.section-box h2{
+    margin-bottom:1.2rem;
+    color:#0f2f27;
+    border-bottom:2px solid var(--nerio-green);
+    padding-bottom:.4rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<h1 style="margin-bottom:1.8rem;color:#0f2f27;">
+    🛡️ Admin Core Dashboard
+</h1>
+
+<!-- ===================== -->
+<!-- CORE SUMMARY -->
+<!-- ===================== -->
+<div class="admin-dashboard">
+
+    <div class="admin-card">
+        <h3>🏢 Admin Buildings</h3>
+        <div class="count">{{ building_count }}</div>
+        <small>Hospitals, Arena, University, Offices</small>
+    </div>
+
+    <div class="admin-card">
+        <h3>🏛 Departments</h3>
+        <div class="count">{{ department_count }}</div>
+        <a href="#">Manage Departments</a>
+    </div>
+
+    <div class="admin-card">
+        <h3>🧩 Sections</h3>
+        <div class="count">{{ section_count }}</div>
+        <a href="#">Manage Sections</a>
+    </div>
+
+    <div class="admin-card">
+        <h3>👤 Active Workers</h3>
+        <div class="count">{{ worker_active }}</div>
+        <small>Out of {{ worker_total }} total</small>
+        <a href="{% url 'admin_core:worker_list' %}">View Workers</a>
+    </div>
+
+    <div class="admin-card">
+        <h3>🏢 Office Assignments</h3>
+        <div class="count">{{ office_assignments }}</div>
+        <small>Currently active</small>
+    </div>
+
+    <div class="admin-card">
+        <h3>🏠 Housing Assigned</h3>
+        <div class="count">{{ housing_assigned }}</div>
+        <small>Current occupants</small>
+    </div>
+
+</div>
+
+<!-- ===================== -->
+<!-- WORKER BREAKDOWN -->
+<!-- ===================== -->
+<div class="section-box">
+    <h2>👥 Worker Breakdown</h2>
+
+    <div class="admin-dashboard">
+
+        {% for row in worker_by_category %}
+        <div class="admin-card">
+            <h3>
+                {% if row.category == "MWA" %} Ministry / Workers
+                {% elif row.category == "VW" %} Volunteer Workers
+                {% elif row.category == "CW" %} Construction Workers
+                {% endif %}
+            </h3>
+            <div class="count">{{ row.total }}</div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+<!-- ===================== -->
+<!-- MWA DETAILS -->
+<!-- ===================== -->
+{% if mwa_breakdown %}
+<div class="section-box">
+    <h2>📊 MWA Type Breakdown</h2>
+
+    <div class="admin-dashboard">
+        {% for row in mwa_breakdown %}
+        <div class="admin-card">
+            <h3>{{ row.mwa_type|title }}</h3>
+            <div class="count">{{ row.total }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- ===================== -->
+<!-- QUICK ACTIONS -->
+<!-- ===================== -->
+<div class="section-box">
+    <h2>⚡ Quick Actions</h2>
+
+    <div class="admin-dashboard">
+
+        <div class="admin-card">
+            <h3>➕ Mass Encode Workers</h3>
+            <a href="{% url 'admin_core:worker_bulk_add' %}">Start Encoding</a>
+        </div>
+
+        <div class="admin-card">
+            <h3>🏛 Add Department</h3>
+            <a href="{% url 'admin_core:department_add' %}">
+                Create Department
+            </a>
+        </div>
+
+        <div class="admin-card">
+            <h3>🏛 Mass Add Departments</h3>
+            <a href="{% url 'admin_core:department_bulk_add' %}">
+                Bulk Encode
+            </a>
+        </div>
+
+        <div class="admin-card">
+            <h3>🏢 Add Admin Building</h3>
+            <a href="#">
+                (Next Step)
+            </a>
+        </div>
+
+    </div>
+</div>
+
+
+{% endblock %}

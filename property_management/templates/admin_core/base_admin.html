@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Admin Core{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", sans-serif;
+            background: #f5f6f8;
+            color: #2c3e50;
+        }
+
+        header {
+            background: #1f6f58;
+            color: white;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 18px;
+        }
+
+        header a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 30px auto;
+            padding: 0 24px;
+        }
+
+        h1, h2 {
+            margin-top: 0;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.08);
+        }
+
+        .card h3 {
+            margin-bottom: 8px;
+        }
+
+        .card a {
+            display: inline-block;
+            margin-top: 12px;
+            text-decoration: none;
+            color: #1f6f58;
+            font-weight: 600;
+        }
+
+        .card a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-success {
+            background: #1f6f58;
+            color: white;
+        }
+
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            color: #777;
+            font-size: 0.9rem;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<header>
+    <div>
+        <strong>Admin Core</strong>
+        <a href="{% url 'admin_core:dashboard' %}">Dashboard</a>
+        <a href="{% url 'admin_core:worker_list' %}">Workers</a>
+        <a href="{% url 'admin_core:worker_bulk_add' %}">Mass Encode</a>
+    </div>
+    <div>
+        <a href="{% url 'properties:dashboard' %}">← Main Dashboard</a>
+    </div>
+</header>
+
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
+<footer>
+    Admin Core Module • Property Management System
+</footer>
+
+</body>
+</html>

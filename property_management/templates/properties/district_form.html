@@ -1,0 +1,157 @@
+{% extends "properties/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width:620px;">
+
+<style>
+:root{
+    --nerio-green:#2A8A6E;
+    --nerio-green-dark:#1F6F58;
+    --nerio-soft:#EAF7F1;
+    --text-main:#0f2f27;
+    --text-muted:#6b7f78;
+    --border-soft:#d9eee6;
+    --radius:12px;
+}
+
+.nerio-card{
+    background:#fff;
+    border-radius:var(--radius);
+    box-shadow:0 10px 24px rgba(15,47,39,.08);
+    border:1px solid rgba(31,111,88,.08);
+    overflow:hidden;
+}
+
+.nerio-header{
+    background:linear-gradient(135deg,var(--nerio-green),var(--nerio-green-dark));
+    color:#fff;
+    padding:20px 24px;
+}
+
+.nerio-header h2{
+    margin:0;
+    font-weight:700;
+    letter-spacing:.3px;
+}
+
+.nerio-body{
+    padding:26px;
+}
+
+.form-field{
+    margin-bottom:1.4rem;
+}
+
+.form-field label{
+    font-weight:600;
+    display:block;
+    margin-bottom:.4rem;
+    color:var(--text-main);
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea{
+    width:100%;
+    padding:11px 14px;
+    border-radius:9px;
+    border:1px solid var(--border-soft);
+    transition:.15s ease;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus{
+    outline:none;
+    border-color:var(--nerio-green);
+    box-shadow:0 0 0 3px rgba(42,138,110,.18);
+}
+
+.form-help{
+    font-size:.85rem;
+    color:var(--text-muted);
+}
+
+.form-error{
+    margin-top:4px;
+    font-size:.85rem;
+    color:#c0392b;
+}
+
+.form-actions{
+    display:flex;
+    gap:14px;
+    margin-top:2rem;
+}
+
+.btn-nerio{
+    background:linear-gradient(135deg,var(--nerio-green),var(--nerio-green-dark));
+    color:#fff;
+    border:none;
+    padding:11px 22px;
+    border-radius:10px;
+    font-weight:600;
+    transition:.15s ease;
+}
+
+.btn-nerio:hover{
+    transform:translateY(-1px);
+    box-shadow:0 8px 18px rgba(42,138,110,.25);
+}
+
+.btn-ghost{
+    background:transparent;
+    border:1px solid rgba(15,47,39,.15);
+    color:var(--text-muted);
+    padding:10px 18px;
+    border-radius:10px;
+}
+
+.btn-ghost:hover{
+    border-color:var(--nerio-green);
+    color:var(--nerio-green-dark);
+}
+</style>
+
+<div class="nerio-card">
+    <div class="nerio-header">
+        <h2>{{ title }}</h2>
+    </div>
+
+    <div class="nerio-body">
+        <form method="post">
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div class="form-field">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <div class="form-help">{{ field.help_text }}</div>
+                    {% endif %}
+
+                    {% if field.errors %}
+                        <div class="form-error">
+                            {{ field.errors|striptags }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn-nerio">
+                    Save District
+                </button>
+                <a href="{% url 'properties:district_list' %}" class="btn-ghost">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</div>
+{% endblock %}
