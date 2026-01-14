@@ -20,3 +20,15 @@ venv/
 Thumbs.db
 .vscode/
 .idea/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Django
+*.log
+*.sqlite3
+
+# Virtual environment
+venv/
+.env
