@@ -1,0 +1,164 @@
+/* ===============================
+   ENHANCED ADMIN DASHBOARD
+   =============================== */
+
+.dashboard-container {
+    padding: 28px;
+    background: #f9fafb;
+    min-height: calc(100vh - 64px);
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.dashboard-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.dashboard-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* Enhanced Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* Enhanced Tile */
+.dashboard-tile {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #111827;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-tile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #2563eb;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.dashboard-tile:hover::before {
+    transform: scaleY(1);
+}
+
+.dashboard-tile:hover {
+    background: #f8fafc;
+    border-color: #2563eb;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+/* Icon Enhancements */
+.tile-icon {
+    font-size: 32px;
+    width: 40px;
+    text-align: center;
+    transition: transform 0.3s ease;
+    color: #2563eb;
+}
+
+.dashboard-tile:hover .tile-icon {
+    transform: scale(1.1);
+}
+
+/* Text Enhancements */
+.tile-content {
+    flex: 1;
+}
+
+.tile-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #111827;
+}
+
+.tile-app {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Status Indicators */
+.dashboard-tile.new {
+    border-left: 4px solid #10b981;
+}
+
+.dashboard-tile.warning {
+    border-left: 4px solid #f59e0b;
+}
+
+.dashboard-tile.critical {
+    border-left: 4px solid #ef4444;
+}
+
+/* Stats Badge */
+.tile-badge {
+    background: #2563eb;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dashboard-tile {
+    animation: slideIn 0.6s ease-out;
+}

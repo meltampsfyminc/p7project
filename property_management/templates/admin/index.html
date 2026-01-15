@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    <h1 class="dashboard-title">System Control Panel</h1>
+
+    <div class="dashboard-grid">
+
+        {% for app in app_list %}
+            {% for model in app.models %}
+                <a href="{{ model.admin_url }}" class="dashboard-tile">
+                    <div class="tile-icon">🗂️</div>
+                    <div class="tile-content">
+                        <div class="tile-title">{{ model.name }}</div>
+                        <div class="tile-app">{{ app.name }}</div>
+                    </div>
+                </a>
+            {% endfor %}
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

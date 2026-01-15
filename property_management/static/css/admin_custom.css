@@ -1,0 +1,66 @@
+/* ============================= */
+/* DASHBOARD LAYOUT */
+/* ============================= */
+
+.dashboard-container {
+    padding: 20px;
+}
+
+.dashboard-title {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #006400;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+/* ============================= */
+/* DASHBOARD TILE */
+/* ============================= */
+
+.dashboard-tile {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 25px 15px;
+    text-align: center;
+    text-decoration: none;
+    color: #000;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: all 0.2s ease-in-out;
+}
+
+.dashboard-tile:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.dashboard-tile.danger {
+    border-left: 6px solid #b22222;
+}
+
+.tile-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+    color: #006400;
+}
+
+.dashboard-tile.danger .tile-icon {
+    color: #b22222;
+}
+
+.tile-label {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* ============================= */
+/* DEFAULT ADMIN BELOW */
+/* ============================= */
+
+.admin-default {
+    margin-top: 40px;
+}

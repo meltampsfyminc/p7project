@@ -20,16 +20,16 @@ from properties.models import HousingUnit
 
 
 class Command(BaseCommand):
-    help = "Sync data from properties app into admin_core with audit + guardrails"
+    help = "Sync data from properties app into admin_core with audit log and guardrails"
 
     def handle(self, *args, **options):
         start_time = time.time()
 
         self.stdout.write(self.style.SUCCESS("\nStarting Admin Core sync...\n"))
 
-        # -----------------------------
-        # Create SyncRun (AUDIT START)
-        # -----------------------------
+        # --------------------------------------------------
+        # AUDIT: Start SyncRun
+        # --------------------------------------------------
         sync_run = SyncRun.objects.create(
             source="properties_sync",
             triggered_by="management_command",
@@ -57,18 +57,19 @@ class Command(BaseCommand):
 
             with transaction.atomic():
                 for hu in housing_units:
-                    # -----------------------------
-                    # A. Department
-                    # -----------------------------
+
+                    # ==================================================
+                    # A. DEPARTMENT
+                    # ==================================================
                     department, created = Department.objects.get_or_create(
                         name=hu.department.strip()
                     )
                     if created:
                         stats["departments"] += 1
 
-                    # -----------------------------
-                    # B. Section
-                    # -----------------------------
+                    # ==================================================
+                    # B. SECTION
+                    # ==================================================
                     section, created = Section.objects.get_or_create(
                         department=department,
                         name=hu.section.strip()
@@ -76,10 +77,15 @@ class Command(BaseCommand):
                     if created:
                         stats["sections"] += 1
 
-                    # -----------------------------
-                    # C. Worker Identity
-                    # -----------------------------
+                    # ==================================================
+                    # C. WORKER IDENTITY (preserves middle initials)
+                    # ==================================================
+                    # NOTE:
+                    # Name parsing intentionally preserves middle initials
+                    # (e.g. "M.", "T.") and compound names.
+                    # Do NOT normalize or strip punctuation.
                     parts = hu.occupant_name.strip().split()
+
                     first_name = parts[0]
                     last_name = parts[-1]
                     middle_name = " ".join(parts[1:-1]) if len(parts) > 2 else ""
@@ -97,13 +103,14 @@ class Command(BaseCommand):
                     ).first()
 
                     if worker:
-                        # ---------- Conflict detection ----------
+                        # ------------------------------
+                        # Conflict: identity mismatch
+                        # ------------------------------
                         if (
                             worker.first_name.lower() != first_name.lower()
                             or worker.last_name.lower() != last_name.lower()
                         ):
                             SyncConflict.objects.create(
-                                sync_run=sync_run,
                                 conflict_type="WORKER_IDENTITY",
                                 severity="high",
                                 worker=worker,
@@ -118,6 +125,7 @@ class Command(BaseCommand):
                                     "middle_name": middle_name,
                                     "last_name": last_name,
                                 }),
+                                source="properties_sync",
                             )
                             stats["conflicts"] += 1
                             continue
@@ -131,9 +139,9 @@ class Command(BaseCommand):
                         )
                         stats["workers"] += 1
 
-                    # -----------------------------
-                    # D. Admin Building
-                    # -----------------------------
+                    # ==================================================
+                    # D. ADMIN BUILDING
+                    # ==================================================
                     building_name = hu.property.name if hu.property else "Unknown Building"
                     building_address = hu.property.address if hu.property else ""
 
@@ -144,9 +152,9 @@ class Command(BaseCommand):
                     if created:
                         stats["buildings"] += 1
 
-                    # -----------------------------
-                    # E. Office
-                    # -----------------------------
+                    # ==================================================
+                    # E. OFFICE
+                    # ==================================================
                     office_name = f"{department.name} Office"
 
                     office, created = Office.objects.get_or_create(
@@ -157,9 +165,9 @@ class Command(BaseCommand):
                     if created:
                         stats["offices"] += 1
 
-                    # -----------------------------
-                    # F. Office Assignment
-                    # -----------------------------
+                    # ==================================================
+                    # F. OFFICE ASSIGNMENT
+                    # ==================================================
                     if not WorkerOfficeAssignment.objects.filter(
                         worker=worker,
                         office=office,
@@ -173,9 +181,9 @@ class Command(BaseCommand):
                         )
                         stats["assignments"] += 1
 
-                    # -----------------------------
-                    # G. Housing Assignment
-                    # -----------------------------
+                    # ==================================================
+                    # G. HOUSING ASSIGNMENT
+                    # ==================================================
                     if not HousingUnitAssignment.objects.filter(
                         worker=worker,
                         housing_unit=hu,
@@ -188,9 +196,9 @@ class Command(BaseCommand):
                             start_date=timezone.now().date()
                         )
 
-            # -----------------------------
-            # FINALIZE SyncRun
-            # -----------------------------
+            # --------------------------------------------------
+            # FINALIZE SYNC RUN
+            # --------------------------------------------------
             sync_run.departments_created = stats["departments"]
             sync_run.sections_created = stats["sections"]
             sync_run.workers_created = stats["workers"]
@@ -212,9 +220,9 @@ class Command(BaseCommand):
             sync_run.duration_ms = int((time.time() - start_time) * 1000)
             sync_run.save()
 
-        # -----------------------------
+        # --------------------------------------------------
         # REPORT
-        # -----------------------------
+        # --------------------------------------------------
         self.stdout.write(self.style.SUCCESS("\nSYNC COMPLETE"))
         self.stdout.write("-" * 60)
         self.stdout.write(f"Departments created : {stats['departments']}")

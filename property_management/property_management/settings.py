@@ -21,7 +21,8 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
-
+STATIC_URL = '/static/' 
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Application definition
 
