@@ -1,4 +1,9 @@
 from django.contrib import admin
+from django.urls import path
+from django.shortcuts import redirect
+
+from admin_core.views import merge_conflict_view
+
 from .models import (
     Department,
     Section,
@@ -7,6 +12,8 @@ from .models import (
     Worker,
     WorkerOfficeAssignment,
     HousingUnitAssignment,
+    SyncConflict,
+    ConflictFieldDecision,
 )
 
 # ==========================
@@ -164,3 +171,67 @@ class HousingUnitAssignmentAdmin(admin.ModelAdmin):
         "housing_unit__unit_number",
     )
     ordering = ("-start_date",)
+
+
+# ==========================
+# E. SYNC CONFLICTS (MERGE UI)
+# ==========================
+
+
+@admin.register(ConflictFieldDecision)
+class ConflictFieldDecisionAdmin(admin.ModelAdmin):
+    list_display = ("conflict", "field_name", "decision")
+    list_filter = ("decision",)
+    search_fields = ("field_name",)
+
+
+
+    @admin.display(description="Entity Type")
+    def entity_type_display(self, obj):
+        return obj.target_model
+
+    @admin.display(description="Entity Identifier")
+    def entity_identifier_display(self, obj):
+        return obj.target_identifier
+
+    @admin.display(description="Status")
+    def status_display(self, obj):
+        return obj.resolution_status
+
+    # ---------- MERGE ACTION URL ----------
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "<int:conflict_id>/merge/",
+                self.admin_site.admin_view(merge_conflict_view),
+                name="admin_core_syncconflict_merge",
+            ),
+        ]
+        return custom_urls + urls
+
+@admin.register(SyncConflict)
+class SyncConflictAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "created_at",
+        "resolved_at",
+    )
+
+    search_fields = (
+        "id",
+    )
+
+    ordering = ("-created_at",)
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "<int:conflict_id>/merge/",
+                self.admin_site.admin_view(merge_conflict_view),
+                name="admin_core_syncconflict_merge",
+            ),
+        ]
+        return custom_urls + urls

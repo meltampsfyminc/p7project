@@ -14,7 +14,7 @@ except KeyError:
     sys.exit("Error: GOOGLE_API_KEY environment variable not set.")
 
 # Create a model instance
-model = genai.GenerativeModel('gemini-.5-flash-latest')
+model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
 # Generate content
 response = model.generate_content("Explain how AI works in a few words")

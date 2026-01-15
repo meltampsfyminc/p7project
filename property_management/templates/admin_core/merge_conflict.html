@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+
+<h1>Resolve Conflict: {{ conflict.worker }}</h1>
+
+<form method="post">
+  {% csrf_token %}
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Existing Value</th>
+        <th>Incoming Value</th>
+        <th>Decision</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for field in fields %}
+      <tr>
+        <td><strong>{{ field }}</strong></td>
+        <td>{{ existing[field]|default:"—" }}</td>
+        <td>{{ incoming[field]|default:"—" }}</td>
+        <td>
+          <select name="{{ field }}">
+            <option value="existing">Keep Existing</option>
+            <option value="incoming">Use Incoming</option>
+          </select>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <button class="default">Apply Merge</button>
+  <a href="{% url 'admin:admin_core_syncconflict_changelist' %}">Cancel</a>
+</form>
+
+{% endblock %}

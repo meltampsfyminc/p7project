@@ -1,3 +1,4 @@
+import hashlib
 from django.db import models
 from django.utils import timezone
 
@@ -120,8 +121,7 @@ class Worker(models.Model):
         max_length=50,
         blank=True,
         null=True,
-        editable=False,
-        db_column="employee_id"
+        editable=False
     )
 
     employee_no = models.CharField(
@@ -136,12 +136,21 @@ class Worker(models.Model):
     last_name = models.CharField(max_length=100)
 
     category = models.CharField(max_length=3, choices=WORKER_CATEGORY_CHOICES)
+
     mwa_type = models.CharField(
         max_length=20,
         choices=MWA_TYPE_CHOICES,
         blank=True,
         null=True
     )
+
+    identity_hash = models.CharField(
+     max_length=64,
+     unique=True,
+     db_index=True,
+     editable=False,
+     blank=True      # TEMP
+   )
 
     marital_status = models.CharField(
         max_length=10,
@@ -161,7 +170,7 @@ class Worker(models.Model):
     remarks = models.TextField(blank=True)
 
     created_at = models.DateTimeField(default=timezone.now, editable=False)
-    updated_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["last_name", "first_name"]
@@ -169,6 +178,25 @@ class Worker(models.Model):
     def __str__(self):
         return f"{self.last_name}, {self.first_name}"
 
+    # -------------------------
+    # Identity Fingerprint
+    # -------------------------
+    def generate_identity_hash(self):
+        """
+        Generates a stable identity fingerprint for the worker.
+        """
+        raw = f"{self.first_name}|{self.middle_name}|{self.last_name}|{self.category}"
+        raw = raw.strip().lower()
+        return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+    def save(self, *args, **kwargs):
+        if not self.identity_hash:
+            self.identity_hash = self.generate_identity_hash()
+        super().save(*args, **kwargs)
+
+    # -------------------------
+    # Validation
+    # -------------------------
     def clean(self):
         from django.core.exceptions import ValidationError
 
@@ -183,8 +211,7 @@ class Worker(models.Model):
 
         if self.mwa_type == "widow" and self.marital_status != "widowed":
             raise ValidationError("Widow must have marital status = Widowed.")
-
-
+   
 # ==========================
 # D. ASSIGNMENTS
 # ==========================
@@ -239,3 +266,154 @@ class HousingUnitAssignment(models.Model):
 
     def __str__(self):
         return f"{self.worker} @ {self.housing_unit}"
+
+class SyncConflict(models.Model):
+
+    CONFLICT_TYPE_CHOICES = [
+        ("WORKER_IDENTITY", "Worker Identity Conflict"),
+        ("DEPARTMENT_MISMATCH", "Department Mismatch"),
+        ("SECTION_MISMATCH", "Section Mismatch"),
+        ("OFFICE_ASSIGNMENT", "Office Assignment Conflict"),
+        ("HOUSING_ASSIGNMENT", "Housing Assignment Conflict"),
+        ("BUILDING_MISMATCH", "Building Mismatch"),
+    ]
+
+    SEVERITY_CHOICES = [
+        ("low", "Low"),
+        ("medium", "Medium"),
+        ("high", "High"),
+        ("critical", "Critical"),
+    ]
+
+    # What kind of conflict
+    conflict_type = models.CharField(
+        max_length=50,
+        choices=CONFLICT_TYPE_CHOICES
+    )
+
+    severity = models.CharField(
+        max_length=10,
+        choices=SEVERITY_CHOICES,
+        default="medium"
+    )
+
+    # Who / what is affected
+    worker = models.ForeignKey(
+        "Worker",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="conflicts"
+    )
+
+    identity_hash = models.CharField(
+        max_length=64,
+        db_index=True
+    )
+
+    # Snapshot of values
+    existing_value = models.TextField()
+    incoming_value = models.TextField()
+
+    # Metadata
+    source = models.CharField(
+        max_length=100,
+        default="properties_sync"
+    )
+
+    resolved = models.BooleanField(default=False)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    resolution_notes = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["conflict_type", "resolved"]),
+            models.Index(fields=["identity_hash"]),
+        ]
+
+    def __str__(self):
+        return f"{self.conflict_type} | {self.identity_hash[:8]} | {self.severity}"
+
+class SyncRun(models.Model):
+    """
+    Immutable audit log for each sync execution.
+    """
+
+    STATUS_CHOICES = [
+        ("success", "Success"),
+        ("partial", "Partial (with conflicts)"),
+        ("failed", "Failed"),
+    ]
+
+    source = models.CharField(
+        max_length=100,
+        default="properties_sync",
+        help_text="Source system or trigger"
+    )
+
+    triggered_by = models.CharField(
+        max_length=150,
+        blank=True,
+        help_text="Username, system, or scheduler"
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="success"
+    )
+
+    started_at = models.DateTimeField(default=timezone.now)
+    finished_at = models.DateTimeField(null=True, blank=True)
+    duration_ms = models.PositiveIntegerField(null=True, blank=True)
+
+    # Counters
+    departments_created = models.PositiveIntegerField(default=0)
+    sections_created = models.PositiveIntegerField(default=0)
+    workers_created = models.PositiveIntegerField(default=0)
+    buildings_created = models.PositiveIntegerField(default=0)
+    offices_created = models.PositiveIntegerField(default=0)
+    assignments_created = models.PositiveIntegerField(default=0)
+
+    conflicts_detected = models.PositiveIntegerField(default=0)
+
+    notes = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-started_at"]
+
+    def __str__(self):
+        return f"SyncRun {self.id} | {self.status} | {self.started_at:%Y-%m-%d %H:%M}"
+
+class ConflictFieldDecision(models.Model):
+    conflict = models.ForeignKey(
+        "SyncConflict",
+        on_delete=models.CASCADE,
+        related_name="field_decisions"
+    )
+
+    field_name = models.CharField(max_length=100)
+
+    DECISION_CHOICES = [
+        ("existing", "Keep Existing"),
+        ("incoming", "Use Incoming"),
+    ]
+
+    decision = models.CharField(
+        max_length=20,
+        choices=DECISION_CHOICES,
+        default="existing"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("conflict", "field_name")
+
+    def __str__(self):
+        return f"{self.field_name}: {self.decision}"

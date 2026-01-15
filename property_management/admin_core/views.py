@@ -712,3 +712,44 @@ def office_assignment_bulk_create(request):
             "formset": formset,
         }
     )
+
+# ==========================
+# SYNC CONFLICT MERGE VIEW
+# ==========================
+
+from django.contrib.admin.views.decorators import staff_member_required
+from admin_core.models import SyncConflict, ConflictFieldDecision
+from admin_core.services.conflict_resolver import ConflictResolver
+
+
+@staff_member_required
+def merge_conflict_view(request, conflict_id):
+    conflict = get_object_or_404(SyncConflict, pk=conflict_id)
+
+    fields = conflict.incoming_payload.keys()
+
+    if request.method == "POST":
+        merge_map = {}
+
+        for field in fields:
+            decision = request.POST.get(field)
+            ConflictFieldDecision.objects.update_or_create(
+                conflict=conflict,
+                field_name=field,
+                defaults={"decision": decision},
+            )
+            merge_map[field] = decision
+
+        ConflictResolver.merge(conflict, request.user, merge_map)
+        return redirect("admin:admin_core_syncconflict_changelist")
+
+    return render(
+        request,
+        "admin_core/merge_conflict.html",
+        {
+            "conflict": conflict,
+            "fields": fields,
+            "existing": conflict.existing_snapshot,
+            "incoming": conflict.incoming_payload,
+        },
+    )
