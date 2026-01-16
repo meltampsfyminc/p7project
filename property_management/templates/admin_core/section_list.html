@@ -1,35 +1,703 @@
 {% extends "admin_core/base_admin.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+/* Enterprise Design System */
+:root {
+    --primary-blue: #1e40af;
+    --primary-dark: #1e3a8a;
+    --primary-light: #3b82f6;
+    --accent-teal: #0891b2;
+    --success-green: #059669;
+    --warning-orange: #d97706;
+    --error-red: #dc2626;
+    
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-900: #0f172a;
+    
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    
+    --radius-sm: 6px;
+    --radius: 8px;
+    --radius-lg: 12px;
+    
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Layout */
+.enterprise-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: var(--gray-50);
+    min-height: 100vh;
+}
+
+/* Header Section */
+.page-header {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.page-header p {
+    color: var(--gray-600);
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+/* Action Bar */
+.action-bar {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Enterprise Buttons */
+.btn-enterprise {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.btn-primary {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-success {
+    background: var(--success-green);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #047857;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--gray-700);
+    border: 1px solid var(--gray-300);
+}
+
+.btn-outline:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-400);
+}
+
+.btn-danger {
+    background: var(--error-red);
+    color: white;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+/* Enterprise Table */
+.table-container {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+}
+
+.enterprise-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.enterprise-table thead {
+    background: var(--gray-50);
+    border-bottom: 2px solid var(--gray-200);
+}
+
+.enterprise-table th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.enterprise-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-700);
+    font-size: 0.875rem;
+}
+
+.enterprise-table tbody tr {
+    transition: var(--transition);
+}
+
+.enterprise-table tbody tr:hover {
+    background: var(--gray-50);
+}
+
+.enterprise-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Action Cells */
+.action-cell {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.action-link {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.8rem;
+    transition: var(--transition);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.action-link:hover {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.action-link.danger {
+    color: var(--error-red);
+}
+
+.action-link.danger:hover {
+    background: var(--error-red);
+    color: white;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--gray-500);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    text-align: center;
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem auto;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.stat-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 0.25rem;
+}
+
+.stat-card-label {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Filter Section */
+.filter-section {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+}
+
+.filter-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.filter-title {
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.form-select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius);
+    background: white;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+    transition: var(--transition);
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .enterprise-container {
+        padding: 1rem;
+    }
+    
+    .action-bar {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .action-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .enterprise-table {
+        min-width: 600px;
+    }
+    
+    .action-cell {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .form-select {
+        width: 100%;
+    }
+}
+
+/* Department Badge */
+.department-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--primary-blue);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Section Details */
+.section-details {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.detail-badge {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+</style>
+{% endblock %}
+
 {% block content %}
+<div class="enterprise-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>
+            <i class="fas fa-layer-group"></i>
+            Sections Management
+        </h1>
+        <p>Manage organizational sections grouped by departments</p>
+    </div>
 
-<h2>🧩 Sections</h2>
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="stat-card-value">{{ sections.count }}</div>
+            <div class="stat-card-label">Total Sections</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-icon" style="background: var(--accent-teal);">
+                <i class="fas fa-sitemap"></i>
+            </div>
+            <div class="stat-card-value">{{ departments_count|default:0 }}</div>
+            <div class="stat-card-label">Departments</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-icon" style="background: var(--success-green);">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="stat-card-value">{{ offices_count|default:0 }}</div>
+            <div class="stat-card-label">Assigned Offices</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-icon" style="background: var(--warning-orange);">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-card-value">{{ workers_count|default:0 }}</div>
+            <div class="stat-card-label">Active Workers</div>
+        </div>
+    </div>
 
-<div class="actions">
-    <a href="{% url 'admin_core:section_add' %}" class="btn btn-primary">+ Add Section</a>
-    <a href="{% url 'admin_core:section_bulk_add' %}" class="btn btn-success">⚡ Mass Encode</a>
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-header">
+            <div class="filter-title">
+                <i class="fas fa-filter"></i>
+                Filter Sections
+            </div>
+            <div class="filter-controls">
+                <select class="form-select" id="departmentFilter" onchange="filterSections()">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn-enterprise btn-outline" onclick="clearFilters()">
+                    <i class="fas fa-redo"></i>
+                    Clear Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <div class="action-buttons">
+            <a href="{% url 'admin_core:section_add' %}" class="btn-enterprise btn-primary">
+                <i class="fas fa-plus-circle"></i>
+                Add New Section
+            </a>
+            <a href="{% url 'admin_core:section_bulk_add' %}" class="btn-enterprise btn-success">
+                <i class="fas fa-bolt"></i>
+                Bulk Import
+            </a>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span style="color: var(--gray-500); font-size: 0.875rem;">
+                <i class="fas fa-info-circle"></i>
+                Showing {{ sections.count }} section{{ sections.count|pluralize }}
+                {% if selected_department %}
+                in <strong>{{ selected_department.name }}</strong>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container">
+        <table class="enterprise-table">
+            <thead>
+                <tr>
+                    <th>Section Name</th>
+                    <th>Department</th>
+                    <th>Office Count</th>
+                    <th>Worker Count</th>
+                    <th>Created</th>
+                    <th width="200">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="sectionsTable">
+                {% for sec in sections %}
+                <tr class="section-row" data-department="{{ sec.department.id }}">
+                    <td>
+                        <div style="font-weight: 600; color: var(--gray-900);">{{ sec.name }}</div>
+                        {% if sec.description %}
+                        <div style="color: var(--gray-500); font-size: 0.8rem; margin-top: 0.25rem;">
+                            {{ sec.description|truncatewords:15 }}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="department-badge">
+                            <i class="fas fa-sitemap"></i>
+                            {{ sec.department.name }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="detail-badge">
+                            <i class="fas fa-building"></i>
+                            {{ sec.office_count|default:0 }} office{{ sec.office_count|default:0|pluralize }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="detail-badge">
+                            <i class="fas fa-users"></i>
+                            {{ sec.worker_count|default:0 }} worker{{ sec.worker_count|default:0|pluralize }}
+                        </span>
+                    </td>
+                    <td>
+                        <span style="color: var(--gray-500); font-size: 0.8rem;">
+                            {{ sec.created_at|date:"M d, Y" }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-cell">
+                            <a href="{% url 'admin_core:section_edit' sec.id %}" class="action-link">
+                                <i class="fas fa-edit"></i>
+                                Edit
+                            </a>
+                            <a href="{% url 'admin_core:section_delete' sec.id %}" class="action-link danger">
+                                <i class="fas fa-trash"></i>
+                                Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="fas fa-layer-group"></i>
+                            <h3>No Sections Found</h3>
+                            <p>
+                                {% if selected_department %}
+                                No sections found in the selected department. Create the first section for {{ selected_department.name }}.
+                                {% else %}
+                                Start organizing your departments by creating sections to group related functions and teams.
+                                {% endif %}
+                            </p>
+                            <div style="margin-top: 1.5rem;">
+                                <a href="{% url 'admin_core:section_add' %}" class="btn-enterprise btn-primary">
+                                    <i class="fas fa-plus-circle"></i>
+                                    Create First Section
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer Info -->
+    {% if sections %}
+    <div style="text-align: center; margin-top: 2rem; color: var(--gray-500); font-size: 0.875rem;">
+        <i class="fas fa-database"></i>
+        Organizational structure updated: {{ request.timestamp|date:"M d, Y H:i"|default:"Recently" }}
+    </div>
+    {% endif %}
 </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Department</th>
-            <th>Section</th>
-            <th width="180">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for sec in sections %}
-        <tr>
-            <td>{{ sec.department.name }}</td>
-            <td>{{ sec.name }}</td>
-            <td>
-                <a href="{% url 'admin_core:section_edit' sec.id %}">Edit</a> |
-                <a href="{% url 'admin_core:section_delete' sec.id %}" class="danger">Delete</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="3">No sections found.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+<!-- JavaScript for Enhanced Interactions -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth hover effects to table rows
+    const tableRows = document.querySelectorAll('.enterprise-table tbody tr');
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-1px)';
+            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+    });
 
+    // Enhanced button interactions
+    const buttons = document.querySelectorAll('.btn-enterprise');
+    buttons.forEach(button => {
+        button.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+        
+        button.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Confirmation for delete actions
+    const deleteLinks = document.querySelectorAll('.action-link.danger');
+    deleteLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (!confirm('Are you sure you want to delete this section? This action cannot be undone.')) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // Set initial filter value from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const deptFilter = urlParams.get('department');
+    if (deptFilter) {
+        document.getElementById('departmentFilter').value = deptFilter;
+        filterSections();
+    }
+});
+
+// Filter sections by department
+function filterSections() {
+    const filterValue = document.getElementById('departmentFilter').value;
+    const rows = document.querySelectorAll('.section-row');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        if (!filterValue || row.getAttribute('data-department') === filterValue) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Update count display
+    const countDisplay = document.querySelector('[class*="info-circle"]').parentElement;
+    countDisplay.innerHTML = `<i class="fas fa-info-circle"></i> Showing ${visibleCount} section${visibleCount !== 1 ? 's' : ''}`;
+    
+    if (filterValue) {
+        const deptName = document.getElementById('departmentFilter').options[document.getElementById('departmentFilter').selectedIndex].text;
+        countDisplay.innerHTML += ` in <strong>${deptName}</strong>`;
+    }
+}
+
+// Clear filters
+function clearFilters() {
+    document.getElementById('departmentFilter').value = '';
+    filterSections();
+    // Optionally reload the page to clear URL parameters
+    window.location.href = "{% url 'admin_core:section_list' %}";
+}
+
+// Add search functionality
+function searchSections() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('.section-row');
+    
+    rows.forEach(row => {
+        const sectionName = row.querySelector('td:first-child').textContent.toLowerCase();
+        const deptName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        
+        if (sectionName.includes(searchTerm) || deptName.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
 {% endblock %}

@@ -1,24 +1,522 @@
 {% extends "properties/base.html" %}
+{% load static %}
+
 {% block title %}{{ title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Enterprise Form Design System */
+:root {
+    --primary-blue: #1e40af;
+    --primary-dark: #1e3a8a;
+    --primary-light: #3b82f6;
+    --accent-teal: #0891b2;
+    --success-green: #059669;
+    --warning-orange: #d97706;
+    --error-red: #dc2626;
+    
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-900: #0f172a;
+    
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    
+    --radius-sm: 6px;
+    --radius: 8px;
+    --radius-lg: 12px;
+    
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    min-height: calc(100vh - 4rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    padding: 2.5rem;
+    width: 100%;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.form-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    letter-spacing: -0.025em;
+}
+
+.form-subtitle {
+    color: var(--gray-600);
+    font-size: 1rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* Form Styling */
+.enterprise-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.form-control {
+    padding: 0.875rem 1rem;
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    color: var(--gray-900);
+    background: white;
+    transition: var(--transition);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.form-control:hover {
+    border-color: var(--gray-400);
+}
+
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    background: white;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.form-check-input:checked {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+.form-check-label {
+    font-size: 0.95rem;
+    color: var(--gray-700);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Error Styling */
+.form-error {
+    color: var(--error-red);
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-error::before {
+    content: "⚠️";
+    font-size: 0.7rem;
+}
+
+.field-errors {
+    background: rgba(220, 38, 38, 0.05);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.field-errors ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.field-errors li {
+    color: var(--error-red);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Button Styling */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--gray-200);
+}
+
+.btn {
+    padding: 0.875rem 1.75rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.btn-primary {
+    background: var(--primary-blue);
+    color: white;
+    box-shadow: 0 2px 4px rgba(30, 64, 175, 0.2);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(30, 64, 175, 0.3);
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--gray-700);
+    border: 1.5px solid var(--gray-300);
+}
+
+.btn-secondary:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-400);
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background: var(--success-green);
+    color: white;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.btn-success:hover {
+    background: #047857;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* Form Field Enhancements */
+.date-input {
+    font-family: monospace;
+}
+
+.help-text {
+    font-size: 0.8rem;
+    color: var(--gray-500);
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+.required-field::after {
+    content: " *";
+    color: var(--error-red);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-container {
+        margin: 1rem auto;
+        padding: 0 0.5rem;
+    }
+    
+    .form-card {
+        padding: 1.5rem;
+    }
+    
+    .form-title {
+        font-size: 1.5rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .btn {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+/* Loading States */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Select Dropdown */
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper::after {
+    content: "⌄";
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-500);
+    pointer-events: none;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4" style="max-width:720px;">
-    <h3>{{ title }}</h3>
+<div class="form-container">
+    <div class="form-card">
+        <!-- Form Header -->
+        <div class="form-header">
+            <h1 class="form-title">
+                <i class="fas fa-user-plus"></i>
+                {{ title }}
+            </h1>
+            {% if form.description %}
+            <p class="form-subtitle">{{ form.description }}</p>
+            {% else %}
+            <p class="form-subtitle">Create a new worker office assignment</p>
+            {% endif %}
+        </div>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-
+        <!-- Form Errors -->
         {% if form.non_field_errors %}
-            <div class="text-danger">
-                {{ form.non_field_errors|striptags }}
-            </div>
+        <div class="field-errors">
+            <ul>
+                {% for error in form.non_field_errors %}
+                <li>{{ error|striptags }}</li>
+                {% endfor %}
+            </ul>
+        </div>
         {% endif %}
 
-        <button type="submit" class="btn btn-success">Save</button>
-        <a href="{% url 'admin_core:worker_office_list' %}" class="btn btn-secondary">
-            Cancel
-        </a>
-    </form>
+        <!-- Main Form -->
+        <form method="post" class="enterprise-form" id="assignmentForm">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="form-label {% if field.field.required %}required-field{% endif %}">
+                    {{ field.label }}
+                </label>
+                
+                {% if field.field.widget.input_type == 'checkbox' %}
+                <div class="form-check">
+                    {{ field }}
+                    <label class="form-check-label" for="{{ field.id_for_label }}">
+                        {{ field.help_text|default:field.label }}
+                    </label>
+                </div>
+                {% else %}
+                <div class="{% if field.field.widget.input_type == 'select' %}select-wrapper{% endif %}">
+                    {{ field }}
+                </div>
+                {% endif %}
+                
+                {% if field.help_text %}
+                <div class="help-text">{{ field.help_text }}</div>
+                {% endif %}
+                
+                {% if field.errors %}
+                <div class="form-error">
+                    {% for error in field.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{% url 'admin_core:worker_office_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-success" id="submitBtn">
+                    <i class="fas fa-check"></i>
+                    Save Assignment
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('assignmentForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Add classes to form controls for better styling
+    const formControls = form.querySelectorAll('input, select, textarea');
+    formControls.forEach(control => {
+        control.classList.add('form-control');
+        
+        // Add specific classes based on input type
+        if (control.type === 'checkbox') {
+            control.classList.add('form-check-input');
+        } else if (control.type === 'select-one') {
+            control.classList.add('form-select');
+        } else if (control.type === 'date') {
+            control.classList.add('date-input');
+        }
+    });
+    
+    // Enhanced form submission
+    form.addEventListener('submit', function(e) {
+        // Add loading state
+        submitBtn.disabled = true;
+        submitBtn.classList.add('btn-loading');
+        submitBtn.innerHTML = '<i class="fas fa-spinner"></i> Saving...';
+        
+        // You can add additional validation here if needed
+    });
+    
+    // Auto-save draft functionality (optional)
+    let draftTimer;
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            clearTimeout(draftTimer);
+            draftTimer = setTimeout(() => {
+                // Save draft to localStorage
+                const formData = new FormData(form);
+                const draft = {};
+                for (let [key, value] of formData.entries()) {
+                    draft[key] = value;
+                }
+                localStorage.setItem('assignment_draft', JSON.stringify(draft));
+            }, 1000);
+        });
+    });
+    
+    // Load draft if exists
+    const draft = localStorage.getItem('assignment_draft');
+    if (draft) {
+        const draftData = JSON.parse(draft);
+        inputs.forEach(input => {
+            if (draftData[input.name]) {
+                input.value = draftData[input.name];
+            }
+        });
+        
+        // Show draft restored message
+        const draftMessage = document.createElement('div');
+        draftMessage.className = 'field-errors';
+        draftMessage.style.background = 'rgba(59, 130, 246, 0.1)';
+        draftMessage.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+        draftMessage.innerHTML = '<p style="color: var(--primary-blue); margin: 0;"><i class="fas fa-history"></i> Draft restored</p>';
+        form.insertBefore(draftMessage, form.firstChild);
+        
+        // Clear draft after loading
+        setTimeout(() => localStorage.removeItem('assignment_draft'), 5000);
+    }
+    
+    // Add character counters for text areas
+    const textareas = form.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        const counter = document.createElement('div');
+        counter.className = 'help-text';
+        counter.style.textAlign = 'right';
+        counter.style.marginTop = '0.25rem';
+        
+        const updateCounter = () => {
+            const length = textarea.value.length;
+            const maxLength = textarea.maxLength || '∞';
+            counter.textContent = `${length}${maxLength !== '∞' ? '/' + maxLength : ''} characters`;
+        };
+        
+        textarea.parentNode.appendChild(counter);
+        textarea.addEventListener('input', updateCounter);
+        updateCounter();
+    });
+});
+</script>
 {% endblock %}

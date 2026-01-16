@@ -1,47 +1,640 @@
 {% extends "properties/base.html" %}
+{% load static %}
 
-{% block title %}Districts{% endblock %}
+{% block title %}Districts Management{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Enterprise Design System */
+:root {
+    --primary-blue: #1e40af;
+    --primary-dark: #1e3a8a;
+    --primary-light: #3b82f6;
+    --accent-teal: #0891b2;
+    --success-green: #059669;
+    --warning-orange: #d97706;
+    --error-red: #dc2626; 
+    
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-900: #0f172a;
+    
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    
+    --radius-sm: 6px;
+    --radius: 8px;
+    --radius-lg: 12px;
+    
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.enterprise-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: var(--gray-50);
+    min-height: 100vh;
+}
+
+/* Header Section */
+.page-header {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    letter-spacing: -0.025em;
+}
+
+.page-subtitle {
+    color: var(--gray-600);
+    font-size: 1.1rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* Action Bar */
+.action-bar {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Enterprise Buttons */
+.btn-enterprise {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.btn-success {
+    background: var(--success-green);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #047857;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--gray-700);
+    border: 1px solid var(--gray-300);
+}
+
+.btn-outline:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-400);
+}
+
+/* Table Container */
+.table-container {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table thead {
+    background: var(--gray-50);
+    border-bottom: 2px solid var(--gray-200);
+}
+
+.data-table th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.data-table td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-700);
+    font-size: 0.875rem;
+}
+
+.data-table tbody tr {
+    transition: var(--transition);
+}
+
+.data-table tbody tr:hover {
+    background: var(--gray-50);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-primary {
+    background: rgba(30, 64, 175, 0.1);
+    color: var(--primary-blue);
+}
+
+.badge-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-green);
+}
+
+/* Action Cells */
+.action-cell {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.action-btn {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--gray-300);
+    background: white;
+    color: var(--gray-700);
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-btn:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-400);
+    color: var(--gray-900);
+    transform: translateY(-1px);
+}
+
+.action-btn-primary {
+    border-color: var(--primary-blue);
+    background: rgba(30, 64, 175, 0.1);
+    color: var(--primary-blue);
+}
+
+.action-btn-primary:hover {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.action-btn-success {
+    border-color: var(--success-green);
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-green);
+}
+
+.action-btn-success:hover {
+    background: var(--success-green);
+    color: white;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--gray-500);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    color: var(--gray-600);
+}
+
+/* Pagination */
+.pagination-container {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.pagination-info {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+}
+
+.pagination {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.page-link {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--gray-300);
+    background: white;
+    color: var(--gray-700);
+    text-decoration: none;
+    transition: var(--transition);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.page-link:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-400);
+    color: var(--gray-900);
+}
+
+.page-link.current {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: white;
+}
+
+.page-link.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--gray-100);
+}
+
+.page-link.disabled:hover {
+    background: var(--gray-100);
+    border-color: var(--gray-300);
+    color: var(--gray-500);
+}
+
+/* District Stats */
+.district-stats {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .enterprise-container {
+        padding: 1rem;
+    }
+    
+    .page-header {
+        padding: 1.5rem;
+    }
+    
+    .page-header h1 {
+        font-size: 1.75rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .action-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .action-buttons {
+        justify-content: center;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .data-table {
+        min-width: 600px;
+    }
+    
+    .action-cell {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .pagination-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .district-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="enterprise-container">
+    <!-- Header Section -->
+    <div class="page-header">
+        <h1>
+            <i class="fas fa-map-marker-alt"></i>
+            Districts Management
+        </h1>
+        <p class="page-subtitle">Manage geographical districts and their administrative structure</p>
+    </div>
 
-    <h2>Districts</h2>
+    <!-- District Statistics -->
+    <div class="district-stats">
+        <div class="stat-item">
+            <div class="stat-value">{{ districts.paginator.count }}</div>
+            <div class="stat-label">Total Districts</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ total_locals|default:0 }}</div>
+            <div class="stat-label">Locals</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ total_buildings|default:0 }}</div>
+            <div class="stat-label">Buildings</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ total_workers|default:0 }}</div>
+            <div class="stat-label">Workers</div>
+        </div>
+    </div>
 
-    <a href="{% url 'properties:district_create' %}" class="btn btn-success mb-3">
-        + Add District
-    </a>
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <div class="action-buttons">
+            <a href="{% url 'properties:district_create' %}" class="btn-enterprise btn-success">
+                <i class="fas fa-plus-circle"></i>
+                Add New District
+            </a>
+        </div>
+        <div style="color: var(--gray-500); font-size: 0.875rem;">
+            <i class="fas fa-info-circle me-1"></i>
+            Page {{ districts.number }} of {{ districts.paginator.num_pages }}
+        </div>
+    </div>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>District Code</th>
-                <th>Name</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for d in districts %}
-            <tr>
-                <td>{{ d.dcode }}</td>
-                <td>{{ d.name }}</td>
-                <td>
-               <a href="{% url 'properties:district_update' d.dcode %}"
-   class="btn btn-sm btn-primary">
-    Edit
-</a>
-<a href="{% url 'properties:local_create' %}?district={{ d.dcode }}"
-       class="btn btn-sm btn-success ms-2">
-        + Add Local
-    </a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3">No districts found.</td>
-            </tr>
+    <!-- Data Table -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>District Code</th>
+                    <th>District Name</th>
+                    <th>Locals</th>
+                    <th width="250">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in districts %}
+                <tr>
+                    <td>
+                        <span class="badge badge-primary">
+                            <i class="fas fa-hashtag me-1"></i>
+                            {{ d.dcode }}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600; color: var(--gray-900);">{{ d.name }}</div>
+                        {% if d.description %}
+                        <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.25rem;">
+                            {{ d.description|truncatewords:10 }}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-success">
+                            <i class="fas fa-building me-1"></i>
+                            {{ d.local_set.count }} Local{{ d.local_set.count|pluralize }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-cell">
+                            <a href="{% url 'properties:district_update' d.dcode %}" 
+                               class="action-btn action-btn-primary"
+                               title="Edit district">
+                                <i class="fas fa-edit"></i>
+                                Edit
+                            </a>
+                            <a href="{% url 'properties:local_create' %}?district={{ d.dcode }}"
+                               class="action-btn action-btn-success"
+                               title="Add local to district">
+                                <i class="fas fa-plus"></i>
+                                Add Local
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">
+                        <div class="empty-state">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <h3>No Districts Found</h3>
+                            <p>Get started by creating your first district to organize your geographical areas</p>
+                            <div style="margin-top: 1.5rem;">
+                                <a href="{% url 'properties:district_create' %}" class="btn-enterprise btn-success">
+                                    <i class="fas fa-plus-circle me-2"></i>
+                                    Create First District
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if districts.paginator.num_pages > 1 %}
+    <div class="pagination-container">
+        <div class="pagination-info">
+            Showing {{ districts.start_index }} to {{ districts.end_index }} 
+            of {{ districts.paginator.count }} districts
+        </div>
+        <div class="pagination">
+            {% if districts.has_previous %}
+                <a href="?page=1" class="page-link" title="First page">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?page={{ districts.previous_page_number }}" class="page-link" title="Previous page">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            {% else %}
+                <span class="page-link disabled">
+                    <i class="fas fa-angle-double-left"></i>
+                </span>
+                <span class="page-link disabled">
+                    <i class="fas fa-angle-left"></i>
+                </span>
+            {% endif %}
+
+            {% for num in districts.paginator.page_range %}
+                {% if districts.number == num %}
+                    <span class="page-link current">{{ num }}</span>
+                {% elif num > districts.number|add:'-3' and num < districts.number|add:'3' %}
+                    <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                {% endif %}
             {% endfor %}
-        </tbody>
-    </table>
 
+            {% if districts.has_next %}
+                <a href="?page={{ districts.next_page_number }}" class="page-link" title="Next page">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?page={{ districts.paginator.num_pages }}" class="page-link" title="Last page">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            {% else %}
+                <span class="page-link disabled">
+                    <i class="fas fa-angle-right"></i>
+                </span>
+                <span class="page-link disabled">
+                    <i class="fas fa-angle-double-right"></i>
+                </span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Footer Info -->
+    {% if districts %}
+    <div style="text-align: center; margin-top: 2rem; color: var(--gray-500); font-size: 0.875rem;">
+        <i class="fas fa-info-circle me-1"></i>
+        Database updated: {% now "M d, Y H:i" %}
+    </div>
+    {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth hover effects to table rows
+    const tableRows = document.querySelectorAll('.data-table tbody tr');
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-1px)';
+            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+    });
+
+    // Enhanced button interactions
+    const buttons = document.querySelectorAll('.btn-enterprise, .action-btn');
+    buttons.forEach(button => {
+        button.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-1px)';
+        });
+        
+        button.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
 {% endblock %}

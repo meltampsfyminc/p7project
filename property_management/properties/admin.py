@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import (Property, HousingUnit, PropertyInventory, ImportedFile, UserProfile, ItemTransfer, 
+from .models import (Pamayanan, HousingUnit, HousingUnitInventory, ImportedFile, UserProfile, ItemTransfer, 
                      District, Local, DistrictProperty, DistrictInventory, LocalProperty, LocalInventory)
 
 
@@ -38,7 +38,7 @@ class ImportedFileAdmin(admin.ModelAdmin):
     readonly_fields = ('file_hash', 'imported_at')
 
 
-@admin.register(Property)
+@admin.register(Pamayanan)
 class PropertyAdmin(admin.ModelAdmin):
     list_display = ('name', 'owner', 'city', 'property_type', 'total_units', 'status', 'created_at')
     list_filter = ('status', 'property_type', 'owner', 'created_at')
@@ -68,38 +68,9 @@ class PropertyAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(HousingUnit)
-class HousingUnitAdmin(admin.ModelAdmin):
-    list_display = ('housing_unit_name', 'get_property_name', 'occupant_name', 'department', 'date_reported')
-    list_filter = ('property', 'department', 'section', 'date_reported')
-    search_fields = ('housing_unit_name', 'occupant_name', 'address', 'department', 'property__name')
-    readonly_fields = ('created_at', 'updated_at')
-    
-    fieldsets = (
-        ('Property/Building', {
-            'fields': ('property',)
-        }),
-        ('Housing Unit Details', {
-            'fields': ('unit_number', 'housing_unit_name', 'floor', 'address')
-        }),
-        ('Occupant Information', {
-            'fields': ('occupant_name', 'department', 'section', 'job_title', 'date_reported')
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    
-    def get_property_name(self, obj):
-        """Display property name"""
-        if obj.property:
-            return obj.property.name
-        return "No Property"
-    get_property_name.short_description = 'Building/Property'
 
 
-@admin.register(PropertyInventory)
+@admin.register(HousingUnitInventory)
 class PropertyInventoryAdmin(admin.ModelAdmin):
     list_display = ('housing_unit', 'item_name', 'quantity', 'date_acquired', 'color', 'size', 'remarks')
     list_filter = ('housing_unit', 'date_acquired', 'created_at')
@@ -310,6 +281,45 @@ class LocalInventoryAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+from django.contrib import admin
+from .models import HousingUnit
 
 
+@admin.register(HousingUnit)
+class HousingUnitAdmin(admin.ModelAdmin):
+    list_display = (
+        "display_location",
+        "unit_number",
+        "occupant_name",
+        "department",
+        "section",
+        "date_reported",
+    )
 
+    list_filter = (
+        "pamayanan",
+        "building",
+        "department",
+        "section",
+        "date_reported",
+    )
+
+    search_fields = (
+        "unit_number",
+        "occupant_name",
+        "pamayanan__name",
+        "building__name",
+    )
+
+    ordering = (
+        "pamayanan__name",
+        "building__name",
+        "unit_number",
+    )
+
+    @admin.display(description="Location")
+    def display_location(self, obj):
+        parts = [obj.pamayanan.name]
+        if obj.building:
+            parts.append(obj.building.name)
+        return " → ".join(parts)

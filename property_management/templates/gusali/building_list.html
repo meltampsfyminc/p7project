@@ -6,656 +6,986 @@
 {% block extra_css %}
 <style>
     :root {
-        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.04);
-        --card-shadow-hover: 0 10px 20px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.05);
+        /* Enterprise Color Palette */
+        --enterprise-primary: #1e40af;
+        --enterprise-primary-dark: #1e3a8a;
+        --enterprise-primary-light: #3b82f6;
+        --enterprise-secondary: #475569;
+        --enterprise-accent: #0891b2;
+        --enterprise-success: #059669;
+        --enterprise-warning: #d97706;
+        --enterprise-danger: #dc2626;
+        
+        /* Neutral Colors */
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-300: #cbd5e1;
+        --gray-400: #94a3b8;
+        --gray-500: #64748b;
+        --gray-600: #475569;
+        --gray-700: #334155;
+        --gray-800: #1e293b;
+        --gray-900: #0f172a;
+        
+        /* Shadows */
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        
+        /* Border Radius */
+        --radius-sm: 4px;
+        --radius: 6px;
+        --radius-lg: 8px;
+        --radius-xl: 12px;
     }
 
-    .stat-card {
-        border: none;
-        border-radius: 12px;
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* Layout */
+    body {
+        background-color: var(--gray-50);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        color: var(--gray-900);
+    }
+
+    .enterprise-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+
+    /* Header Section */
+    .enterprise-header {
         background: white;
-        position: relative;
+        border-bottom: 1px solid var(--gray-200);
+        padding: 1.5rem 0;
+        margin-bottom: 2rem;
     }
 
-    .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--card-shadow-hover);
-    }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: var(--primary-gradient);
-    }
-
-    .stat-card.bg-success::before {
-        background: var(--success-gradient);
-    }
-
-    .stat-card.bg-primary::before {
-        background: var(--primary-gradient);
-    }
-
-    .card-header-gradient {
-        background: var(--primary-gradient);
-        color: white;
-        border: none;
-    }
-
-    .badge-gradient {
-        background: var(--secondary-gradient);
-        color: white;
-        border: none;
-    }
-
-    .filter-card {
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        border-radius: 10px;
-        background: white;
-    }
-
-    .table-container {
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: var(--card-shadow);
-    }
-
-    .table thead th {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 1rem;
+    .enterprise-header h1 {
+        font-size: 1.5rem;
         font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
+        color: var(--gray-900);
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.025em;
     }
 
-    .table tbody tr {
-        transition: all 0.2s ease;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    .enterprise-header .subtitle {
+        color: var(--gray-500);
+        font-size: 0.875rem;
+        margin: 0;
     }
 
-    .table tbody tr:hover {
-        background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-        transform: scale(1.002);
+    .enterprise-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        margin-bottom: 1rem;
     }
 
-    .search-box {
+    .enterprise-breadcrumb a {
+        color: var(--enterprise-primary);
+        text-decoration: none;
+    }
+
+    .enterprise-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    /* Action Bar */
+    .action-bar {
         background: white;
-        border-radius: 10px;
-        box-shadow: var(--card-shadow);
-        border: 1px solid rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-sm);
     }
 
-    .search-box .input-group {
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    .search-box .input-group-text {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 1rem;
-    }
-
-    .search-box input {
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        border-left: none;
-        padding: 0.75rem;
-    }
-
-    .search-box input:focus {
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
-        border-color: rgba(102, 126, 234, 0.3);
-    }
-
-    .action-btn {
-        padding: 0.4rem 0.8rem;
-        border-radius: 6px;
-        transition: all 0.2s ease;
-        font-size: 0.85rem;
-    }
-
-    .action-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    .filter-badge {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 0.5rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
+    .btn-enterprise {
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius);
+        font-size: 0.875rem;
+        font-weight: 500;
+        border: 1px solid transparent;
+        transition: all 150ms ease;
+        cursor: pointer;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
     }
 
-    .empty-state {
-        padding: 4rem 2rem;
-        text-align: center;
-        background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
-        border-radius: 10px;
-        border: 2px dashed rgba(102, 126, 234, 0.3);
+    .btn-enterprise-primary {
+        background-color: var(--enterprise-primary);
+        color: white;
+        border-color: var(--enterprise-primary);
     }
 
-    .empty-state i {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-size: 3rem;
+    .btn-enterprise-primary:hover {
+        background-color: var(--enterprise-primary-dark);
+        border-color: var(--enterprise-primary-dark);
     }
 
-    .custom-select {
-        border-radius: 6px;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        padding: 0.5rem 1rem;
+    .btn-enterprise-secondary {
+        background-color: white;
+        color: var(--gray-700);
+        border-color: var(--gray-300);
+    }
+
+    .btn-enterprise-secondary:hover {
+        background-color: var(--gray-50);
+        border-color: var(--gray-400);
+    }
+
+    .btn-enterprise-outline {
+        background-color: transparent;
+        color: var(--gray-700);
+        border-color: var(--gray-300);
+    }
+
+    .btn-enterprise-outline:hover {
+        background-color: var(--gray-50);
+    }
+
+    /* Statistics Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card-enterprise {
         background: white;
-        transition: all 0.2s ease;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        transition: box-shadow 150ms ease;
     }
 
-    .custom-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    .stat-card-enterprise:hover {
+        box-shadow: var(--shadow-md);
     }
 
-    .status-badge {
-        padding: 0.3rem 0.8rem;
-        border-radius: 20px;
+    .stat-card-enterprise .stat-label {
         font-size: 0.75rem;
         font-weight: 600;
-        letter-spacing: 0.3px;
-    }
-
-    .cost-cell {
-        font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', monospace;
-        font-weight: 600;
-        color: #2d3748;
-    }
-
-    .header-section {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 12px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        color: white;
-    }
-
-    .header-section h2 {
-        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--gray-500);
         margin-bottom: 0.5rem;
     }
 
-    .header-section .lead {
-        opacity: 0.9;
-        font-size: 1.1rem;
+    .stat-card-enterprise .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 0.25rem;
+        line-height: 1;
+    }
+
+    .stat-card-enterprise .stat-description {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: white;
+    }
+
+    .stat-icon-primary { background-color: var(--enterprise-primary); }
+    .stat-icon-success { background-color: var(--enterprise-success); }
+    .stat-icon-accent { background-color: var(--enterprise-accent); }
+    .stat-icon-warning { background-color: var(--enterprise-warning); }
+
+    /* Filter Panel */
+    .filter-panel {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .filter-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .filter-header h3 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .filter-body {
+        padding: 1.5rem;
+    }
+
+    .form-group-enterprise {
+        margin-bottom: 1rem;
+    }
+
+    .form-label-enterprise {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .form-control-enterprise {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+        background-color: white;
+        color: var(--gray-900);
+        transition: all 150ms ease;
+    }
+
+    .form-control-enterprise:focus {
+        outline: none;
+        border-color: var(--enterprise-primary);
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .form-control-enterprise:hover {
+        border-color: var(--gray-400);
+    }
+
+    /* Active Filters */
+    .active-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .filter-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.375rem 0.75rem;
+        background-color: var(--gray-100);
+        color: var(--gray-700);
+        border-radius: var(--radius);
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: 1px solid var(--gray-200);
+    }
+
+    .filter-tag i {
+        color: var(--gray-500);
+    }
+
+    /* Data Table */
+    .table-container-enterprise {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+    }
+
+    .table-header-enterprise {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        background-color: var(--gray-50);
+    }
+
+    .table-header-enterprise h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin: 0;
+    }
+
+    .table-enterprise {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-enterprise thead {
+        background-color: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .table-enterprise th {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--gray-700);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--gray-200);
+    }
+
+    .table-enterprise td {
+        padding: 1rem;
+        font-size: 0.875rem;
+        color: var(--gray-700);
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .table-enterprise tbody tr {
+        transition: background-color 100ms ease;
+    }
+
+    .table-enterprise tbody tr:hover {
+        background-color: var(--gray-50);
+    }
+
+    .table-enterprise tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Badges */
+    .badge-enterprise {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: var(--radius);
+        letter-spacing: 0.025em;
+    }
+
+    .badge-primary {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-success {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-info {
+        background-color: #cffafe;
+        color: #0e7490;
+    }
+
+    .badge-warning {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-secondary {
+        background-color: var(--gray-200);
+        color: var(--gray-700);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius);
+        border: 1px solid var(--gray-300);
+        background: white;
+        color: var(--gray-600);
+        cursor: pointer;
+        transition: all 150ms ease;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+
+    .btn-icon i {
+        display: block;
+        line-height: 1;
+    }
+
+    .btn-icon:hover {
+        background-color: var(--gray-50);
+        border-color: var(--gray-400);
+        color: var(--gray-900);
+        text-decoration: none;
+    }
+
+    .btn-icon-danger:hover {
+        background-color: #fef2f2;
+        border-color: var(--enterprise-danger);
+        color: var(--enterprise-danger);
+    }
+
+    /* Ensure FontAwesome icons display properly */
+    .btn-icon .fas,
+    .btn-icon .far,
+    .btn-icon .fab {
+        font-size: 0.875rem;
+    }
+
+    /* Empty State */
+    .empty-state-enterprise {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .empty-state-enterprise i {
+        font-size: 3rem;
+        color: var(--gray-300);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state-enterprise h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state-enterprise p {
+        color: var(--gray-600);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Footer */
+    .table-footer {
+        padding: 1rem 1.5rem;
+        background-color: var(--gray-50);
+        border-top: 1px solid var(--gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+
+    /* Cost Display */
+    .cost-display {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-weight: 600;
+        color: var(--gray-900);
+    }
+
+    /* Search Box */
+    .search-box-enterprise {
+        position: relative;
+        flex: 1;
+        max-width: 500px;
+    }
+
+    .search-box-enterprise input {
+        width: 100%;
+        padding: 0.625rem 1rem 0.625rem 2.5rem;
+        font-size: 0.875rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+        background-color: white;
+        transition: all 150ms ease;
+    }
+
+    .search-box-enterprise input:focus {
+        outline: none;
+        border-color: var(--enterprise-primary);
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .search-box-enterprise i {
+        position: absolute;
+        left: 0.875rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-400);
+        font-size: 0.875rem;
+    }
+
+    /* Dropdown Menu */
+    .dropdown-menu-enterprise {
+        min-width: 200px;
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .dropdown-item-enterprise {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        color: var(--gray-700);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: background-color 100ms ease;
+        text-decoration: none;
+        display: block;
+    }
+
+    .dropdown-item-enterprise:hover {
+        background-color: var(--gray-50);
+        color: var(--gray-900);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-bar {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .table-enterprise {
+            font-size: 0.75rem;
+        }
+        
+        .table-enterprise th,
+        .table-enterprise td {
+            padding: 0.5rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Header Section -->
-    <div class="header-section">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h2><i class="fas fa-building me-3"></i>Building Management System</h2>
-                <p class="lead mb-0">Manage and track all buildings (Gusali) across districts and locals</p>
+<div class="enterprise-container py-4">
+    <!-- Breadcrumb -->
+    <div class="enterprise-breadcrumb">
+        <a href="/">Dashboard</a>
+        <span>/</span>
+        <a href="{% url 'gusali:building_list' %}">Buildings</a>
+        <span>/</span>
+        <span>All Buildings</span>
+    </div>
+
+    <!-- Header -->
+    <div class="enterprise-header">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1><i class="fas fa-building me-2"></i>Building Management</h1>
+                <p class="subtitle">Manage and track all buildings (Gusali) across districts and locals</p>
             </div>
-            <div class="col-md-4 text-end">
-                <a href="{% url 'gusali:building_report' %}" class="btn btn-light me-2 action-btn">
-                    <i class="fas fa-chart-bar me-2"></i>Analytics
+            <div class="d-flex gap-2">
+                <a href="{% url 'gusali:building_report' %}" class="btn-enterprise btn-enterprise-secondary">
+                    <i class="fas fa-chart-bar"></i>
+                    Analytics
                 </a>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-plus-circle me-2"></i>Manual Entry
+                <div class="dropdown">
+                    <button class="btn-enterprise btn-enterprise-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-plus"></i>
+                        Add Building
                     </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'gusali:building_create' %}">Add New Building</a></li>
-                        <li><a class="dropdown-item" href="{% url 'gusali:gusali_csv_upload' %}">Mass Upload (CSV)</a></li>
+                    <ul class="dropdown-menu dropdown-menu-enterprise">
+                        <li><a class="dropdown-item-enterprise" href="{% url 'gusali:building_create' %}">
+                            <i class="fas fa-edit me-2"></i>Manual Entry
+                        </a></li>
+                        <li><a class="dropdown-item-enterprise" href="{% url 'gusali:gusali_csv_upload' %}">
+                            <i class="fas fa-file-csv me-2"></i>CSV Upload
+                        </a></li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Search Box -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="search-box">
-                <div class="card-body py-3">
-                    <form method="get" class="row g-2 align-items-center">
-                        <div class="col-md-8">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                <input type="text" name="q" class="form-control"
-                                    placeholder="Search buildings by name, district, local, or code..."
-                                    value="{{ search_query }}">
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="fas fa-search me-2"></i>Search
-                                </button>
-                            </div>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <div class="d-flex align-items-center justify-content-end gap-2">
-                                <span class="text-muted">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    {{ buildings.count }} buildings found
-                                </span>
-                            </div>
-                        </div>
-                    </form>
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card-enterprise">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Buildings</div>
+                    <div class="stat-value">{{ buildings.count }}</div>
+                    <div class="stat-description">Across all districts</div>
+                </div>
+                <div class="stat-icon stat-icon-primary">
+                    <i class="fas fa-building"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card-enterprise">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Value</div>
+                    <div class="stat-value">₱{{ total_cost|floatformat:0|default:"0" }}</div>
+                    <div class="stat-description">Current market value</div>
+                </div>
+                <div class="stat-icon stat-icon-success">
+                    <i class="fas fa-peso-sign"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card-enterprise">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Donated Buildings</div>
+                    <div class="stat-value">{{ donated_count|default:"0" }}</div>
+                    <div class="stat-description">HANDOG buildings</div>
+                </div>
+                <div class="stat-icon stat-icon-accent">
+                    <i class="fas fa-hand-holding-heart"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card-enterprise">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Active Districts</div>
+                    <div class="stat-value">{{ districts|length }}</div>
+                    <div class="stat-description">With registered buildings</div>
+                </div>
+                <div class="stat-icon stat-icon-warning">
+                    <i class="fas fa-map-marker-alt"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Summary Stats -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted small mb-2">Total Buildings</h6>
-                            <h2 class="mb-0">{{ buildings.count }}</h2>
-                            <small class="text-muted">Across all districts</small>
-                        </div>
-                        <div class="icon-circle bg-primary bg-gradient">
-                            <i class="fas fa-building text-white"></i>
-                        </div>
-                    </div>
-                </div>
+    <!-- Search & Actions -->
+    <div class="action-bar">
+        <form method="get" class="d-flex align-items-center gap-3 w-100">
+            <div class="search-box-enterprise">
+                <i class="fas fa-search"></i>
+                <input type="text" name="q" placeholder="Search buildings by name, district, local, or code..." value="{{ search_query }}">
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted small mb-2">Total Value</h6>
-                            <h2 class="mb-0">₱{{ total_cost|floatformat:0|default:"0" }}</h2>
-                            <small class="text-muted">Current market value</small>
-                        </div>
-                        <div class="icon-circle bg-success bg-gradient">
-                            <i class="fas fa-peso-sign text-white"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted small mb-2">Donated</h6>
-                            <h2 class="mb-0">{{ donated_count|default:"0" }}</h2>
-                            <small class="text-muted">HANDOG buildings</small>
-                        </div>
-                        <div class="icon-circle bg-info bg-gradient">
-                            <i class="fas fa-hand-holding-heart text-white"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted small mb-2">Active Districts</h6>
-                            <h2 class="mb-0">{{ districts|length }}</h2>
-                            <small class="text-muted">With registered buildings</small>
-                        </div>
-                        <div class="icon-circle bg-warning bg-gradient">
-                            <i class="fas fa-map-marker-alt text-white"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <button type="submit" class="btn-enterprise btn-enterprise-primary">
+                Search
+            </button>
+            <span class="text-muted ms-auto" style="font-size: 0.875rem; white-space: nowrap;">
+                {{ buildings.count }} buildings found
+            </span>
+        </form>
     </div>
 
-    <!-- Filters Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="filter-card">
-                <div class="card-header py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Advanced Filters</h6>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" 
-                                data-bs-target="#filterCollapse" aria-expanded="true">
-                            <i class="fas fa-chevron-down"></i>
+    <!-- Filters -->
+    <div class="filter-panel">
+        <div class="filter-header">
+            <h3><i class="fas fa-filter me-2"></i>Filters</h3>
+            <button type="button" class="btn-enterprise-outline btn-enterprise" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        <div class="collapse show" id="filterCollapse">
+            <div class="filter-body">
+                <form method="get" class="row g-3">
+                    {% if search_query %}
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                    {% endif %}
+
+                    <div class="col-md-3">
+                        <div class="form-group-enterprise">
+                            <label class="form-label-enterprise">District</label>
+                            <select name="district" class="form-control-enterprise" onchange="this.form.local.value=''; this.form.submit();">
+                                <option value="">All Districts</option>
+                                {% for district in districts %}
+                                <option value="{{ district.dcode }}" {% if current_district == district.dcode %}selected{% endif %}>
+                                    {{ district.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group-enterprise">
+                            <label class="form-label-enterprise">Local</label>
+                            <select name="local" class="form-control-enterprise">
+                                <option value="">All Locals</option>
+                                {% for local in locals %}
+                                <option value="{{ local.lcode }}" {% if current_local == local.lcode %}selected{% endif %}>
+                                    {{ local.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <div class="form-group-enterprise">
+                            <label class="form-label-enterprise">Building Code</label>
+                            <select name="code" class="form-control-enterprise">
+                                <option value="">All Codes</option>
+                                {% for code, label in code_choices %}
+                                <option value="{{ code }}" {% if current_code == code %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <div class="form-group-enterprise">
+                            <label class="form-label-enterprise">Year</label>
+                            <select name="year" class="form-control-enterprise">
+                                <option value="">All Years</option>
+                                {% for year in years %}
+                                <option value="{{ year }}" {% if current_year == year|stringformat:"s" %}selected{% endif %}>
+                                    {{ year }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn-enterprise btn-enterprise-primary w-100">
+                            <i class="fas fa-check"></i>
+                            Apply
                         </button>
+                        <a href="{% url 'gusali:building_list' %}" class="btn-enterprise btn-enterprise-outline" title="Reset filters">
+                            <i class="fas fa-redo"></i>
+                        </a>
                     </div>
-                </div>
-                <div class="collapse show" id="filterCollapse">
-                    <div class="card-body pt-3">
-                        <form method="get" class="row g-3">
-                            <!-- Keep search query -->
-                            {% if search_query %}
-                            <input type="hidden" name="q" value="{{ search_query }}">
-                            {% endif %}
+                </form>
 
-                            <div class="col-md-3">
-                                <label class="form-label small text-uppercase text-muted">District</label>
-                                <select name="district" class="form-select custom-select" 
-                                        onchange="this.form.local.value=''; this.form.submit();">
-                                    <option value="">All Districts</option>
-                                    {% for district in districts %}
-                                    <option value="{{ district.dcode }}" 
-                                            {% if current_district == district.dcode %}selected{% endif %}>
-                                        {{ district.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <div class="col-md-3">
-                                <label class="form-label small text-uppercase text-muted">Local</label>
-                                <select name="local" class="form-select custom-select">
-                                    <option value="">All Locals</option>
-                                    {% for local in locals %}
-                                    <option value="{{ local.lcode }}" 
-                                            {% if current_local == local.lcode %}selected{% endif %}>
-                                        {{ local.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <div class="col-md-2">
-                                <label class="form-label small text-uppercase text-muted">Building Code</label>
-                                <select name="code" class="form-select custom-select">
-                                    <option value="">All Codes</option>
-                                    {% for code, label in code_choices %}
-                                    <option value="{{ code }}" {% if current_code == code %}selected{% endif %}>
-                                        {{ label }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <div class="col-md-2">
-                                <label class="form-label small text-uppercase text-muted">Year</label>
-                                <select name="year" class="form-select custom-select">
-                                    <option value="">All Years</option>
-                                    {% for year in years %}
-                                    <option value="{{ year }}" 
-                                            {% if current_year == year|stringformat:"s" %}selected{% endif %}>
-                                        {{ year }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <div class="col-md-2 d-flex align-items-end gap-2">
-                                <button type="submit" class="btn btn-primary flex-grow-1">
-                                    <i class="fas fa-filter me-1"></i>Apply
-                                </button>
-                                <a href="{% url 'gusali:building_list' %}" class="btn btn-outline-secondary" 
-                                   title="Reset all filters">
-                                    <i class="fas fa-redo"></i>
-                                </a>
-                            </div>
-                        </form>
-
-                        <!-- Active Filters -->
-                        {% if search_query or current_district or current_local or current_code or current_year %}
-                        <div class="mt-4 pt-3 border-top">
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="text-muted small">Active filters:</span>
-                                <div class="d-flex flex-wrap gap-2">
-                                    {% if search_query %}
-                                    <span class="filter-badge">
-                                        <i class="fas fa-search"></i>
-                                        {{ search_query }}
-                                    </span>
-                                    {% endif %}
-                                    {% if current_district %}
-                                    <span class="filter-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        {{ current_district_name|default:current_district }}
-                                    </span>
-                                    {% endif %}
-                                    {% if current_local %}
-                                    <span class="filter-badge" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                                        <i class="fas fa-map-pin"></i>
-                                        {{ current_local_name|default:current_local }}
-                                    </span>
-                                    {% endif %}
-                                    {% if current_code %}
-                                    <span class="filter-badge" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                                        <i class="fas fa-code"></i>
-                                        {{ current_code }}
-                                    </span>
-                                    {% endif %}
-                                    {% if current_year %}
-                                    <span class="filter-badge" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);">
-                                        <i class="fas fa-calendar"></i>
-                                        {{ current_year }}
-                                    </span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Buildings Table -->
-    <div class="row">
-        <div class="col-12">
-            <div class="table-container">
-                <div class="card">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Building Registry</h5>
-                        <div class="d-flex gap-2">
-                            <span class="badge badge-gradient">
-                                {{ buildings.count }} Records
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th class="ps-4">Code</th>
-                                        <th>Building Name</th>
-                                        <th>Classification</th>
-                                        <th>Location</th>
-                                        <th>Capacity</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Current Cost</th>
-                                        <th>Year</th>
-                                        <th class="text-center pe-4">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for building in buildings %}
-                                    <tr>
-                                        <td class="ps-4">
-                                            <span class="badge bg-primary rounded-pill px-3 py-1">
-                                                {{ building.code }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <strong>{{ building.name }}</strong>
-                                        </td>
-                                        <td>
-                                            <span class="text-muted">{{ building.classification|default:"-" }}</span>
-                                        </td>
-                                        <td>
-                                            <div class="location-info">
-                                                <small class="text-muted d-block">
-                                                    <i class="fas fa-map-marker-alt me-1"></i>
-                                                    {% if building.local and building.local.district %}
-                                                    {{ building.local.name }}, {{ building.local.district.name }}
-                                                    {% else %}
-                                                    <span class="text-danger">Location not set</span>
-                                                    {% endif %}
-                                                </small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {% if building.capacity %}
-                                            <span class="badge bg-info rounded-pill px-3">
-                                                {{ building.capacity }}
-                                            </span>
-                                            {% else %}
-                                            <span class="text-muted">-</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if building.is_donated %}
-                                            <span class="status-badge" style="background: linear-gradient(135deg, #4ade80 0%, #22d3ee 100%);">
-                                                <i class="fas fa-gift me-1"></i>HANDOG
-                                            </span>
-                                            {% else %}
-                                            <span class="status-badge bg-secondary">
-                                                Standard
-                                            </span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="text-end cost-cell">
-                                            ₱{{ building.current_total_cost|floatformat:2 }}
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-light text-dark border">
-                                                {{ building.year_covered }}
-                                            </span>
-                                        </td>
-                                        <td class="text-center pe-4">
-                                            <div class="d-flex gap-2 justify-content-center">
-                                                <a href="{% url 'gusali:building_detail' building.pk %}" class="btn btn-sm btn-outline-primary action-btn" title="View Details"><i class="fas fa-eye"></i></a>
-                                                <a href="{% url 'gusali:building_update' building.pk %}" class="btn btn-sm btn-outline-info action-btn" title="Edit Building"><i class="fas fa-edit"></i></a>
-                                                <a href="{% url 'gusali:building_delete' building.pk %}" class="btn btn-sm btn-outline-danger action-btn" title="Delete Building"><i class="fas fa-trash"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="9">
-                                            <div class="empty-state">
-                                                <i class="fas fa-building mb-3"></i>
-                                                <h4 class="mb-2">No Buildings Found</h4>
-                                                <p class="text-muted mb-4">
-                                                    {% if search_query or current_district or current_local %}
-                                                    Try adjusting your search or filters
-                                                    {% else %}
-                                                    Start by uploading your first GUSALI report
-                                                    {% endif %}
-                                                </p>
-                                                <div class="d-flex gap-3 justify-content-center">
-                                                    {% if search_query or current_district or current_local %}
-                                                    <a href="{% url 'gusali:building_list' %}" 
-                                                       class="btn btn-primary">
-                                                        <i class="fas fa-redo me-2"></i>Clear Filters
-                                                    </a>
-                                                    {% endif %}
-                                                    <a href="{% url 'gusali:building_upload' %}" 
-                                                       class="btn btn-success">
-                                                        <i class="fas fa-upload me-2"></i>Upload Report
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    {% if buildings %}
-                    <div class="card-footer py-3">
-                        <div class="row align-items-center">
-                            <div class="col-md-6">
-                                <small class="text-muted">
-                                    Showing {{ buildings.count }} building{{ buildings.count|pluralize }}
-                                    {% if total_cost %}
-                                    • Total value: ₱{{ total_cost|floatformat:2 }}
-                                    {% endif %}
-                                </small>
-                            </div>
-                            <div class="col-md-6 text-end">
-                                <small class="text-muted">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Last updated: {{ request.timestamp|date:"M d, Y H:i"|default:"Recently" }}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Active Filters -->
+                {% if search_query or current_district or current_local or current_code or current_year %}
+                <div class="active-filters">
+                    <span style="font-size: 0.75rem; font-weight: 600; color: var(--gray-600); text-transform: uppercase;">Active:</span>
+                    {% if search_query %}
+                    <span class="filter-tag">
+                        <i class="fas fa-search"></i>
+                        {{ search_query }}
+                    </span>
+                    {% endif %}
+                    {% if current_district %}
+                    <span class="filter-tag">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ current_district_name|default:current_district }}
+                    </span>
+                    {% endif %}
+                    {% if current_local %}
+                    <span class="filter-tag">
+                        <i class="fas fa-map-pin"></i>
+                        {{ current_local_name|default:current_local }}
+                    </span>
+                    {% endif %}
+                    {% if current_code %}
+                    <span class="filter-tag">
+                        <i class="fas fa-code"></i>
+                        {{ current_code }}
+                    </span>
+                    {% endif %}
+                    {% if current_year %}
+                    <span class="filter-tag">
+                        <i class="fas fa-calendar"></i>
+                        {{ current_year }}
+                    </span>
                     {% endif %}
                 </div>
+                {% endif %}
             </div>
         </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container-enterprise">
+        <div class="table-header-enterprise">
+            <h2>Building Registry</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table-enterprise">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Building Name</th>
+                        <th>Classification</th>
+                        <th>Location</th>
+                        <th>Capacity</th>
+                        <th>Status</th>
+                        <th class="text-end">Current Cost</th>
+                        <th>Year</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for building in buildings %}
+                    <tr>
+                        <td>
+                            <span class="badge-enterprise badge-primary">{{ building.code }}</span>
+                        </td>
+                        <td>
+                            <strong style="color: var(--gray-900);">{{ building.name }}</strong>
+                        </td>
+                        <td>
+                            <span style="color: var(--gray-600);">{{ building.classification|default:"-" }}</span>
+                        </td>
+                        <td>
+                            <div>
+                                <i class="fas fa-map-marker-alt me-1" style="color: var(--gray-400); font-size: 0.75rem;"></i>
+                                {% if building.local and building.local.district %}
+                                <span style="font-size: 0.875rem;">{{ building.local.name }}, {{ building.local.district.name }}</span>
+                                {% else %}
+                                <span style="color: var(--enterprise-danger); font-size: 0.875rem;">Location not set</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if building.capacity %}
+                            <span class="badge-enterprise badge-info">{{ building.capacity }}</span>
+                            {% else %}
+                            <span style="color: var(--gray-400);">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if building.is_donated %}
+                            <span class="badge-enterprise badge-success">
+                                <i class="fas fa-gift me-1"></i>HANDOG
+                            </span>
+                            {% else %}
+                            <span class="badge-enterprise badge-secondary">Standard</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end cost-display">
+                            ₱{{ building.current_total_cost|floatformat:2 }}
+                        </td>
+                        <td>
+                            <span class="badge-enterprise badge-secondary">{{ building.year_covered }}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons justify-content-center">
+                                <a href="{% url 'gusali:building_detail' building.pk %}" class="btn-icon" title="View Details" aria-label="View Details">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </a>
+                                <a href="{% url 'gusali:building_update' building.pk %}" class="btn-icon" title="Edit" aria-label="Edit">
+                                    <i class="fas fa-edit" aria-hidden="true"></i>
+                                </a>
+                                <a href="{% url 'gusali:building_delete' building.pk %}" class="btn-icon btn-icon-danger" title="Delete" aria-label="Delete">
+                                    <i class="fas fa-trash" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state-enterprise">
+                                <i class="fas fa-building"></i>
+                                <h3>No Buildings Found</h3>
+                                <p>
+                                    {% if search_query or current_district or current_local %}
+                                    Try adjusting your search criteria or filters
+                                    {% else %}
+                                    Get started by adding your first building
+                                    {% endif %}
+                                </p>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    {% if search_query or current_district or current_local %}
+                                    <a href="{% url 'gusali:building_list' %}" class="btn-enterprise btn-enterprise-secondary">
+                                        <i class="fas fa-redo me-2"></i>Clear Filters
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'gusali:building_upload' %}" class="btn-enterprise btn-enterprise-primary">
+                                        <i class="fas fa-upload me-2"></i>Upload Report
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if buildings %}
+        <div class="table-footer">
+            <div>
+                Showing {{ buildings.count }} building{{ buildings.count|pluralize }}
+                {% if total_cost %}
+                • Total value: <span class="cost-display">₱{{ total_cost|floatformat:2 }}</span>
+                {% endif %}
+            </div>
+            <div>
+                <i class="fas fa-clock me-1"></i>
+                Last updated: {{ request.timestamp|date:"M d, Y H:i"|default:"Recently" }}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 
-<!-- Custom JS for interactivity -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Add smooth transitions to filter collapse
+    // Check if FontAwesome is loaded
+    const checkFontAwesome = () => {
+        const testIcon = document.querySelector('.fas');
+        if (testIcon) {
+            const styles = window.getComputedStyle(testIcon);
+            if (styles.fontFamily.indexOf('Font Awesome') === -1) {
+                console.warn('FontAwesome may not be loaded properly. Check if FontAwesome CSS is included in base.html');
+            }
+        }
+    };
+    
+    setTimeout(checkFontAwesome, 100);
+
+    // Focus management for search
+    const searchInput = document.querySelector('.search-box-enterprise input');
+    if (searchInput) {
+        // Keyboard shortcut: Press '/' to focus search
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+    }
+
+    // Smooth collapse transitions
     const filterCollapse = document.getElementById('filterCollapse');
     if (filterCollapse) {
         filterCollapse.addEventListener('show.bs.collapse', function() {
-            this.style.transition = 'all 0.3s ease';
+            this.style.transition = 'height 0.2s ease';
+        });
+        filterCollapse.addEventListener('hide.bs.collapse', function() {
+            this.style.transition = 'height 0.2s ease';
         });
     }
 
-    // Enhance table row clicks
-    const tableRows = document.querySelectorAll('tbody tr[data-href]');
+    // Table row interaction feedback
+    const tableRows = document.querySelectorAll('.table-enterprise tbody tr');
     tableRows.forEach(row => {
-        row.style.cursor = 'pointer';
-        row.addEventListener('click', function() {
-            window.location.href = this.dataset.href;
-        });
+        const viewBtn = row.querySelector('a[title="View Details"]');
+        if (viewBtn) {
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', function(e) {
+                // Don't trigger on action button clicks
+                if (!e.target.closest('.action-buttons')) {
+                    viewBtn.click();
+                }
+            });
+        }
     });
-
-    // Add search input focus animation
-    const searchInput = document.querySelector('input[name="q"]');
-    if (searchInput) {
-        searchInput.addEventListener('focus', function() {
-            this.parentElement.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.2)';
-        });
-        searchInput.addEventListener('blur', function() {
-            this.parentElement.style.boxShadow = 'none';
-        });
-    }
 });
 </script>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-// Add icon circle styling dynamically
-document.querySelectorAll('.icon-circle').forEach(icon => {
-    icon.style.width = '50px';
-    icon.style.height = '50px';
-    icon.style.borderRadius = '50%';
-    icon.style.display = 'flex';
-    icon.style.alignItems = 'center';
-    icon.style.justifyContent = 'center';
-    icon.style.fontSize = '1.2rem';
-});
-</script>
+<!-- Additional enterprise-specific scripts can go here -->
 {% endblock %}

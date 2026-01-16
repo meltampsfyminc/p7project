@@ -2,18 +2,596 @@
 {% block title %}Worker Details{% endblock %}
 
 {% block content %}
-<h2>{{ worker.last_name }}, {{ worker.first_name }}</h2>
+<div class="detail-container">
+    <!-- Background Elements -->
+    <div class="background-blur blur-1"></div>
+    <div class="background-blur blur-2"></div>
 
-<ul>
-    <li><strong>Category:</strong> {{ worker.get_category_display }}</li>
-    <li><strong>MWA Type:</strong> {{ worker.mwa_type|default:"—" }}</li>
-    <li><strong>Status:</strong> {{ worker.get_employment_status_display }}</li>
-    <li><strong>Marital Status:</strong> {{ worker.get_marital_status_display }}</li>
-    <li><strong>Date Started:</strong> {{ worker.date_started }}</li>
-    <li><strong>Date Ended:</strong> {{ worker.date_ended|default:"—" }}</li>
-</ul>
+    <!-- Header Card -->
+    <div class="detail-header">
+        <div class="header-top">
+            <a href="{% url 'admin_core:worker_list' %}" class="back-link">
+                <i class="bi bi-arrow-left"></i>
+                Back to Workers
+            </a>
+            <div class="header-actions">
+                <span class="status-indicator status-{{ worker.employment_status }}">
+                    <span class="status-dot"></span>
+                    {{ worker.get_employment_status_display }}
+                </span>
+            </div>
+        </div>
 
-<a href="{% url 'admin_core:worker_update' worker.id %}" class="btn btn-primary">
-    Edit Worker
-</a>
+        <div class="header-main">
+            <div class="worker-avatar">
+                {{ worker.first_name|first|upper }}
+            </div>
+            <div class="worker-info">
+                <h1 class="worker-name">{{ worker.last_name }}, {{ worker.first_name }}</h1>
+                <p class="worker-category">{{ worker.get_category_display }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="detail-content">
+        <!-- Details Grid -->
+        <div class="details-grid">
+            <!-- Left Column -->
+            <div class="details-column">
+                <div class="details-card">
+                    <h3 class="card-title">
+                        <i class="bi bi-briefcase"></i>
+                        Employment Information
+                    </h3>
+                    <div class="details-list">
+                        <div class="detail-item">
+                            <span class="detail-label">Category</span>
+                            <span class="detail-value">
+                                <span class="badge badge-category">{{ worker.get_category_display }}</span>
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">MWA Type</span>
+                            <span class="detail-value">{{ worker.mwa_type|default:"—" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Employment Status</span>
+                            <span class="detail-value">
+                                {% if worker.employment_status == "active" %}
+                                    <span class="badge badge-active">
+                                        <span class="badge-dot"></span>
+                                        {{ worker.get_employment_status_display }}
+                                    </span>
+                                {% elif worker.employment_status == "retired" %}
+                                    <span class="badge badge-retired">
+                                        <span class="badge-dot"></span>
+                                        {{ worker.get_employment_status_display }}
+                                    </span>
+                                {% elif worker.employment_status == "terminated" %}
+                                    <span class="badge badge-terminated">
+                                        <span class="badge-dot"></span>
+                                        {{ worker.get_employment_status_display }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-default">
+                                        <span class="badge-dot"></span>
+                                        {{ worker.get_employment_status_display }}
+                                    </span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="details-column">
+                <div class="details-card">
+                    <h3 class="card-title">
+                        <i class="bi bi-calendar"></i>
+                        Personal Information
+                    </h3>
+                    <div class="details-list">
+                        <div class="detail-item">
+                            <span class="detail-label">Marital Status</span>
+                            <span class="detail-value">{{ worker.get_marital_status_display }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date Started</span>
+                            <span class="detail-value">
+                                <span class="date-badge">
+                                    <i class="bi bi-calendar-event"></i>
+                                    {{ worker.date_started }}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date Ended</span>
+                            <span class="detail-value">
+                                {% if worker.date_ended %}
+                                    <span class="date-badge">
+                                        <i class="bi bi-calendar-x"></i>
+                                        {{ worker.date_ended }}
+                                    </span>
+                                {% else %}
+                                    <span class="empty-value">—</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-section">
+            <a href="{% url 'admin_core:worker_update' worker.id %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-pencil-square"></i>
+                Edit Worker
+            </a>
+            <a href="{% url 'admin_core:worker_office_list' %}" class="btn btn-secondary btn-lg">
+                <i class="bi bi-arrow-left"></i>
+                Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+.detail-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.background-blur {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    z-index: 0;
+}
+
+.blur-1 {
+    width: 400px;
+    height: 400px;
+    background: #667eea;
+    top: -100px;
+    right: -100px;
+}
+
+.blur-2 {
+    width: 300px;
+    height: 300px;
+    background: #764ba2;
+    bottom: -50px;
+    left: -50px;
+}
+
+/* Header */
+.detail-header {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 2.5rem;
+    color: white;
+    margin-bottom: 2rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+}
+
+.back-link:hover {
+    color: white;
+    gap: 0.75rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.status-active .status-dot {
+    background: #10b981;
+}
+
+.status-indicator.status-retired .status-dot {
+    background: #9ca3af;
+}
+
+.status-indicator.status-terminated .status-dot {
+    background: #ef4444;
+}
+
+.header-main {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.worker-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.worker-info {
+    flex: 1;
+}
+
+.worker-name {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.worker-category {
+    margin: 0.5rem 0 0 0;
+    font-size: 1rem;
+    opacity: 0.9;
+    font-weight: 400;
+}
+
+/* Content */
+.detail-content {
+    position: relative;
+    z-index: 1;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.details-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.details-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 1.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.card-title i {
+    font-size: 1.25rem;
+    color: #667eea;
+}
+
+.details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.detail-item {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+    align-items: start;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.detail-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-value {
+    font-size: 0.95rem;
+    color: #1f2937;
+    font-weight: 500;
+}
+
+.empty-value {
+    color: #9ca3af;
+}
+
+/* Badges */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.badge-category {
+    background: #f0f4ff;
+    color: #667eea;
+}
+
+.badge-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-active .badge-dot {
+    background: #10b981;
+}
+
+.badge-retired {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.badge-retired .badge-dot {
+    background: #9ca3af;
+}
+
+.badge-terminated {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.badge-terminated .badge-dot {
+    background: #ef4444;
+}
+
+.badge-default {
+    background: #f0f4ff;
+    color: #667eea;
+}
+
+.badge-default .badge-dot {
+    background: #667eea;
+}
+
+.date-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    background: #eff6ff;
+    color: #0c4a6e;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.date-badge i {
+    font-size: 1rem;
+    color: #0284c7;
+}
+
+/* Actions */
+.action-section {
+    display: flex;
+    gap: 1rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.75rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.05rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #6b7280;
+    border: 1.5px solid #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.btn-secondary:active {
+    background: #d1d5db;
+}
+
+.btn i {
+    font-size: 1.1rem;
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .detail-container {
+        padding: 1rem;
+    }
+
+    .detail-header {
+        padding: 1.5rem;
+    }
+
+    .header-main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .worker-avatar {
+        width: 64px;
+        height: 64px;
+        font-size: 1.75rem;
+    }
+
+    .worker-name {
+        font-size: 1.5rem;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .details-card {
+        padding: 1.5rem;
+    }
+
+    .detail-item {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .action-section {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .blur-1, .blur-2 {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .detail-header {
+        padding: 1.25rem;
+    }
+
+    .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .worker-name {
+        font-size: 1.25rem;
+    }
+
+    .details-card {
+        padding: 1.25rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+}
+</style>
 {% endblock %}

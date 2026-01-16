@@ -9,6 +9,7 @@ from django.conf.urls.static import static
 from django.views.generic import RedirectView
 
 urlpatterns = [
+   
     path('', RedirectView.as_view(url='properties/', permanent=False)),
     path('admin/', admin.site.urls),
     path('properties/', include('properties.urls')),

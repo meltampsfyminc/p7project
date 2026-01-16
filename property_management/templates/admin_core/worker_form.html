@@ -2,50 +2,490 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4" style="max-width:900px;">
+<div class="form-container">
+    <!-- Background Elements -->
+    <div class="background-blur blur-1"></div>
+    <div class="background-blur blur-2"></div>
 
-    <h3 class="mb-4">{{ title }}</h3>
-
-    <form method="post" class="form-grid-2">
-        {% csrf_token %}
-
-        {% for field in form %}
-            <div class="form-row">
-                <label for="{{ field.id_for_label }}">
-                    {{ field.label }}
-                </label>
-
-                <div class="form-input">
-                    {{ field }}
-
-                    {% if field.help_text %}
-                        <div class="form-help">{{ field.help_text }}</div>
+    <div class="form-wrapper">
+        <!-- Header Section -->
+        <div class="form-header">
+            <div class="header-content">
+                <h1 class="form-title">{{ title }}</h1>
+                <p class="form-description">
+                    {% if "Create" in title %}
+                        Add a new worker to the system
+                    {% else %}
+                        Update worker information
                     {% endif %}
-
-                    {% if field.errors %}
-                        <div class="form-error">
-                            {{ field.errors|striptags }}
-                        </div>
-                    {% endif %}
-                </div>
+                </p>
             </div>
-        {% endfor %}
-
-        {% if form.non_field_errors %}
-            <div class="form-error-wide">
-                {{ form.non_field_errors|striptags }}
-            </div>
-        {% endif %}
-
-        <div class="form-actions">
-            <button type="submit" class="btn btn-success">
-                Save
-            </button>
-            <a href="{% url 'admin_core:worker_list' %}" class="btn btn-secondary">
-                Cancel
-            </a>
         </div>
-    </form>
 
+        <!-- Form Section -->
+        <form method="post" class="form-content">
+            {% csrf_token %}
+
+            <!-- Non-field Errors -->
+            {% if form.non_field_errors %}
+                <div class="alert-error alert-wide">
+                    <div class="alert-header">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span class="alert-title">Error</span>
+                    </div>
+                    <div class="alert-message">
+                        {{ form.non_field_errors|striptags }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Form Fields -->
+            <div class="form-grid">
+                {% for field in form %}
+                    <div class="form-field-wrapper {% if field.field.widget.input_type == 'textarea' %}full-width{% endif %}">
+                        <!-- Label -->
+                        <label for="{{ field.id_for_label }}" class="form-label">
+                            <span class="label-text">{{ field.label }}</span>
+                            {% if field.field.required %}
+                                <span class="label-required" title="Required field">*</span>
+                            {% endif %}
+                        </label>
+
+                        <!-- Input Container -->
+                        <div class="form-input-wrapper">
+                            <div class="input-field">
+                                {{ field }}
+                            </div>
+
+                            <!-- Field Errors -->
+                            {% if field.errors %}
+                                <div class="field-error">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    <span>{{ field.errors|striptags }}</span>
+                                </div>
+                            {% endif %}
+
+                            <!-- Help Text -->
+                            {% if field.help_text %}
+                                <div class="field-help">
+                                    <i class="bi bi-info-circle"></i>
+                                    {{ field.help_text|safe }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-check-circle"></i>
+                    Save Changes
+                </button>
+                <a href="{% url 'admin_core:worker_list' %}" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+/* Container & Layout */
+.form-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.background-blur {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    z-index: 0;
+}
+
+.blur-1 {
+    width: 400px;
+    height: 400px;
+    background: #667eea;
+    top: -100px;
+    right: -100px;
+}
+
+.blur-2 {
+    width: 300px;
+    height: 300px;
+    background: #764ba2;
+    bottom: -50px;
+    left: -50px;
+}
+
+.form-wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 900px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+}
+
+/* Header */
+.form-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 3rem 2rem;
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-content {
+    max-width: 850px;
+}
+
+.form-title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.form-description {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.9;
+    font-weight: 400;
+}
+
+/* Form Content */
+.form-content {
+    padding: 2.5rem;
+}
+
+/* Alerts */
+.alert-error,
+.alert-warning,
+.alert-info {
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid;
+    background: #fef2f2;
+    border-color: #ef4444;
+    display: flex;
+    gap: 1rem;
+}
+
+.alert-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.alert-header i {
+    font-size: 1.25rem;
+    color: #dc2626;
+    flex-shrink: 0;
+}
+
+.alert-title {
+    font-weight: 600;
+    color: #991b1b;
+}
+
+.alert-message {
+    color: #7f1d1d;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.alert-wide {
+    margin-left: -2.5rem;
+    margin-right: -2.5rem;
+    margin-bottom: 2rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    border-radius: 0;
+}
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-field-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.form-field-wrapper.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Labels */
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1f2937;
+}
+
+.label-text {
+    display: block;
+}
+
+.label-required {
+    color: #ef4444;
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+/* Input Styling */
+.form-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.input-field {
+    position: relative;
+}
+
+.form-field-wrapper input,
+.form-field-wrapper select,
+.form-field-wrapper textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: #1f2937;
+    background: #fafbfc;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.form-field-wrapper input:focus,
+.form-field-wrapper select:focus,
+.form-field-wrapper textarea:focus {
+    outline: none;
+    background: white;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-field-wrapper input:hover:not(:focus),
+.form-field-wrapper select:hover:not(:focus),
+.form-field-wrapper textarea:hover:not(:focus) {
+    border-color: #d1d5db;
+}
+
+.form-field-wrapper textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+
+/* Error States */
+.form-field-wrapper.has-error input,
+.form-field-wrapper.has-error select,
+.form-field-wrapper.has-error textarea {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+.form-field-wrapper.has-error input:focus,
+.form-field-wrapper.has-error select:focus,
+.form-field-wrapper.has-error textarea:focus {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.field-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: #fee2e2;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #991b1b;
+}
+
+.field-error i {
+    color: #dc2626;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+/* Help Text */
+.field-help {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: #eff6ff;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #0c4a6e;
+    line-height: 1.5;
+}
+
+.field-help i {
+    color: #0284c7;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    padding: 0.875rem 1.75rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.05rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #6b7280;
+    border: 1.5px solid #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.btn-secondary:active {
+    background: #d1d5db;
+}
+
+.btn i {
+    font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 1rem;
+    }
+
+    .form-wrapper {
+        border-radius: 12px;
+    }
+
+    .form-header {
+        padding: 2rem;
+    }
+
+    .form-title {
+        font-size: 1.5rem;
+    }
+
+    .form-description {
+        font-size: 0.9rem;
+    }
+
+    .form-content {
+        padding: 1.75rem;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .blur-1, .blur-2 {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-header {
+        padding: 1.5rem;
+    }
+
+    .form-title {
+        font-size: 1.25rem;
+    }
+
+    .form-content {
+        padding: 1.25rem;
+    }
+
+    .alert-wide {
+        margin-left: -1.25rem;
+        margin-right: -1.25rem;
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+}
+</style>
 {% endblock %}

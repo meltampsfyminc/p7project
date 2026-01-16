@@ -85,22 +85,28 @@
 <!-- ===================== -->
 <div class="admin-dashboard">
 
-    <div class="admin-card">
-        <h3>🏢 Admin Buildings</h3>
-        <div class="count">{{ building_count }}</div>
-        <small>Hospitals, Arena, University, Offices</small>
-    </div>
+   <div class="admin-card">
+    <h3>🏢 Admin Buildings</h3>
+    <div class="count">{{ building_count }}</div>
+    <small>Hospitals, Arena, University, Offices</small>
+    <a href="{% url 'admin_core:admin_building_list' %}">
+        View Buildings
+    </a>
+</div>
+
 
     <div class="admin-card">
-        <h3>🏛 Departments</h3>
-        <div class="count">{{ department_count }}</div>
-        <a href="#">Manage Departments</a>
-    </div>
+    <h3>🏛 Departments</h3>
+    <div class="count">{{ department_count }}</div>
+    <a href="{% url 'admin_core:department_list' %}">
+        View Departments
+    </a>
+</div>
 
     <div class="admin-card">
         <h3>🧩 Sections</h3>
         <div class="count">{{ section_count }}</div>
-        <a href="#">Manage Sections</a>
+        <a href="{% url 'admin_core:section_list' %}">Manage Sections</a>
     </div>
 
     <div class="admin-card">
@@ -113,7 +119,7 @@
     <div class="admin-card">
         <h3>🏢 Office Assignments</h3>
         <div class="count">{{ office_assignments }}</div>
-        <small>Currently active</small>
+        <small><a href="{% url 'admin_core:worker_office_list' %}">Currently active</a></small>
     </div>
 
     <div class="admin-card">

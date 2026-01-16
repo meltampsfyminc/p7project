@@ -1,223 +1,839 @@
 {% extends 'properties/base.html' %}
+{% load static %}
 
-{% block title %}{{ building.name }} — Building Details{% endblock %}
+{% block title %}Buildings (Gusali) - Property Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --warning-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        
+        --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+        --card-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.12), 0 3px 8px rgba(0, 0, 0, 0.06);
+        --elevated-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.08);
+        
+        --border-radius-sm: 6px;
+        --border-radius: 10px;
+        --border-radius-lg: 12px;
+        
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+        background: #f8fafc;
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* Stat Cards */
+    .stat-card {
+        border: none;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        transition: var(--transition);
+        background: white;
+        position: relative;
+        box-shadow: var(--card-shadow);
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--card-shadow-hover);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary-gradient);
+        opacity: 0.9;
+    }
+
+    .stat-card.bg-success::before { background: var(--success-gradient); }
+    .stat-card.bg-warning::before { background: var(--warning-gradient); }
+    .stat-card.bg-info::before { background: var(--info-gradient); }
+
+    .stat-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .stat-card h6 {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card h2 {
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 0.25rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-card.bg-success h2 { background: var(--success-gradient); }
+    .stat-card.bg-warning h2 { background: var(--warning-gradient); }
+    .stat-card.bg-info h2 { background: var(--info-gradient); }
+
+    .stat-card .icon-circle {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+    }
+
+    /* Header Section */
+    .header-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: var(--border-radius-lg);
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .header-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(100px, -100px);
+    }
+
+    .header-section h2 {
+        font-weight: 700;
+        font-size: 2.25rem;
+        margin-bottom: 0.75rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .header-section .lead {
+        opacity: 0.9;
+        font-size: 1.15rem;
+        font-weight: 400;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Search Box */
+    .search-box {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--elevated-shadow);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        transition: var(--transition);
+    }
+
+    .search-box:focus-within {
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15), var(--elevated-shadow);
+    }
+
+    .search-box .input-group {
+        border-radius: var(--border-radius-sm);
+        overflow: hidden;
+    }
+
+    .search-box .input-group-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.875rem 1.25rem;
+        font-size: 1rem;
+    }
+
+    .search-box input {
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-left: none;
+        padding: 0.875rem;
+        font-size: 0.95rem;
+        transition: var(--transition);
+    }
+
+    .search-box input:focus {
+        box-shadow: none;
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    /* Filter Card */
+    .filter-card {
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: var(--border-radius);
+        background: white;
+        box-shadow: var(--card-shadow);
+    }
+
+    .filter-card .card-header {
+        background: rgba(248, 250, 252, 0.8);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        padding: 1.25rem 1.5rem;
+    }
+
+    .filter-card .card-header h6 {
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 0;
+    }
+
+    /* Table Styling */
+    .table-container {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--elevated-shadow);
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 1.25rem 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        vertical-align: middle;
+    }
+
+    .table tbody tr {
+        transition: var(--transition);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .table tbody tr:hover {
+        background: linear-gradient(90deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+        transform: scale(1.001);
+    }
+
+    .table tbody td {
+        padding: 1.25rem 1rem;
+        vertical-align: middle;
+        border: none;
+        font-weight: 500;
+    }
+
+    /* Buttons and Actions */
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius-sm);
+        transition: var(--transition);
+        font-size: 0.85rem;
+        font-weight: 500;
+        border: 1px solid transparent;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        transform: translateY(-1px);
+    }
+
+    /* Badges and Status */
+    .badge-gradient {
+        background: var(--secondary-gradient);
+        color: white;
+        border: none;
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 0.5rem 0.875rem;
+    }
+
+    .status-badge {
+        padding: 0.4rem 0.9rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        border: 1px solid transparent;
+    }
+
+    /* Filter Badges */
+    .filter-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Empty State */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+        border-radius: var(--border-radius);
+        border: 2px dashed rgba(102, 126, 234, 0.2);
+    }
+
+    .empty-state i {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Form Controls */
+    .custom-select {
+        border-radius: var(--border-radius-sm);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        padding: 0.75rem 1rem;
+        background: white;
+        transition: var(--transition);
+        font-size: 0.9rem;
+    }
+
+    .custom-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Cost Cell */
+    .cost-cell {
+        font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', monospace;
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.95rem;
+    }
+
+    /* Footer */
+    .card-footer {
+        background: rgba(248, 250, 252, 0.8);
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+        padding: 1.25rem 1.5rem;
+    }
+
+    /* Responsive Improvements */
+    @media (max-width: 768px) {
+        .header-section {
+            padding: 2rem 1.5rem;
+        }
+        
+        .header-section h2 {
+            font-size: 1.75rem;
+        }
+        
+        .stat-card .card-body {
+            padding: 1.25rem;
+        }
+        
+        .table-responsive {
+            font-size: 0.9rem;
+        }
+    }
+
+    /* Animation for filter collapse */
+    .collapse:not(.show) {
+        display: none;
+    }
+
+    .collapsing {
+        transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h2><i class="fas fa-building me-3"></i>Building Management System</h2>
+                <p class="lead mb-0">Manage and track all buildings (Gusali) across districts and locals with comprehensive analytics</p>
+            </div>
+            <div class="col-lg-4 text-lg-end text-start mt-lg-0 mt-3">
+                <a href="{% url 'gusali:building_report' %}" class="btn btn-light me-2 action-btn">
+                    <i class="fas fa-chart-bar me-2"></i>Analytics Dashboard
+                </a>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-plus-circle me-2"></i>Add Building
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'gusali:building_create' %}">Single Entry</a></li>
+                        <li><a class="dropdown-item" href="{% url 'gusali:gusali_csv_upload' %}">Bulk Upload (CSV)</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{% url 'gusali:building_list' %}">Buildings</a>
-            </li>
-            <li class="breadcrumb-item active">
-                {{ building.name }}
-            </li>
-        </ol>
-    </nav>
+    <!-- Search Box -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="search-box">
+                <div class="card-body py-3">
+                    <form method="get" class="row g-2 align-items-center">
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" name="q" class="form-control"
+                                    placeholder="Search buildings by name, district, local, or code..."
+                                    value="{{ search_query }}">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="fas fa-search me-2"></i>Search
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="d-flex align-items-center justify-content-end gap-2">
+                                <span class="text-muted fw-medium">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    {{ buildings.count }} building{{ buildings.count|pluralize }} found
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Header Summary Panel -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h2 class="fw-bold mb-1">
-                        <span class="badge bg-primary me-2">{{ building.code }}</span>
-                        {{ building.name }}
-                    </h2>
-
-                    <div class="text-muted small">
-                        Classification: {{ building.classification|default:"N/A" }}
-                        • Capacity: {{ building.capacity|default:"N/A" }}
-                        • Year Covered: {{ building.year_covered }}
+    <!-- Summary Stats -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted small mb-2">Total Buildings</h6>
+                            <h2 class="mb-0">{{ buildings.count }}</h2>
+                            <small class="text-muted">Across all districts</small>
+                        </div>
+                        <div class="icon-circle">
+                            <i class="fas fa-building"></i>
+                        </div>
                     </div>
                 </div>
-
-                <div class="text-end">
-                    <span class="text-muted small">CURRENT TOTAL COST</span>
-                    <h3 class="text-success fw-bold mb-0">
-                        ₱{{ building.current_total_cost|floatformat:2 }}
-                    </h3>
-                </div>
             </div>
-
         </div>
-    </div>
-
-    <!-- Building Information -->
-    <div class="row g-3 mb-3">
-
-        <!-- Left Info Card -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-light fw-semibold">
-                    <i class="fas fa-info-circle me-2"></i>Building Information
-                </div>
-
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card bg-success">
                 <div class="card-body">
-                    <table class="table table-borderless mb-0">
-                        <tr>
-                            <th width="40%">Building Code</th>
-                            <td>{{ building.code }} — {{ building.get_code_display }}</td>
-                        </tr>
-                        <tr>
-                            <th>Classification</th>
-                            <td>{{ building.classification|default:"—" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Constructor</th>
-                            <td>{{ building.constructor|default:"—" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Capacity</th>
-                            <td>{{ building.capacity|default:"—" }} people</td>
-                        </tr>
-                        <tr>
-                            <th>Local Congregation</th>
-                            <td>{{ building.local|default:"—" }}</td>
-                        </tr>
-                    </table>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted small mb-2">Total Portfolio Value</h6>
+                            <h2 class="mb-0">₱{{ total_cost|floatformat:0|default:"0" }}</h2>
+                            <small class="text-muted">Current market valuation</small>
+                        </div>
+                        <div class="icon-circle" style="background: rgba(79, 172, 254, 0.1); color: #4facfe;">
+                            <i class="fas fa-peso-sign"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Right Donation & Ownership Card -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-light fw-semibold">
-                    <i class="fas fa-gift me-2"></i>Donation & Ownership
-                </div>
-
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card bg-info">
                 <div class="card-body">
-                    <table class="table table-borderless mb-0">
-                        <tr>
-                            <th width="40%">Donation Status</th>
-                            <td>
-                                {% if building.is_donated %}
-                                <span class="badge bg-success">HANDOG (Donated)</span>
-                                {% else %}
-                                <span class="badge bg-secondary">Not Donated</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>Donation Date</th>
-                            <td>{{ building.donation_date|date:"F d, Y"|default:"—" }}</td>
-                        </tr>
-
-                        <tr>
-                            <th>Ownership Transfer</th>
-                            <td>{{ building.ownership_date|date:"F d, Y"|default:"—" }}</td>
-                        </tr>
-
-                        <tr>
-                            <th>Original Construction Cost</th>
-                            <td class="fw-semibold">
-                                ₱{{ building.original_cost|floatformat:2 }}
-                            </td>
-                        </tr>
-                    </table>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted small mb-2">Donated Properties</h6>
+                            <h2 class="mb-0">{{ donated_count|default:"0" }}</h2>
+                            <small class="text-muted">HANDOG initiative</small>
+                        </div>
+                        <div class="icon-circle" style="background: rgba(168, 237, 234, 0.2); color: #10b981;">
+                            <i class="fas fa-hand-holding-heart"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-    </div>
-
-    <!-- Remarks -->
-    {% if building.remarks %}
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light fw-semibold">
-            <i class="fas fa-sticky-note me-2"></i>Remarks
-        </div>
-        <div class="card-body">
-            {{ building.remarks }}
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Yearly Cost Records -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-light fw-semibold d-flex justify-content-between align-items-center">
-            <div>
-                <i class="fas fa-calendar-alt me-2"></i>Yearly Cost Records
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted small mb-2">Active Districts</h6>
+                            <h2 class="mb-0">{{ districts|length }}</h2>
+                            <small class="text-muted">With registered assets</small>
+                        </div>
+                        <div class="icon-circle" style="background: rgba(246, 211, 101, 0.2); color: #f59e0b;">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <a href="{% url 'gusali:yearly_record_create' building.pk %}" class="btn btn-sm btn-primary">
-                <i class="fas fa-plus me-1"></i> Add Yearly Record
-            </a>
         </div>
+    </div>
 
-        <div class="card-body">
+    <!-- Filters Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="filter-card">
+                <div class="card-header py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Advanced Filters</h6>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" 
+                                data-bs-target="#filterCollapse" aria-expanded="true">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse show" id="filterCollapse">
+                    <div class="card-body pt-3">
+                        <form method="get" class="row g-3">
+                            {% if search_query %}
+                            <input type="hidden" name="q" value="{{ search_query }}">
+                            {% endif %}
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                            <div class="col-md-3">
+                                <label class="form-label small text-uppercase text-muted fw-semibold">District</label>
+                                <select name="district" class="form-select custom-select" 
+                                        onchange="this.form.local.value=''; this.form.submit();">
+                                    <option value="">All Districts</option>
+                                    {% for district in districts %}
+                                    <option value="{{ district.dcode }}" 
+                                            {% if current_district == district.dcode %}selected{% endif %}>
+                                        {{ district.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
 
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Year</th>
-                            <th class="text-end">Cost Last Year</th>
-                            <th class="text-end">Construction</th>
-                            <th class="text-end">Renovation</th>
-                            <th class="text-end">Repairs</th>
-                            <th class="text-end">Other Additions</th>
-                            <th class="text-end">Total Added</th>
-                            <th class="text-end">Removed</th>
-                            <th class="text-end">Year End Total</th>
-                            <th class="text-center">Actions</th>
-                        </tr>
-                    </thead>
+                            <div class="col-md-3">
+                                <label class="form-label small text-uppercase text-muted fw-semibold">Local</label>
+                                <select name="local" class="form-select custom-select">
+                                    <option value="">All Locals</option>
+                                    {% for local in locals %}
+                                    <option value="{{ local.lcode }}" 
+                                            {% if current_local == local.lcode %}selected{% endif %}>
+                                        {{ local.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
 
-                    <tbody>
-                        {% for record in yearly_records %}
-                        <tr>
-                            <td><strong>{{ record.year }}</strong></td>
+                            <div class="col-md-2">
+                                <label class="form-label small text-uppercase text-muted fw-semibold">Building Code</label>
+                                <select name="code" class="form-select custom-select">
+                                    <option value="">All Codes</option>
+                                    {% for code, label in code_choices %}
+                                    <option value="{{ code }}" {% if current_code == code %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
 
-                            <td class="text-end">₱{{ record.cost_last_year|floatformat:2 }}</td>
-                            <td class="text-end">₱{{ record.construction_cost|floatformat:2 }}</td>
-                            <td class="text-end">₱{{ record.renovation_cost|floatformat:2 }}</td>
-                            <td class="text-end">₱{{ record.general_repair_cost|floatformat:2 }}</td>
-                            <td class="text-end">₱{{ record.other_additions_cost|floatformat:2 }}</td>
+                            <div class="col-md-2">
+                                <label class="form-label small text-uppercase text-muted fw-semibold">Year</label>
+                                <select name="year" class="form-select custom-select">
+                                    <option value="">All Years</option>
+                                    {% for year in years %}
+                                    <option value="{{ year }}" 
+                                            {% if current_year == year|stringformat:"s" %}selected{% endif %}>
+                                        {{ year }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
 
-                            <td class="text-end text-success fw-semibold">
-                                ₱{{ record.total_added|floatformat:2 }}
-                            </td>
+                            <div class="col-md-2 d-flex align-items-end gap-2">
+                                <button type="submit" class="btn btn-primary flex-grow-1">
+                                    <i class="fas fa-filter me-1"></i>Apply Filters
+                                </button>
+                                <a href="{% url 'gusali:building_list' %}" class="btn btn-outline-secondary" 
+                                   title="Reset all filters">
+                                    <i class="fas fa-redo"></i>
+                                </a>
+                            </div>
+                        </form>
 
-                            <td class="text-end text-danger fw-semibold">
-                                ₱{{ record.broken_removed_cost|floatformat:2 }}
-                            </td>
-
-                            <td class="text-end fw-bold">
-                                ₱{{ record.year_end_total|floatformat:2 }}
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'gusali:yearly_record_update' record.pk %}" class="btn btn-sm btn-outline-info"><i class="fas fa-edit"></i></a>
-                                <a href="{% url 'gusali:yearly_record_delete' record.pk %}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="10" class="text-center text-muted py-4">
-                                No yearly records found.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-
-                </table>
+                        <!-- Active Filters -->
+                        {% if search_query or current_district or current_local or current_code or current_year %}
+                        <div class="mt-4 pt-3 border-top">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <span class="text-muted small fw-medium">Active filters:</span>
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% if search_query %}
+                                    <span class="filter-badge">
+                                        <i class="fas fa-search"></i>
+                                        "{{ search_query }}"
+                                    </span>
+                                    {% endif %}
+                                    {% if current_district %}
+                                    <span class="filter-badge">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ current_district_name|default:current_district }}
+                                    </span>
+                                    {% endif %}
+                                    {% if current_local %}
+                                    <span class="filter-badge" style="background: var(--success-gradient);">
+                                        <i class="fas fa-map-pin"></i>
+                                        {{ current_local_name|default:current_local }}
+                                    </span>
+                                    {% endif %}
+                                    {% if current_code %}
+                                    <span class="filter-badge" style="background: var(--info-gradient);">
+                                        <i class="fas fa-code"></i>
+                                        {{ current_code }}
+                                    </span>
+                                    {% endif %}
+                                    {% if current_year %}
+                                    <span class="filter-badge" style="background: var(--warning-gradient);">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ current_year }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-
         </div>
     </div>
 
-    <!-- Back Button -->
-    <div class="mt-3">
-        <a href="{% url 'gusali:building_list' %}"
-           class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i> Back to Building List
-        </a>
+    <!-- Buildings Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="table-container">
+                <div class="card">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Building Registry</h5>
+                        <div class="d-flex gap-2 align-items-center">
+                            <span class="badge badge-gradient">
+                                {{ buildings.count }} Record{{ buildings.count|pluralize }}
+                            </span>
+                            {% if total_cost %}
+                            <span class="text-muted small fw-medium">
+                                • Total Value: ₱{{ total_cost|floatformat:2 }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Code</th>
+                                        <th>Building Name</th>
+                                        <th>Classification</th>
+                                        <th>Location</th>
+                                        <th>Capacity</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Current Cost</th>
+                                        <th>Year</th>
+                                        <th class="text-center pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for building in buildings %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <span class="badge bg-primary rounded-pill px-3 py-1 fw-medium">
+                                                {{ building.code }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong class="text-dark">{{ building.name }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">{{ building.classification|default:"-" }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="location-info">
+                                                <small class="text-muted d-block">
+                                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                                    {% if building.local and building.local.district %}
+                                                    {{ building.local.name }}, {{ building.local.district.name }}
+                                                    {% else %}
+                                                    <span class="text-danger">Location not set</span>
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if building.capacity %}
+                                            <span class="badge bg-info rounded-pill px-3 py-1">
+                                                {{ building.capacity }}
+                                            </span>
+                                            {% else %}
+                                            <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if building.is_donated %}
+                                            <span class="status-badge" style="background: linear-gradient(135deg, #4ade80 0%, #22d3ee 100%); color: white;">
+                                                <i class="fas fa-gift me-1"></i>HANDOG
+                                            </span>
+                                            {% else %}
+                                            <span class="status-badge bg-secondary text-white">
+                                                Standard
+                                            </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end cost-cell">
+                                            ₱{{ building.current_total_cost|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">
+                                                {{ building.year_covered }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center pe-4">
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="{% url 'gusali:building_detail' building.pk %}" class="btn btn-sm btn-outline-primary action-btn" title="View Details"><i class="fas fa-eye"></i></a>
+                                                <a href="{% url 'gusali:building_update' building.pk %}" class="btn btn-sm btn-outline-info action-btn" title="Edit Building"><i class="fas fa-edit"></i></a>
+                                                <a href="{% url 'gusali:building_delete' building.pk %}" class="btn btn-sm btn-outline-danger action-btn" title="Delete Building"><i class="fas fa-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="9">
+                                            <div class="empty-state">
+                                                <i class="fas fa-building mb-3"></i>
+                                                <h4 class="mb-2">No Buildings Found</h4>
+                                                <p class="text-muted mb-4">
+                                                    {% if search_query or current_district or current_local %}
+                                                    Try adjusting your search criteria or filters
+                                                    {% else %}
+                                                    Start by uploading your first GUSALI report to begin managing your building portfolio
+                                                    {% endif %}
+                                                </p>
+                                                <div class="d-flex gap-3 justify-content-center">
+                                                    {% if search_query or current_district or current_local %}
+                                                    <a href="{% url 'gusali:building_list' %}" 
+                                                       class="btn btn-primary">
+                                                        <i class="fas fa-redo me-2"></i>Clear Filters
+                                                    </a>
+                                                    {% endif %}
+                                                    <a href="{% url 'gusali:building_upload' %}" 
+                                                       class="btn btn-success">
+                                                        <i class="fas fa-upload me-2"></i>Upload Report
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% if buildings %}
+                    <div class="card-footer py-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <small class="text-muted fw-medium">
+                                    Showing {{ buildings.count }} building{{ buildings.count|pluralize }}
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Last updated: {{ request.timestamp|date:"M d, Y H:i"|default:"Recently" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-
 </div>
+
+<!-- Enhanced JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced table row interactions
+    const tableRows = document.querySelectorAll('tbody tr');
+    tableRows.forEach(row => {
+        if (row.querySelector('a[href]')) {
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', function(e) {
+                // Don't trigger if user clicked on action buttons
+                if (!e.target.closest('.action-btn')) {
+                    const link = row.querySelector('a[href]');
+                    if (link) window.location.href = link.href;
+                }
+            });
+        }
+    });
+
+    // Search input enhancements
+    const searchInput = document.querySelector('input[name="q"]');
+    if (searchInput) {
+        searchInput.addEventListener('focus', function() {
+            this.parentElement.parentElement.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.2)';
+        });
+        
+        searchInput.addEventListener('blur', function() {
+            this.parentElement.parentElement.style.boxShadow = '';
+        });
+
+        // Add debounced search if needed
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                this.form.submit();
+            }, 500);
+        });
+    }
+
+    // Smooth animations for stat cards
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Enhanced filter collapse animation
+    const filterCollapse = document.getElementById('filterCollapse');
+    if (filterCollapse) {
+        filterCollapse.addEventListener('show.bs.collapse', function() {
+            this.style.transition = 'height 0.3s ease';
+        });
+    }
+});
+</script>
 {% endblock %}

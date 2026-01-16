@@ -1,66 +1,141 @@
-/* ============================= */
-/* DASHBOARD LAYOUT */
-/* ============================= */
+/* ===============================
+   ADMIN VOLT – BASE THEME
+   =============================== */
 
-.dashboard-container {
-    padding: 20px;
+/* Font */
+body, input, textarea, select {
+    font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #111827;
+    background-color: #f4f6f9;
 }
 
-.dashboard-title {
-    font-size: 22px;
-    margin-bottom: 20px;
-    color: #006400;
+/* Top Header */
+#header {
+    background: #0f172a; /* Slate 900 */
+    color: #f8fafc;
+    border-bottom: none;
 }
 
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 20px;
+#site-name a {
+    color: #e5e7eb;
+    font-weight: 600;
+    letter-spacing: 0.3px;
 }
 
-/* ============================= */
-/* DASHBOARD TILE */
-/* ============================= */
+#user-tools {
+    color: #cbd5f5;
+}
 
-.dashboard-tile {
+/* Breadcrumbs */
+.breadcrumbs {
+    background: #1e293b;
+    color: #cbd5e1;
+    border: none;
+}
+
+/* ===============================
+   LEFT SIDEBAR
+   =============================== */
+
+#nav-sidebar {
+    background: #0f172a;
+    border-right: none;
+}
+
+#nav-sidebar .module caption {
+    background: transparent;
+    color: #94a3b8;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 12px 16px;
+}
+
+/* Sidebar links */
+#nav-sidebar a {
+    color: #e5e7eb !important;
+    font-weight: 500;
+    opacity: 1;
+}
+
+/* Submenu clarity (FIX BLUR ISSUE) */
+#nav-sidebar .module ul li a {
+    color: #cbd5e1 !important;
+    opacity: 1;
+}
+
+#nav-sidebar .module ul li a:hover {
+    background: #1e293b;
+    color: #ffffff !important;
+}
+
+/* Active link */
+#nav-sidebar .current-model a,
+#nav-sidebar .current-app > a {
+    background: #2563eb;
+    color: #ffffff !important;
+    border-radius: 6px;
+}
+
+/* Add buttons */
+#nav-sidebar .addlink {
+    color: #22c55e !important;
+}
+
+/* ===============================
+   CONTENT AREA
+   =============================== */
+
+#content {
+    background: #f8fafc;
+    padding: 24px;
+}
+
+/* Headings */
+h1, h2, h3 {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+/* ===============================
+   TABLES
+   =============================== */
+
+.change-list table {
     background: #ffffff;
-    border-radius: 8px;
-    padding: 25px 15px;
-    text-align: center;
-    text-decoration: none;
-    color: #000;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: all 0.2s ease-in-out;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
 }
 
-.dashboard-tile:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
-
-.dashboard-tile.danger {
-    border-left: 6px solid #b22222;
-}
-
-.tile-icon {
-    font-size: 36px;
-    margin-bottom: 10px;
-    color: #006400;
-}
-
-.dashboard-tile.danger .tile-icon {
-    color: #b22222;
-}
-
-.tile-label {
-    font-size: 16px;
+thead th {
+    background: #f1f5f9;
+    color: #334155;
     font-weight: 600;
 }
 
-/* ============================= */
-/* DEFAULT ADMIN BELOW */
-/* ============================= */
+tbody tr:hover {
+    background: #f8fafc;
+}
 
-.admin-default {
-    margin-top: 40px;
+/* ===============================
+   BUTTONS
+   =============================== */
+
+.button, .submit-row input, .default {
+    background: #2563eb;
+    border-radius: 8px;
+    padding: 6px 14px;
+    border: none;
+    font-weight: 500;
+}
+
+.button:hover {
+    background: #1d4ed8;
+}
+
+/* Danger / delete */
+.deletelink {
+    color: #ef4444 !important;
 }

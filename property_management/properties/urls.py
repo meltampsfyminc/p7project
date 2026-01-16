@@ -41,9 +41,7 @@ urlpatterns = [
     path("locals/", views.local_list, name="local_list"),
     path("locals/add/", views.local_create, name="local_create"),
     path("locals/<int:pk>/edit/", views.local_update, name="local_update"),
-    path(
-    "locals/next-lcode/",
-    views.get_next_lcode,
-    name="next_lcode"
-),
+    path("locals/next-lcode/",views.get_next_lcode,name="next_lcode"),
+    path("districts/<str:dcode>/locals/", views.local_list, name="local_list"),
+   
 ]

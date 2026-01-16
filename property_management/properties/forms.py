@@ -1,10 +1,10 @@
 
 from django import forms
-from .models import Property, HousingUnit, PropertyInventory, ItemTransfer, District, Local, DistrictProperty, DistrictInventory, LocalProperty, LocalInventory, UserProfile, BackupCode, ImportedFile
+from .models import Pamayanan, HousingUnit, HousingUnitInventory, ItemTransfer, District, Local, DistrictProperty, DistrictInventory, LocalProperty, LocalInventory, UserProfile, BackupCode, ImportedFile
 
 class PropertyForm(forms.ModelForm):
     class Meta:
-        model = Property
+        model = Pamayanan
         fields = '__all__'
 
 class HousingUnitForm(forms.ModelForm):
@@ -12,9 +12,9 @@ class HousingUnitForm(forms.ModelForm):
         model = HousingUnit
         fields = '__all__'
 
-class PropertyInventoryForm(forms.ModelForm):
+class HousingUnitInventoryForm(forms.ModelForm):
     class Meta:
-        model = PropertyInventory
+        model = HousingUnitInventory
         fields = '__all__'
 
 class ItemTransferForm(forms.ModelForm):
@@ -66,17 +66,6 @@ class ImportedFileForm(forms.ModelForm):
     class Meta:
         model = ImportedFile
         fields = '__all__'
-
-from django import forms
-from .models import District, Local
-
-
-from django import forms
-from .models import District
-
-
-from django import forms
-from .models import District
 
 
 class DistrictForm(forms.ModelForm):

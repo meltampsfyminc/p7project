@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, reverse
+from django.utils.html import format_html
 
 from admin_core.views import merge_conflict_view
 from .models import (
@@ -7,19 +8,19 @@ from .models import (
     Section,
     AdminBuilding,
     Office,
-    SyncRun,
     Worker,
     WorkerOfficeAssignment,
     HousingUnitAssignment,
+    HousingSite,
+    HousingBuilding,
+    HousingUnit,
     SyncConflict,
-    ConflictFieldDecision,
+    SyncRun,
 )
 
-from django.utils.html import format_html
-
-# ==========================
+# =====================================================
 # A. DEPARTMENT & SECTION
-# ==========================
+# =====================================================
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
@@ -36,9 +37,9 @@ class SectionAdmin(admin.ModelAdmin):
     ordering = ("department__name", "name")
 
 
-# ==========================
+# =====================================================
 # B. ADMIN BUILDINGS & OFFICES
-# ==========================
+# =====================================================
 
 class OfficeInline(admin.TabularInline):
     model = Office
@@ -62,9 +63,9 @@ class OfficeAdmin(admin.ModelAdmin):
     ordering = ("building__name", "name")
 
 
-# ==========================
+# =====================================================
 # C. WORKERS
-# ==========================
+# =====================================================
 
 class WorkerOfficeAssignmentInline(admin.TabularInline):
     model = WorkerOfficeAssignment
@@ -105,9 +106,9 @@ class WorkerAdmin(admin.ModelAdmin):
     inlines = [WorkerOfficeAssignmentInline, HousingUnitAssignmentInline]
 
 
-# ==========================
+# =====================================================
 # D. ASSIGNMENTS
-# ==========================
+# =====================================================
 
 @admin.register(WorkerOfficeAssignment)
 class WorkerOfficeAssignmentAdmin(admin.ModelAdmin):
@@ -122,26 +123,47 @@ class HousingUnitAssignmentAdmin(admin.ModelAdmin):
     list_filter = ("is_current",)
     ordering = ("-start_date",)
 
-@admin.register(ConflictFieldDecision)
-class ConflictFieldDecisionAdmin(admin.ModelAdmin):
-    list_display = ("conflict", "field_name", "decision", "created_at")
-    list_filter = ("decision",)
-    search_fields = ("field_name",)
+
+# =====================================================
+# E. HOUSING (PAMAYANAN)
+# =====================================================
+
+@admin.register(HousingSite)
+class HousingSiteAdmin(admin.ModelAdmin):
+    list_display = ("name", "is_multi_building", "created_at")
+    search_fields = ("name",)
+    ordering = ("name",)
 
 
-# ==========================
-# E. SYNC CONFLICTS
-# ==========================
+@admin.register(HousingBuilding)
+class HousingBuildingAdmin(admin.ModelAdmin):
+    list_display = ("site", "name", "created_at")
+    list_filter = ("site",)
+    search_fields = ("name", "site__name")
+    ordering = ("site__name", "name")
+
+
+@admin.register(HousingUnit)
+class HousingUnitAdmin(admin.ModelAdmin):
+    list_display = ("site", "building", "unit_label", "floor")
+    list_filter = ("site", "building")
+    search_fields = ("unit_label", "site__name", "building__name")
+    ordering = ("site__name", "building__name", "unit_label")
+
+
+# =====================================================
+# F. SYNC CONFLICTS
+# =====================================================
+
 @admin.register(SyncConflict)
 class SyncConflictAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "conflict_type",
         "severity",
-        "identity_hash",
-        "resolved",
+        "resolve_link",
+        "identity_hash_short",
         "created_at",
-        "resolved_at",
     )
 
     list_filter = (
@@ -183,123 +205,21 @@ class SyncConflictAdmin(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
+    @admin.display(description="Action")
+    def resolve_link(self, obj):
+        if obj.resolved:
+            return format_html("<span style='color:green;'>✔ Resolved</span>")
+        url = reverse("admin:admin_core_syncconflict_merge", args=[obj.id])
+        return format_html('<a class="button" href="{}">Resolve</a>', url)
 
-@admin.display(description="Action")
-def resolve_link(self, obj):
-    if obj.resolved:
-        return format_html("<span style='color:green;'>✔ Resolved</span>")
-
-    return format_html(
-        '<a class="button" style="background:#417690;color:white;" href="merge/">Resolve</a>'
-    )
-    
-# ==========================
-# F. SYNC RUN AUDIT LOG
-# ==========================
-from django.contrib import admin
-from django.utils.html import format_html
-from .models import SyncRun
+    @admin.display(description="Hash")
+    def identity_hash_short(self, obj):
+        return obj.identity_hash[:12] + "..." if obj.identity_hash else ""
 
 
-
-class SyncRunAdmin2(admin.ModelAdmin):
-    list_display = (
-        "id",
-        "status",
-        "started_at",
-        "finished_at",
-        "duration_ms",
-        "conflicts_detected",
-        "conflict_link",
-    )
-
-    list_filter = (
-        "status",
-        "source",
-        "started_at",
-    )
-
-    search_fields = (
-        "id",
-        "triggered_by",
-        "notes",
-    )
-
-    ordering = ("-started_at",)
-
-    readonly_fields = (
-        "source",
-        "triggered_by",
-        "status",
-        "started_at",
-        "finished_at",
-        "duration_ms",
-        "departments_created",
-        "sections_created",
-        "workers_created",
-        "buildings_created",
-        "offices_created",
-        "assignments_created",
-        "conflicts_detected",
-        "notes",
-        "created_at",
-    )
-
-    fieldsets = (
-        ("Sync Metadata", {
-            "fields": (
-                "source",
-                "triggered_by",
-                "status",
-            )
-        }),
-        ("Timing", {
-            "fields": (
-                "started_at",
-                "finished_at",
-                "duration_ms",
-            )
-        }),
-        ("Results Summary", {
-            "fields": (
-                "departments_created",
-                "sections_created",
-                "workers_created",
-                "buildings_created",
-                "offices_created",
-                "assignments_created",
-                "conflicts_detected",
-            )
-        }),
-        ("Notes", {
-            "fields": ("notes",),
-        }),
-    )
-
-    # 🔗 CLICKABLE LINK TO CONFLICTS
-    @admin.display(description="Conflicts")
-    def conflict_link(self, obj):
-        if obj.conflicts_detected == 0:
-            return "—"
-        url = (
-            f"/admin/admin_core/syncconflict/"
-            f"?sync_run__id__exact={obj.id}"
-        )
-        return format_html(
-            '<a href="{}">View ({})</a>',
-            url,
-            obj.conflicts_detected
-        )
-
-    # 🔒 READ-ONLY ADMIN
-    def has_add_permission(self, request):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
+# =====================================================
+# G. SYNC RUN AUDIT LOG
+# =====================================================
 
 @admin.register(SyncRun)
 class SyncRunAdmin(admin.ModelAdmin):
@@ -308,66 +228,52 @@ class SyncRunAdmin(admin.ModelAdmin):
         "status",
         "started_at",
         "finished_at",
-        "duration_ms",
+        "duration_display",
         "conflicts_detected",
-        "conflicts_link",
     )
 
     list_filter = (
         "status",
-        "source",
         "started_at",
     )
 
     search_fields = (
         "id",
-        "triggered_by",
         "notes",
     )
 
     ordering = ("-started_at",)
 
     readonly_fields = (
-        "source",
-        "triggered_by",
         "status",
         "started_at",
         "finished_at",
-        "duration_ms",
-        "departments_created",
-        "sections_created",
+        "duration_display",
+        "housing_sites_created",
+        "housing_buildings_created",
+        "housing_units_created",
         "workers_created",
-        "buildings_created",
-        "offices_created",
-        "assignments_created",
         "conflicts_detected",
         "notes",
-        "created_at",
     )
 
     fieldsets = (
-        ("Sync Metadata", {
-            "fields": (
-                "source",
-                "triggered_by",
-                "status",
-            )
+        ("Status", {
+            "fields": ("status",),
         }),
         ("Timing", {
             "fields": (
                 "started_at",
                 "finished_at",
-                "duration_ms",
+                "duration_display",
             )
         }),
-        ("Results Summary", {
+        ("Results", {
             "fields": (
-                "departments_created",
-                "sections_created",
+                "housing_sites_created",
+                "housing_buildings_created",
+                "housing_units_created",
                 "workers_created",
-                "buildings_created",
-                "offices_created",
-                "assignments_created",
                 "conflicts_detected",
             )
         }),
@@ -376,16 +282,12 @@ class SyncRunAdmin(admin.ModelAdmin):
         }),
     )
 
-    @admin.display(description="Conflicts")
-    def conflicts_link(self, obj):
-        if obj.conflicts_detected == 0:
-            return "—"
-
-        url = (
-            "/admin/admin_core/syncconflict/"
-            f"?sync_run__id__exact={obj.id}"
-        )
-        return f'<a href="{url}">View ({obj.conflicts_detected})</a>'
+    @admin.display(description="Duration")
+    def duration_display(self, obj):
+        if obj.finished_at and obj.started_at:
+            delta = obj.finished_at - obj.started_at
+            return f"{delta.total_seconds():.2f}s"
+        return "—"
 
     def has_add_permission(self, request):
         return False

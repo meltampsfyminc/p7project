@@ -4,22 +4,129 @@
 {% block content %}
 <div class="dashboard-container">
 
-    <h1 class="dashboard-title">System Control Panel</h1>
+    <h1 class="dashboard-title">
+        <i class="fa-solid fa-gauge-high"></i>
+        System Control Panel
+    </h1>
+
+    <!-- ============================= -->
+    <!-- CORE ADMIN MODULE -->
+    <!-- ============================= -->
+    <h2 class="dashboard-section">
+        <i class="fa-solid fa-users-gear"></i>
+        Administration Core
+    </h2>
 
     <div class="dashboard-grid">
 
-        {% for app in app_list %}
-            {% for model in app.models %}
-                <a href="{{ model.admin_url }}" class="dashboard-tile">
-                    <div class="tile-icon">🗂️</div>
-                    <div class="tile-content">
-                        <div class="tile-title">{{ model.name }}</div>
-                        <div class="tile-app">{{ app.name }}</div>
-                    </div>
-                </a>
-            {% endfor %}
-        {% endfor %}
+        <a href="{% url 'admin:admin_core_worker_changelist' %}" class="dashboard-tile">
+            <div class="tile-icon"><i class="fa-solid fa-users"></i></div>
+            <div class="tile-label">Workers</div>
+        </a>
+
+        <a href="{% url 'admin:admin_core_department_changelist' %}" class="dashboard-tile">
+            <div class="tile-icon"><i class="fa-solid fa-sitemap"></i></div>
+            <div class="tile-label">Departments</div>
+        </a>
+
+        <a href="{% url 'admin:admin_core_office_changelist' %}" class="dashboard-tile">
+            <div class="tile-icon"><i class="fa-solid fa-building-user"></i></div>
+            <div class="tile-label">Offices</div>
+        </a>
+
+        <a href="{% url 'admin:admin_core_adminbuilding_changelist' %}" class="dashboard-tile">
+            <div class="tile-icon"><i class="fa-solid fa-building"></i></div>
+            <div class="tile-label">Admin Buildings</div>
+        </a>
+
+        <a href="{% url 'admin:admin_core_syncrun_changelist' %}" class="dashboard-tile">
+            <div class="tile-icon"><i class="fa-solid fa-arrows-rotate"></i></div>
+            <div class="tile-label">Sync Runs</div>
+        </a>
+
+        <a href="{% url 'admin:admin_core_syncconflict_changelist' %}" class="dashboard-tile danger">
+            <div class="tile-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="tile-label">Conflicts</div>
+        </a>
 
     </div>
+
+    <!-- ============================= -->
+    <!-- PROPERTIES / HOUSING -->
+    <!-- ============================= -->
+    <h2 class="dashboard-section">
+        <i class="fa-solid fa-house"></i>
+        Housing & Properties
+    </h2>
+
+    <div class="dashboard-grid">
+
+        <a href="{% url 'admin:properties_pamayanan_changelist' %}" class="dashboard-tile">
+            <div class="tile-icon"><i class="fa-solid fa-building"></i></div>
+            <div class="tile-label">Housing / Buildings</div>
+        </a>
+
+        <a href="{% url 'admin:properties_housingunit_changelist' %}" class="dashboard-tile">
+            <div class="tile-icon"><i class="fa-solid fa-door-open"></i></div>
+            <div class="tile-label">Housing Units</div>
+        </a>
+
+        <a href="{% url 'admin:properties_housingunitinventory_changelist' %}" class="dashboard-tile">
+            <div class="tile-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+            <div class="tile-label">Unit Inventory</div>
+        </a>
+
+    </div>
+
+   <!-- ============================= -->
+<!-- NATIONAL INVENTORY MODULES -->
+<!-- ============================= -->
+<h2 class="dashboard-section">
+    <i class="fa-solid fa-warehouse"></i>
+    National Assets & Inventory
+</h2>
+
+<div class="dashboard-grid">
+
+    <a href="{% url 'admin:kagamitan_item_changelist' %}" class="dashboard-tile">
+        <div class="tile-icon"><i class="fa-solid fa-toolbox"></i></div>
+        <div class="tile-label">Kagamitan</div>
+    </a>
+
+    <a href="{% url 'admin:gusali_building_changelist' %}" class="dashboard-tile">
+        <div class="tile-icon"><i class="fa-solid fa-city"></i></div>
+        <div class="tile-label">Gusali</div>
+    </a>
+
+    <a href="{% url 'admin:lupa_land_changelist' %}" class="dashboard-tile">
+        <div class="tile-icon"><i class="fa-solid fa-mountain"></i></div>
+        <div class="tile-label">Lupa</div>
+    </a>
+
+    <a href="{% url 'admin:plants_plant_changelist' %}" class="dashboard-tile">
+        <div class="tile-icon"><i class="fa-solid fa-seedling"></i></div>
+        <div class="tile-label">Plants</div>
+    </a>
+
+    <a href="{% url 'admin:vehicles_vehicle_changelist' %}" class="dashboard-tile">
+        <div class="tile-icon"><i class="fa-solid fa-truck"></i></div>
+        <div class="tile-label">Vehicles</div>
+    </a>
+
+</div>
+
+
+    <!-- ============================= -->
+    <!-- DEFAULT DJANGO ADMIN (SAFE) -->
+    <!-- ============================= -->
+    <h2 class="dashboard-section">
+        <i class="fa-solid fa-list"></i>
+        All Models (Default Admin)
+    </h2>
+
+    <div class="admin-default">
+        {{ block.super }}
+    </div>
+
 </div>
 {% endblock %}

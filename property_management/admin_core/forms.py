@@ -1,3 +1,5 @@
+# admin_core/forms.py
+
 from django import forms
 from django.forms import modelformset_factory
 
@@ -79,6 +81,10 @@ class SectionForm(forms.ModelForm):
 # 👤 WORKERS
 # =====================================================
 
+# =====================================================
+# 👤 WORKERS
+# =====================================================
+
 class WorkerForm(forms.ModelForm):
     class Meta:
         model = Worker
@@ -91,14 +97,9 @@ class WorkerForm(forms.ModelForm):
             "mwa_type",
             "marital_status",
             "employment_status",
-            "date_started",
-            "date_ended",
             "remarks",
         ]
-        widgets = {
-            "date_started": forms.DateInput(attrs={"type": "date"}),
-            "date_ended": forms.DateInput(attrs={"type": "date"}),
-        }
+        # Remove the date widgets since Worker model doesn't have date fields
 
     def clean(self):
         cleaned = super().clean()
@@ -123,6 +124,7 @@ class WorkerForm(forms.ModelForm):
             raise forms.ValidationError("Widow must be widowed.")
 
         return cleaned
+
 
 
 # =====================================================

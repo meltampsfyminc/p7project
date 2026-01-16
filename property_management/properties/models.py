@@ -218,13 +218,15 @@ class ImportedFile(models.Model):
         return f"{self.filename} ({self.records_imported} records)"
 
 
-class Property(models.Model):
+class Pamayanan(models.Model):
     """Model for property/building management.
     
     Represents a physical building or property asset.
     Example: 'Abra Building' owned by the church
     """
     
+        
+        
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('inactive', 'Inactive'),
@@ -300,11 +302,12 @@ class Property(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+ 
     class Meta:
+        db_table = "properties_pamayanan"
         ordering = ['-created_at']
-        verbose_name = 'Property/Building'
-        verbose_name_plural = 'Properties/Buildings'
-    
+        verbose_name = "Pamayanan"
+        verbose_name_plural = "Pamayanan"
     def __str__(self):
         return f"{self.name} ({self.owner})"
     
@@ -312,6 +315,31 @@ class Property(models.Model):
         """Get count of active housing units in this property"""
         return self.housing_units.count()
 
+
+class PamayananBuilding(models.Model):
+    pamayanan = models.ForeignKey(
+        Pamayanan,
+        on_delete=models.CASCADE,
+        related_name="buildings"
+    )
+
+    name = models.CharField(
+        max_length=150,
+        help_text="Building name (e.g. Building 1, New Star)"
+    )
+
+    description = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Pamayanan Building"
+        verbose_name_plural = "Pamayanan Buildings"
+        unique_together = ("pamayanan", "name")
+        ordering = ["pamayanan", "name"]
+
+    def __str__(self):
+        return f"{self.pamayanan.name} - {self.name}"
 
 class HousingUnit(models.Model):
     """Model for housing unit information.
@@ -321,15 +349,20 @@ class HousingUnit(models.Model):
     """
     
     # Link to Property/Building
-    property = models.ForeignKey(
-        Property,
+    pamayanan = models.ForeignKey(
+        Pamayanan,
         on_delete=models.CASCADE,
-        related_name='housing_units',
-        null=True,
-        blank=True,
-        help_text="The building/property this unit belongs to"
+        related_name="housing_units"
     )
     
+    building = models.ForeignKey(
+        PamayananBuilding,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="housing_units",
+        help_text="Required for condos/high-rise, blank for housing areas"
+    )
     # Unit Information
     unit_number = models.CharField(
         max_length=100,
@@ -381,102 +414,73 @@ class HousingUnit(models.Model):
     
     class Meta:
         ordering = ['-date_reported']
-        verbose_name = 'Housing Unit'
-        verbose_name_plural = 'Housing Units'
-    
+        verbose_name = "Housing Unit (Pamayanan)"
+        verbose_name_plural = "Housing Units (Pamayanan)"
+
     def __str__(self):
-        if self.property:
-            return f"{self.property.name} - Unit {self.unit_number} ({self.occupant_name})"
-        return f"Unit {self.unit_number} - {self.occupant_name}"
+        parts = []
+        if self.pamayanan:
+          parts.append(self.pamayanan.name)
+        if self.building:
+          parts.append(self.building.name)
+          parts.append(f"Unit {self.unit_number}")
+        if self.occupant_name:
+          parts.append(f"({self.occupant_name})")
+    
+        return " - ".join(parts)
+
     
     def save(self, *args, **kwargs):
         """Auto-generate housing_unit_name if not provided"""
         if not self.housing_unit_name:
             self.housing_unit_name = f"Unit {self.unit_number}"
         
-        if not self.address and self.property:
-            self.address = self.property.address
+        if not self.address and self.pamayanan:
+            self.address = self.pamayanan.address
         
         super().save(*args, **kwargs)
 
+class HousingUnitInventory(models.Model):
+    """
+    Inventory items assigned to a specific housing unit (Pamayanan).
+    """
 
-class PropertyInventory(models.Model):
-    """Model for tracking inventory items within a housing unit."""
-    
-    housing_unit = models.ForeignKey(HousingUnit, on_delete=models.CASCADE, related_name='inventory_items')
-    
-    # Item Identification
-    item_code = models.CharField(max_length=50, blank=True, null=True, help_text="IIN (Item Identification Number)")
-    date_acquired = models.DateField(help_text="Date when item was acquired")
-    
-    # Item Details
+    housing_unit = models.ForeignKey(
+        HousingUnit,
+        on_delete=models.CASCADE,
+        related_name="inventories"
+    )
+
+    item_code = models.CharField(max_length=50, blank=True, null=True)
+    date_acquired = models.DateField()
     quantity = models.IntegerField(default=1)
-    item_name = models.CharField(max_length=255, help_text="Name of item (e.g., Sofa bed)")
-    
-    # Description Fields
+    item_name = models.CharField(max_length=255)
+
     brand = models.CharField(max_length=255, blank=True)
     model = models.CharField(max_length=255, blank=True)
-    make = models.CharField(max_length=255, blank=True, help_text="Material composition")
+    make = models.CharField(max_length=255, blank=True)
     color = models.CharField(max_length=100, blank=True)
-    size = models.CharField(max_length=100, blank=True, help_text="Size/Dimension")
+    size = models.CharField(max_length=100, blank=True)
     serial_number = models.CharField(max_length=255, blank=True)
-    
-    # Financial Fields
-    acquisition_cost = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, help_text="Original acquisition cost (PHP)")
-    useful_life = models.IntegerField(default=5, help_text="Useful life in years")
-    net_book_value = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, help_text="Current net book value after depreciation (PHP)")
-    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, help_text="Total value in PHP (acquisition_cost × quantity)")
-    
-    remarks = models.TextField(blank=True, help_text="e.g., 'fr. Bodega-maayos'")
-    
+
+    acquisition_cost = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    useful_life = models.IntegerField(default=5)
+    net_book_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    remarks = models.TextField(blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
-        ordering = ['housing_unit', 'item_name']
-        verbose_name = 'Property Inventory'
-        verbose_name_plural = 'Property Inventory'
-        indexes = [
-            models.Index(fields=['housing_unit', 'item_name']),
-        ]
-    
+        db_table = "properties_housingunitinventory"
+        ordering = ["housing_unit", "item_name"]
+        verbose_name = "Housing Unit Inventory"
+        verbose_name_plural = "Housing Unit Inventories"
+
     def __str__(self):
-        return f"{self.housing_unit.housing_unit_name} - {self.item_name} (Qty: {self.quantity})"
-    
-    def calculate_amount(self):
-        """Calculate total amount (acquisition_cost × quantity)"""
-        from decimal import Decimal
-        return (self.acquisition_cost or Decimal('0.00')) * (self.quantity or 0)
-    
-    def calculate_depreciation(self):
-        """Calculate depreciation and net book value using straight-line method
-        
-        Formula:
-        - Annual Depreciation = Acquisition Cost / Useful Life
-        - Net Book Value = Acquisition Cost - Annual Depreciation
-        """
-        from decimal import Decimal
-        
-        if not self.acquisition_cost or self.useful_life <= 0:
-            return Decimal('0.00')
-        
-        # Annual depreciation (assuming no salvage value)
-        annual_depreciation = self.acquisition_cost / self.useful_life
-        
-        # Net book value after one year of depreciation
-        net_book_value = max(Decimal('0.00'), self.acquisition_cost - annual_depreciation)
-        
-        return net_book_value * (self.quantity or 1)
-    
-    def save(self, *args, **kwargs):
-        """Auto-calculate amount and net_book_value before saving"""
-        # Calculate amount: acquisition_cost × quantity
-        self.amount = self.calculate_amount()
-        
-        # Calculate net book value with depreciation
-        self.net_book_value = self.calculate_depreciation()
-        
-        super().save(*args, **kwargs)
+        return f"{self.housing_unit} – {self.item_name}"
 
 
 class ItemTransfer(models.Model):
@@ -498,7 +502,7 @@ class ItemTransfer(models.Model):
     ]
     
     # Item Information
-    inventory_item = models.ForeignKey(PropertyInventory, on_delete=models.CASCADE, related_name='transfers')
+    inventory_item = models.ForeignKey(HousingUnitInventory, on_delete=models.CASCADE, related_name='transfers')
     
     # Transfer Details
     transfer_type = models.CharField(max_length=20, choices=TRANSFER_TYPE_CHOICES, default='unit_to_unit')

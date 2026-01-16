@@ -10,7 +10,10 @@ from django.utils.timezone import now
 import qrcode
 from io import BytesIO
 import base64
-from .models import Property, HousingUnit, PropertyInventory, UserProfile, ImportedFile, ItemTransfer, District, Local
+
+from admin_core.models import Worker
+from gusali.models import Building
+from .models import Pamayanan, HousingUnit, HousingUnitInventory, UserProfile, ImportedFile, ItemTransfer, District, Local
 from django.db.models import Sum, Q, Count
 from django.core.management import call_command
 import os
@@ -22,6 +25,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import District, Local
 from .forms import DistrictForm, LocalForm
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 def get_client_ip(request):
     """Get client IP address from request"""
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -124,9 +128,9 @@ def dashboard(request):
     
     # Get statistics
     housing_units = HousingUnit.objects.count()
-    inventory_items = PropertyInventory.objects.count()
+    inventory_items = HousingUnitInventory.objects.count()
     imported_files = ImportedFile.objects.count()
-    properties = Property.objects.count()
+    properties = Pamayanan.objects.count()
     
     # Get transfer statistics
     transfers = ItemTransfer.objects.count()
@@ -226,7 +230,7 @@ def view_backup_codes(request):
 @login_required(login_url='properties:login')
 def property_list(request):
     """Display list of properties and housing units."""
-    properties = Property.objects.all()
+    properties = Pamayanan.objects.all()
     housing_units = HousingUnit.objects.all()
     
     # Get properties with their occupant counts
@@ -250,7 +254,7 @@ def property_list(request):
 
 @login_required(login_url='properties:login')
 def inventory_list(request):
-    inventory_items = PropertyInventory.objects.select_related('housing_unit').all()
+    inventory_items = HousingUnitInventory.objects.select_related('housing_unit').all()
 
     housing_unit_id = request.GET.get('housing_unit')
 
@@ -355,7 +359,6 @@ def upload_file(request):
 
 
 @login_required(login_url='properties:login')
-@login_required(login_url='properties:login')
 def import_history(request):
     """Display import history"""
     imported_files = ImportedFile.objects.all().order_by('-imported_at')
@@ -374,7 +377,7 @@ def housing_unit_detail(request, pk):
     except HousingUnit.DoesNotExist:
         return render(request, 'properties/404.html', status=404)
     
-    inventory_items = PropertyInventory.objects.filter(housing_unit=housing_unit)
+    inventory_items = HousingUnitInventory.objects.filter(housing_unit=housing_unit)
     
     context = {
         'housing_unit': housing_unit,
@@ -387,7 +390,7 @@ def housing_unit_detail(request, pk):
 def building_occupants(request, property_id):
     """Display all occupants in a specific property/building"""
     # Get the property
-    property_obj = get_object_or_404(Property, id=property_id)
+    property_obj = get_object_or_404(Pamayanan, id=property_id)
     
     # Get all housing units in the property
     housing_units = HousingUnit.objects.filter(property=property_obj).order_by('housing_unit_name')
@@ -461,7 +464,7 @@ def transfer_create(request):
             quantity = int(request.POST.get('quantity', 1))
             
             # Get the inventory item from source unit
-            inventory_item = PropertyInventory.objects.get(id=inventory_item_id)
+            inventory_item = HousingUnitInventory.objects.get(id=inventory_item_id)
             
             # Validate quantity
             if quantity > inventory_item.quantity:
@@ -482,7 +485,7 @@ def transfer_create(request):
                 to_unit = HousingUnit.objects.get(id=to_unit_id)
                 
                 # Check if this item already exists in the destination unit
-                existing_item = PropertyInventory.objects.filter(
+                existing_item = HousingUnitInventory.objects.filter(
                     housing_unit=to_unit,
                     item_name=inventory_item.item_name
                 ).first()
@@ -494,7 +497,7 @@ def transfer_create(request):
                 else:
                     # Create new inventory record in destination unit
                     # Copy the item details but with new unit and quantity
-                    new_item = PropertyInventory(
+                    new_item = HousingUnitInventory(
                         housing_unit=to_unit,
                         item_code=inventory_item.item_code,
                         date_acquired=inventory_item.date_acquired,
@@ -529,7 +532,7 @@ def transfer_create(request):
             
             messages.success(request, f'Item transfer created successfully! Inventory updated.')
             return redirect('properties:transfer_detail', pk=transfer.id)
-        except PropertyInventory.DoesNotExist:
+        except HousingUnitInventory.DoesNotExist:
             messages.error(request, 'Inventory item not found')
             return redirect('properties:transfer_create')
         except HousingUnit.DoesNotExist:
@@ -543,7 +546,7 @@ def transfer_create(request):
             return redirect('properties:transfer_create')
     
     # GET request - show form
-    inventory_items = PropertyInventory.objects.select_related('housing_unit').all()
+    inventory_items = HousingUnitInventory.objects.select_related('housing_unit').all()
     housing_units = HousingUnit.objects.all()
     
     context = {
@@ -579,7 +582,7 @@ def transfer_history(request):
         transfers = transfers.filter(inventory_item_id=inventory_item_id)
     
     # Get all inventory items for filter dropdown
-    inventory_items = PropertyInventory.objects.all()
+    inventory_items = HousingUnitInventory.objects.all()
     
     context = {
         'transfers': transfers,
@@ -647,7 +650,7 @@ def housing_search(request):
 
     if query:
         # Search buildings by name only
-        buildings = Property.objects.filter(name__icontains=query)
+        buildings = Pamayanan.objects.filter(name__icontains=query)
 
         # Search workers / occupants by name only
         units = HousingUnit.objects.select_related('property') \
@@ -661,7 +664,7 @@ def housing_search(request):
 @login_required
 def building_map(request, pk):
     """Visualizes housing units in a grid layout (Map-like table)"""
-    building = get_object_or_404(Property, pk=pk)
+    building = get_object_or_404(Pamayanan, pk=pk)
     # Get units and group by Floor/Unit Number
     units_list = HousingUnit.objects.filter(property=building).order_by('floor', 'housing_unit_name')
     
@@ -719,8 +722,35 @@ def housing_unit_delete(request, pk):
 
 @login_required
 def district_list(request):
-    districts = District.objects.all().order_by("name")
-    return render(request, "properties/district_list.html", {"districts": districts})
+    # Get all districts
+    districts_list = District.objects.all().order_by('dcode')
+    
+    # Pagination - 10 items per page
+    paginator = Paginator(districts_list, 10)
+    page = request.GET.get('page')
+    
+    try:
+        districts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page
+        districts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range, deliver last page
+        districts = paginator.page(paginator.num_pages)
+    
+    # Get totals for statistics
+    total_locals = Local.objects.count()
+    total_buildings = Building.objects.count()
+    total_workers = Worker.objects.count()
+    
+    context = {
+        'districts': districts,
+        'total_locals': total_locals,
+        'total_buildings': total_buildings,
+        'total_workers': total_workers,
+    }
+    
+    return render(request, 'properties/district_list.html', context)
 
 
 @login_required

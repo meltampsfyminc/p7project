@@ -1,0 +1,57 @@
+/* DASHBOARD CARDS */
+.dashboard-card {
+    background: var(--surface-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+}
+.dashboard-card:hover {
+    box-shadow: var(--shadow-md);
+}
+.dashboard-card h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+}
+
+/* MODALS */
+.modal {
+    background: var(--surface-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    padding: var(--space-2xl);
+    max-width: 600px;
+    margin: auto;
+}
+.modal-header {
+    font-weight: 600;
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-lg);
+}
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-md);
+}
+
+/* TOOLTIPS */
+.tooltip {
+    background: var(--nerio-primary);
+    color: var(--text-inverse);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    box-shadow: var(--shadow-sm);
+}
+
+/* DARK MODE */
+[data-theme="dark"] {
+    --surface-primary: #1e293b;
+    --surface-secondary: #0f172a;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --border-primary: #334155;
+}
