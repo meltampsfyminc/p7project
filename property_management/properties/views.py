@@ -12,6 +12,7 @@ from io import BytesIO
 import base64
 
 from admin_core.models import Worker
+from admin_core.services.sync import run_admin_core_sync
 from gusali.models import Building
 from .models import Pamayanan, HousingUnit, HousingUnitInventory, UserProfile, ImportedFile, ItemTransfer, District, Local
 from django.db.models import Sum, Q, Count
@@ -276,86 +277,155 @@ def inventory_list(request):
     return render(request, 'properties/inventory_list.html', context)
 
 
-@login_required(login_url='properties:login')
+@login_required(login_url="properties:login")
 def upload_file(request):
-    """Handle file upload and automatic import"""
-    if request.method == 'POST':
-        uploaded_file = request.FILES.get('file')
-        
+    """
+    Handle file upload, import inventory,
+    and automatically sync to admin_core.
+    """
+
+    if request.method == "POST":
+        uploaded_file = request.FILES.get("file")
+
         if not uploaded_file:
-            return JsonResponse({'success': False, 'message': 'No file provided'}, status=400)
-        
-        # Validate file extension
-        allowed_extensions = ['.xls', '.xlsx', '.pdf']
-        file_ext = os.path.splitext(uploaded_file.name)[1].lower()
-        
-        if file_ext not in allowed_extensions:
-            return JsonResponse({
-                'success': False,
-                'message': f'File type not allowed. Allowed types: {", ".join(allowed_extensions)}'
-            }, status=400)
-        
-        # Create uploads directory if it doesn't exist
-        uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+            return JsonResponse(
+                {"success": False, "message": "No file provided"},
+                status=400,
+            )
+
+        # -------------------------------------------------
+        # Validate extension
+        # -------------------------------------------------
+        allowed_extensions = [".xls", ".xlsx"]
+        ext = os.path.splitext(uploaded_file.name)[1].lower()
+
+        if ext not in allowed_extensions:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": f"Invalid file type. Allowed: {', '.join(allowed_extensions)}",
+                },
+                status=400,
+            )
+
+        # -------------------------------------------------
+        # Save file safely
+        # -------------------------------------------------
+        uploads_dir = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            "uploads",
+        )
         os.makedirs(uploads_dir, exist_ok=True)
-        
-        # Sanitize filename to prevent path traversal
-        base_name = os.path.basename(uploaded_file.name)
-        safe_basename = get_valid_filename(base_name)
-        unique_filename = f"{uuid.uuid4().hex[:8]}-{safe_basename}"
-        file_path = os.path.join(uploads_dir, unique_filename)
-        
+
+        safe_name = get_valid_filename(uploaded_file.name)
+        unique_name = f"{uuid.uuid4().hex[:8]}-{safe_name}"
+        file_path = os.path.join(uploads_dir, unique_name)
+
         try:
-            with open(file_path, 'wb+') as destination:
+            with open(file_path, "wb+") as f:
                 for chunk in uploaded_file.chunks():
-                    destination.write(chunk)
+                    f.write(chunk)
         except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': f'Error saving file: {str(e)}'
-            }, status=500)
-        
-        # Run import command
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": f"Failed to save file: {e}",
+                },
+                status=500,
+            )
+
+        # -------------------------------------------------
+        # Run inventory import
+        # -------------------------------------------------
         output = StringIO()
+
         try:
-            call_command('import_inventory', file_path, stdout=output, stderr=output)
-            output_text = output.getvalue()
-            
-            # Check if file was already imported
-            if 'FILE ALREADY IMPORTED' in output_text:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'File already imported. Use force flag to re-import.',
-                    'details': output_text
-                }, status=409)
-            
-            # Check for successful import
-            if 'IMPORT COMPLETE' in output_text and 'Error' not in output_text:
-                return JsonResponse({
-                    'success': True,
-                    'message': 'File imported successfully!',
-                    'details': output_text
-                })
-            else:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Import completed with errors',
-                    'details': output_text
-                }, status=400)
-                
+            call_command(
+                "import_inventory",
+                file_path,
+                stdout=output,
+                stderr=output,
+            )
         except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': f'Error importing file: {str(e)}'
-            }, status=500)
-    
-    # GET request - show upload form
-    imported_files = ImportedFile.objects.all().order_by('-imported_at')
-    
-    context = {
-        'imported_files': imported_files,
-    }
-    return render(request, 'properties/upload_file.html', context)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": f"Import failed: {e}",
+                },
+                status=500,
+            )
+
+        output_text = output.getvalue()
+
+        # -------------------------------------------------
+        # Duplicate detection
+        # -------------------------------------------------
+        if "FILE ALREADY IMPORTED" in output_text:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "File already imported.",
+                    "details": output_text,
+                },
+                status=409,
+            )
+
+        # -------------------------------------------------
+        # Import success → trigger admin_core sync
+        # -------------------------------------------------
+        if "IMPORT COMPLETE" in output_text:
+            try:
+                sync_run = run_admin_core_sync(
+                    source="properties_upload",
+                    triggered_by=request.user.username,
+                )
+            except Exception as e:
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "message": "Import succeeded but sync failed.",
+                        "details": str(e),
+                    },
+                    status=500,
+                )
+
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": "File imported and Admin Core synced successfully.",
+                    "details": output_text,
+                    "sync": {
+                        "sync_run_id": sync_run.id,
+                        "status": sync_run.status,
+                        "conflicts": sync_run.conflicts_detected,
+                    },
+                }
+            )
+
+        # -------------------------------------------------
+        # Partial / error case
+        # -------------------------------------------------
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Import completed with errors.",
+                "details": output_text,
+            },
+            status=400,
+        )
+
+    # -----------------------------------------------------
+    # GET → upload page
+    # -----------------------------------------------------
+    imported_files = ImportedFile.objects.all().order_by("-imported_at")
+
+    return render(
+        request,
+        "properties/upload_file.html",
+        {
+            "imported_files": imported_files,
+        },
+    )
 
 
 @login_required(login_url='properties:login')

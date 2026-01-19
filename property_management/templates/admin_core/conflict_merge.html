@@ -1,0 +1,55 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>Resolve Conflict</h1>
+
+<p>
+<strong>Type:</strong> {{ conflict.conflict_type }} <br>
+<strong>Severity:</strong> {{ conflict.severity }} <br>
+<strong>Detected:</strong> {{ conflict.created_at }}
+</p>
+
+<form method="post">
+{% csrf_token %}
+
+<table class="adminlist" style="width:100%;">
+<thead>
+<tr>
+    <th>Field</th>
+    <th>Existing Value</th>
+    <th>Incoming Value</th>
+    <th>Decision</th>
+</tr>
+</thead>
+<tbody>
+{% for field, incoming_value in incoming.items %}
+<tr>
+    <td><strong>{{ field }}</strong></td>
+    <td>{{ existing|get_item:field }}</td>
+    <td>{{ incoming_value }}</td>
+    <td>
+        <label>
+            <input type="radio" name="{{ field }}" value="existing" checked>
+            Keep Existing
+        </label><br>
+        <label>
+            <input type="radio" name="{{ field }}" value="incoming">
+            Use Incoming
+        </label>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<div style="margin-top:20px;">
+    <button class="default" type="submit">
+        Resolve Conflict
+    </button>
+    <a href="/admin/admin_core/syncconflict/" class="button cancel-link">
+        Cancel
+    </a>
+</div>
+</form>
+
+{% endblock %}

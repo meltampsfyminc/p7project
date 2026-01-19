@@ -1,8 +1,12 @@
+from datetime import timezone
 from django.forms import modelformset_factory
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
+
+from admin_core.services.sync import run_admin_core_sync
 
 from .forms import (
     DepartmentFormSet, HousingUnitAssignmentForm, OfficeForm, 
@@ -12,11 +16,11 @@ from .forms import (
 )
 from .models import (
     AdminBuilding, Department, HousingUnitAssignment, Office, 
-    Section, Worker, WorkerOfficeAssignment, SyncConflict, 
+    Section, SyncRun, Worker, WorkerOfficeAssignment, SyncConflict, 
     ConflictFieldDecision
 )
 from .services.conflict_resolver import ConflictResolver
-
+from django.contrib.admin.views.decorators import staff_member_required
 
 # ==========================
 # DASHBOARD
@@ -24,8 +28,9 @@ from .services.conflict_resolver import ConflictResolver
 
 @login_required
 def dashboard(request):
-    # Core counts
-    building_count = AdminBuilding.objects.count()
+    # -------------------------
+    # CORE COUNTS
+    # -------------------------
     department_count = Department.objects.count()
     section_count = Section.objects.count()
 
@@ -40,12 +45,23 @@ def dashboard(request):
         is_current=True
     ).count()
 
-    # Worker breakdown
+    # -------------------------
+    # SYNC METRICS
+    # -------------------------
+    latest_sync = SyncRun.objects.order_by("-started_at").first()
+
+    sync_total = SyncRun.objects.count()
+    sync_failed = SyncRun.objects.filter(status="failed").count()
+    sync_partial = SyncRun.objects.filter(status="partial").count()
+    sync_success = SyncRun.objects.filter(status="success").count()
+
+    # -------------------------
+    # WORKER BREAKDOWN
+    # -------------------------
     worker_by_category = (
         Worker.objects
         .values("category")
         .annotate(total=Count("id"))
-        .order_by("category")
     )
 
     mwa_breakdown = (
@@ -53,22 +69,31 @@ def dashboard(request):
         .filter(category="MWA")
         .values("mwa_type")
         .annotate(total=Count("id"))
-        .order_by("mwa_type")
     )
 
     context = {
-        "building_count": building_count,
+        # core
         "department_count": department_count,
         "section_count": section_count,
         "worker_total": worker_total,
         "worker_active": worker_active,
         "office_assignments": office_assignments,
         "housing_assigned": housing_assigned,
+
+        # sync
+        "latest_sync": latest_sync,
+        "sync_total": sync_total,
+        "sync_failed": sync_failed,
+        "sync_partial": sync_partial,
+        "sync_success": sync_success,
+
+        # breakdowns
         "worker_by_category": worker_by_category,
         "mwa_breakdown": mwa_breakdown,
     }
 
     return render(request, "admin_core/dashboard.html", context)
+
 
 
 # ==========================
@@ -767,43 +792,94 @@ def mass_offices(request):
         {"formset": formset},
     )
 
-
 # ==========================
 # SYNC CONFLICT MERGE VIEW
 # ==========================
-
-from django.contrib.admin.views.decorators import staff_member_required
-
 
 @staff_member_required
 def merge_conflict_view(request, conflict_id):
     conflict = get_object_or_404(SyncConflict, pk=conflict_id)
 
-    fields = conflict.incoming_payload.keys()
+    # Parsed payloads (stored as text → dict)
+    existing = eval(conflict.existing_value)
+    incoming = eval(conflict.incoming_value)
+
+    # Identify affected worker if exists
+    worker = conflict.worker
 
     if request.method == "POST":
-        merge_map = {}
+        decisions = {}
 
-        for field in fields:
-            decision = request.POST.get(field)
+        for field in incoming.keys():
+            choice = request.POST.get(field)
+            if choice not in ("existing", "incoming"):
+                continue
+
             ConflictFieldDecision.objects.update_or_create(
                 conflict=conflict,
                 field_name=field,
-                defaults={"decision": decision},
+                defaults={"decision": choice}
             )
-            merge_map[field] = decision
 
-        ConflictResolver.merge(conflict, request.user, merge_map)
+            decisions[field] = (
+                existing.get(field)
+                if choice == "existing"
+                else incoming.get(field)
+            )
+
+        # -------------------------
+        # APPLY RESOLUTION
+        # -------------------------
+        if conflict.conflict_type == "WORKER_IDENTITY" and worker:
+            for field, value in decisions.items():
+                setattr(worker, field, value)
+            worker.save()
+
+        elif conflict.conflict_type == "HOUSING_ASSIGNMENT" and worker:
+            HousingUnitAssignment.objects.filter(
+                worker=worker,
+                is_current=True
+            ).update(is_current=False)
+
+            HousingUnitAssignment.objects.create(
+                worker=worker,
+                housing_unit_id=decisions["housing_unit_id"],
+                is_current=True
+            )
+
+        # -------------------------
+        # MARK RESOLVED
+        # -------------------------
+        conflict.resolved = True
+        conflict.resolved_at = timezone.now()
+        conflict.save()
+
         messages.success(request, "Conflict resolved successfully.")
-        return redirect("admin:admin_core_syncconflict_changelist")
+        return redirect("/admin/admin_core/syncconflict/")
+
+    context = {
+        "conflict": conflict,
+        "existing": existing,
+        "incoming": incoming,
+    }
 
     return render(
         request,
-        "admin_core/merge_conflict.html",
-        {
-            "conflict": conflict,
-            "fields": fields,
-            "existing": conflict.existing_snapshot,
-            "incoming": conflict.incoming_payload,
-        },
+        "admin_core/conflict_merge.html",
+        context
     )
+
+
+
+@staff_member_required
+def sync_now(request):
+    sync_run = run_admin_core_sync(
+        source="manual_api",
+        triggered_by=request.user.username
+    )
+
+    return JsonResponse({
+        "status": sync_run.status,
+        "sync_run_id": sync_run.id,
+        "conflicts": sync_run.conflicts_detected,
+    })

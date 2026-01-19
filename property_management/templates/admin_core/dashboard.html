@@ -220,7 +220,49 @@
     <h3>🧭 Mass Encode Office Assignments</h3>
     <a href="{% url 'admin_core:office_assignment_bulk_add' %}">Start</a>
 </div>
+    </div>
+</div>
+<!-- ===================== -->
+<!-- SYNC SUMMARY -->
+<!-- ===================== -->
+<div class="section-box">
+    <h2>🔄 Synchronization Status</h2>
 
+    <div class="admin-dashboard">
+
+        <div class="admin-card">
+            <h3>📦 Total Sync Runs</h3>
+            <div class="count">{{ sync_total }}</div>
+        </div>
+
+        <div class="admin-card">
+            <h3>✅ Successful</h3>
+            <div class="count">{{ sync_success }}</div>
+        </div>
+
+        <div class="admin-card">
+            <h3>⚠ Partial</h3>
+            <div class="count">{{ sync_partial }}</div>
+            <small>Requires review</small>
+            {% if sync_partial %}
+                <a href="/admin/admin_core/syncconflict/">View Conflicts</a>
+            {% endif %}
+        </div>
+
+        <div class="admin-card">
+            <h3>❌ Failed</h3>
+            <div class="count">{{ sync_failed }}</div>
+        </div>
+
+        {% if latest_sync %}
+        <div class="admin-card">
+            <h3>🕒 Last Sync</h3>
+            <small>
+                {{ latest_sync.started_at|date:"M d, Y H:i" }}<br>
+                Status: <strong>{{ latest_sync.status|title }}</strong>
+            </small>
+        </div>
+        {% endif %}
 
     </div>
 </div>
