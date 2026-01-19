@@ -1,9 +1,10 @@
 from datetime import timezone
 from django.forms import modelformset_factory
-from django.http import JsonResponse
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.db.models import Count, Q
 
 from admin_core.services.sync import run_admin_core_sync
@@ -883,3 +884,63 @@ def sync_now(request):
         "sync_run_id": sync_run.id,
         "conflicts": sync_run.conflicts_detected,
     })
+    
+@login_required
+def sync_dashboard(request):
+    latest_run = SyncRun.objects.first()
+
+    context = {
+        "latest_run": latest_run,
+        "total_runs": SyncRun.objects.count(),
+        "open_conflicts": SyncConflict.objects.filter(resolved=False).count(),
+        "critical_conflicts": SyncConflict.objects.filter(
+            resolved=False, severity="critical"
+        ).count(),
+        "last_success": SyncRun.objects.filter(status="success").first(),
+    }
+
+    return render(request, "admin_core/sync_dashboard.html", context)    
+
+@login_required
+def conflict_list(request):
+    conflicts = SyncConflict.objects.filter(resolved=False).order_by("-created_at")
+
+    return render(request, "admin_core/conflict_list.html", {
+        "conflicts": conflicts
+    })
+
+@login_required
+def conflict_detail(request, pk):
+    conflict = get_object_or_404(SyncConflict, pk=pk)
+
+    existing = conflict.existing_value
+    incoming = conflict.incoming_value
+
+    return render(request, "admin_core/conflict_detail.html", {
+        "conflict": conflict,
+        "existing": existing,
+        "incoming": incoming,
+    })
+
+@login_required
+@transaction.atomic
+def conflict_resolve(request, pk):
+    conflict = get_object_or_404(SyncConflict, pk=pk)
+
+    decision = request.POST.get("decision")
+    if decision not in ("existing", "incoming"):
+        return HttpResponseBadRequest("Invalid decision")
+
+    ConflictFieldDecision.objects.create(
+        conflict=conflict,
+        field_name="__ALL__",
+        decision=decision,
+    )
+
+    conflict.resolved = True
+    conflict.resolved_at = timezone.now()
+    conflict.resolution_notes = f"Resolved by {request.user.username}"
+    conflict.save()
+
+    messages.success(request, "Conflict resolved successfully.")
+    return redirect("admin_core:conflict_list")

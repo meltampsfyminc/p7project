@@ -1,0 +1,32 @@
+{% extends "properties/base.html" %}
+
+{% block content %}
+<h1>🧩 Conflict #{{ conflict.id }}</h1>
+
+<p><strong>Type:</strong> {{ conflict.conflict_type }}</p>
+<p><strong>Severity:</strong> {{ conflict.severity }}</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;">
+
+    <div class="admin-card">
+        <h3>📌 Existing</h3>
+        <pre>{{ existing }}</pre>
+    </div>
+
+    <div class="admin-card">
+        <h3>📥 Incoming</h3>
+        <pre>{{ incoming }}</pre>
+    </div>
+
+</div>
+
+<form method="post" action="{% url 'admin_core:conflict_resolve' conflict.id %}">
+    {% csrf_token %}
+    <button name="decision" value="existing" class="btn-enterprise btn-outline">
+        Keep Existing
+    </button>
+    <button name="decision" value="incoming" class="btn-enterprise btn-success">
+        Use Incoming
+    </button>
+</form>
+{% endblock %}

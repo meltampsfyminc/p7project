@@ -1,8 +1,11 @@
-from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
 
-from properties.models import Pamayanan, PamayananBuilding, HousingUnit as SourceHousingUnit
+from properties.models import (
+    Pamayanan,
+    HousingUnit as SourceHousingUnit,
+)
+
 from admin_core.models import (
     HousingSite,
     HousingBuilding,
@@ -16,141 +19,160 @@ from admin_core.models import (
 )
 
 
-class Command(BaseCommand):
-    help = "Sync housing and occupants data from properties into admin_core"
+def run_sync(triggered_by="properties_import"):
+    """
+    Canonical admin_core sync service.
+    Safe to call from:
+    - signals
+    - views / API
+    - celery
+    """
 
-    def handle(self, *args, **options):
-        start_time = timezone.now()
-        sync_run = SyncRun.objects.create(
-            source="properties_sync",
-            started_at=start_time,
-            status="success",
-        )
+    start_time = timezone.now()
 
-        counters = {
-            "housing_sites": 0,
-            "housing_buildings": 0,
-            "housing_units": 0,
-            "workers": 0,
-            "assignments": 0,
-            "conflicts": 0,
-        }
+    sync_run = SyncRun.objects.create(
+        source="properties_sync",
+        triggered_by=triggered_by,
+        started_at=start_time,
+        status="success",
+    )
 
-        try:
-            with transaction.atomic():
-                self.stdout.write("🔄 Syncing Housing Sites...")
+    counters = {
+        "housing_sites": 0,
+        "housing_buildings": 0,
+        "housing_units": 0,
+        "workers": 0,
+        "assignments": 0,
+        "conflicts": 0,
+    }
 
-                pamayanans = Pamayanan.objects.all()
+    try:
+        with transaction.atomic():
 
-                for pam in pamayanans:
-                    site, created = HousingSite.objects.get_or_create(
-                        name=pam.name,
-                        defaults={
-                            "address": pam.address,
-                            "is_multi_building": pam.buildings.exists(),
-                        },
-                    )
-                    if created:
-                        counters["housing_sites"] += 1
+            # =====================================================
+            # 1. SYNC HOUSING SITES & BUILDINGS
+            # =====================================================
+            pamayanans = Pamayanan.objects.prefetch_related("buildings")
 
-                    # Buildings (if any)
-                    for b in pam.buildings.all():
-                        building, b_created = HousingBuilding.objects.get_or_create(
-                            site=site,
-                            name=b.name,
-                        )
-                        if b_created:
-                            counters["housing_buildings"] += 1
+            for pam in pamayanans:
+                site, site_created = HousingSite.objects.get_or_create(
+                    name=pam.name,
+                    defaults={
+                        "address": pam.address,
+                        "is_multi_building": pam.buildings.exists(),
+                    },
+                )
+                if site_created:
+                    counters["housing_sites"] += 1
 
-                self.stdout.write("🏠 Syncing Housing Units...")
-
-                for src_unit in SourceHousingUnit.objects.select_related(
-                    "pamayanan", "building"
-                ):
-                    site = HousingSite.objects.get(name=src_unit.pamayanan.name)
-
-                    building = None
-                    if src_unit.building:
-                        building = HousingBuilding.objects.get(
-                            site=site,
-                            name=src_unit.building.name,
-                        )
-
-                    unit_label = src_unit.housing_unit_name or f"Unit {src_unit.unit_number}"
-
-                    unit, created = HousingUnit.objects.get_or_create(
+                for b in pam.buildings.all():
+                    building, b_created = HousingBuilding.objects.get_or_create(
                         site=site,
-                        building=building,
-                        unit_label=unit_label,
-                        defaults={"floor": src_unit.floor or ""},
+                        name=b.name,
                     )
-                    if created:
-                        counters["housing_units"] += 1
+                    if b_created:
+                        counters["housing_buildings"] += 1
 
-                    # -------- Worker --------
-                    if not src_unit.occupant_name:
-                        continue
+            # =====================================================
+            # 2. SYNC HOUSING UNITS + WORKERS
+            # =====================================================
+            source_units = SourceHousingUnit.objects.select_related(
+                "pamayanan", "building"
+            )
 
-                    names = src_unit.occupant_name.strip().split()
-                    if len(names) < 2:
-                        continue
+            for src in source_units:
+                site = HousingSite.objects.get(name=src.pamayanan.name)
 
-                    first_name = names[0]
-                    last_name = names[-1]
-                    middle_name = " ".join(names[1:-1]) if len(names) > 2 else ""
-
-                    worker = Worker(
-                        first_name=first_name,
-                        middle_name=middle_name,
-                        last_name=last_name,
-                        category="MWA",
+                building = None
+                if src.building:
+                    building = HousingBuilding.objects.get(
+                        site=site,
+                        name=src.building.name,
                     )
-                    identity_hash = worker.generate_identity_hash()
 
-                    existing = Worker.objects.filter(identity_hash=identity_hash).first()
+                unit_label = src.housing_unit_name or src.unit_number
 
-                    if not existing:
-                        worker.identity_hash = identity_hash
-                        worker.save()
-                        existing = worker
-                        counters["workers"] += 1
+                unit, unit_created = HousingUnit.objects.get_or_create(
+                    site=site,
+                    building=building,
+                    unit_label=unit_label,
+                    defaults={"floor": src.floor or ""},
+                )
+                if unit_created:
+                    counters["housing_units"] += 1
 
-                    # -------- Department / Section --------
-                    department = None
-                    if src_unit.department:
-                        department, _ = Department.objects.get_or_create(
-                            name=src_unit.department.strip()
-                        )
+                # ------------------------------
+                # Worker Extraction
+                # ------------------------------
+                if not src.occupant_name:
+                    continue
 
-                    if src_unit.section and department:
-                        Section.objects.get_or_create(
-                            department=department,
-                            name=src_unit.section.strip(),
-                        )
+                parts = src.occupant_name.strip().split()
+                if len(parts) < 2:
+                    continue
 
-                    # -------- Assignment --------
-                    assignment, a_created = HousingUnitAssignment.objects.get_or_create(
-                        worker=existing,
-                        housing_unit=unit,
-                        is_current=True,
-                        defaults={
-                            "start_date": src_unit.date_reported or timezone.now().date()
-                        },
+                first_name = parts[0]
+                last_name = parts[-1]
+                middle_name = " ".join(parts[1:-1]) if len(parts) > 2 else ""
+
+                temp_worker = Worker(
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    last_name=last_name,
+                    category="MWA",
+                )
+                identity_hash = temp_worker.generate_identity_hash()
+
+                worker = Worker.objects.filter(identity_hash=identity_hash).first()
+                if not worker:
+                    temp_worker.identity_hash = identity_hash
+                    temp_worker.save()
+                    worker = temp_worker
+                    counters["workers"] += 1
+
+                # ------------------------------
+                # Department & Section
+                # ------------------------------
+                department = None
+                if src.department:
+                    department, _ = Department.objects.get_or_create(
+                        name=src.department.strip()
                     )
-                    if a_created:
-                        counters["assignments"] += 1
 
-        except Exception as e:
-            sync_run.status = "failed"
-            sync_run.notes = str(e)
-            raise
+                if src.section and department:
+                    Section.objects.get_or_create(
+                        department=department,
+                        name=src.section.strip(),
+                    )
 
-        sync_run.finished_at = timezone.now()
-        sync_run.duration_ms = int(
-            (sync_run.finished_at - start_time).total_seconds() * 1000
-        )
-        sync_run.conflicts_detected = counters["conflicts"]
-        sync_run.notes = f"Synced {counters}"
-        sync_run.save()
+                # ------------------------------
+                # Housing Assignment
+                # ------------------------------
+                assignment, created = HousingUnitAssignment.objects.get_or_create(
+                    worker=worker,
+                    housing_unit=unit,
+                    is_current=True,
+                    defaults={
+                        "start_date": src.date_reported or timezone.now().date()
+                    },
+                )
+                if created:
+                    counters["assignments"] += 1
 
-        self.stdout.write(self.style.SUCCESS("✅ admin_core sync complete"))
+    except Exception as e:
+        sync_run.status = "failed"
+        sync_run.notes = str(e)
+        raise
+
+    # =====================================================
+    # FINALIZE SYNC RUN
+    # =====================================================
+    sync_run.finished_at = timezone.now()
+    sync_run.duration_ms = int(
+        (sync_run.finished_at - start_time).total_seconds() * 1000
+    )
+    sync_run.conflicts_detected = counters["conflicts"]
+    sync_run.notes = f"Synced: {counters}"
+    sync_run.save()
+
+    return sync_run

@@ -60,4 +60,8 @@ urlpatterns = [
     # Conflict Resolution
     path("conflicts/<int:conflict_id>/merge/", views.merge_conflict_view, name="merge_conflict"),
     path("sync/", views.sync_now, name="sync_now"),
+    path("sync/dashboard/", views.sync_dashboard, name="sync_dashboard"),
+    path("sync/conflicts/", views.conflict_list, name="conflict_list"),
+    path("sync/conflicts/<int:pk>/", views.conflict_detail, name="conflict_detail"),
+    path("sync/conflicts/<int:pk>/resolve/", views.conflict_resolve, name="conflict_resolve"),
 ]

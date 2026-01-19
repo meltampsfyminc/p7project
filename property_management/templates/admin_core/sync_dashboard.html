@@ -1,0 +1,74 @@
+{% extends "properties/base.html" %}
+
+{% block title %}Sync Dashboard{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom:1.5rem;">🔄 Admin Core Sync</h1>
+
+<div class="admin-dashboard">
+
+    <!-- LAST SYNC -->
+    <div class="admin-card">
+        <h3>🕒 Last Sync</h3>
+        <div class="count">
+            {% if latest_run %}
+                {{ latest_run.started_at|date:"M d, Y H:i" }}
+            {% else %}
+                —
+            {% endif %}
+        </div>
+        <small>Status: {{ latest_run.status|default:"N/A" }}</small>
+    </div>
+
+    <!-- DURATION -->
+    <div class="admin-card">
+        <h3>⏱ Duration</h3>
+        <div class="count">
+            {% if latest_run and latest_run.duration_ms %}
+                {{ latest_run.duration_ms }} ms
+            {% else %}
+                —
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- CONFLICTS -->
+    <div class="admin-card">
+        <h3>⚠ Conflicts</h3>
+        <div class="count">{{ open_conflicts }}</div>
+        <small>
+            {% if critical_conflicts %}
+                <span style="color:#dc2626;">{{ critical_conflicts }} critical</span>
+            {% else %}
+                No critical conflicts
+            {% endif %}
+        </small>
+        {% if open_conflicts %}
+        <a href="/admin/admin_core/syncconflict/">Resolve Conflicts</a>
+        {% endif %}
+    </div>
+
+    <!-- RUNS -->
+    <div class="admin-card">
+        <h3>📊 Sync Runs</h3>
+        <div class="count">{{ total_runs }}</div>
+        <small>Total executions</small>
+    </div>
+
+</div>
+
+{% if latest_run %}
+<div class="section-box">
+    <h2>🧾 Last Sync Summary</h2>
+
+    <ul style="line-height:1.9;">
+        <li><strong>Status:</strong> {{ latest_run.status }}</li>
+        <li><strong>Started:</strong> {{ latest_run.started_at }}</li>
+        <li><strong>Finished:</strong> {{ latest_run.finished_at }}</li>
+        <li><strong>Conflicts:</strong> {{ latest_run.conflicts_detected }}</li>
+        <li><strong>Notes:</strong> {{ latest_run.notes }}</li>
+    </ul>
+</div>
+{% endif %}
+
+{% endblock %}
