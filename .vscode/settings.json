@@ -1,4 +1,7 @@
 {
     "python-envs.pythonProjects": [],
-    "CodeGPT.apiKey": "Ollama"
+    "CodeGPT.apiKey": "Ollama",
+    "python.analysis.extraPaths": [
+        "./property_management"
+    ]
 }
